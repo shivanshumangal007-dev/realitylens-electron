@@ -2,23 +2,21 @@ import { motion } from "motion/react";
 import { Eye, Mail, Lock } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useState } from "react";
-import { loginHandler } from "../ApiHandler";
-import Cookies from "js-cookie";
-
-const Login = () => {
+import { registerHandler } from "../ApiHandler";
+const Register = () => {
 	const navigate = useNavigate();
+	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
-	const handleLogin = (e: React.FormEvent) => {
+	const handleRegister = (e: React.FormEvent) => {
 		e.preventDefault();
-		loginHandler(email, password)
-			.then((res) => {
-				navigate("/");
-				Cookies.set("token", res.data.token, { expires: 7 });
+		registerHandler(name, email, password)
+			.then(() => {
+				navigate("/login");
 			})
 			.catch((error) => {
-				console.error("Login error:", error);
+				console.error("Registration error:", error);
 			});
 	};
 
@@ -79,11 +77,29 @@ const Login = () => {
 						</motion.p>
 					</div>
 
-					{/* Login form */}
+					{/* Register form */}
 					<form
-						onSubmit={handleLogin}
+						onSubmit={handleRegister}
 						className='space-y-4'
 					>
+						<motion.div
+							initial={{ opacity: 0, x: -20 }}
+							animate={{ opacity: 1, x: 0 }}
+							transition={{ delay: 0.5 }}
+						>
+							<label className='block text-sm mb-2'>Name</label>
+							<div className='relative'>
+								<Mail className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
+								<input
+									type='name'
+									value={name}
+									onChange={(e) => setName(e.target.value)}
+									placeholder='John Doe'
+									className='w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all'
+									required
+								/>
+							</div>
+						</motion.div>
 						<motion.div
 							initial={{ opacity: 0, x: -20 }}
 							animate={{ opacity: 1, x: 0 }}
@@ -108,7 +124,7 @@ const Login = () => {
 							animate={{ opacity: 1, x: 0 }}
 							transition={{ delay: 0.6 }}
 						>
-							<label className='block text-sm mb-2'>Password</label>
+							<label className='block text-sm mb-2'>New Password</label>
 							<div className='relative'>
 								<Lock className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
 								<input
@@ -159,7 +175,7 @@ const Login = () => {
 							type='button'
 							className='w-full bg-white/5 backdrop-blur border border-white/10 text-foreground rounded-xl py-3 font-medium hover:bg-white/10 transition-all'
 						>
-							Continue with Google
+							SignUp with Google
 						</motion.button>
 					</form>
 
@@ -170,11 +186,11 @@ const Login = () => {
 						transition={{ delay: 1 }}
 						className='mt-8 text-center text-sm text-muted-foreground'
 					>
-						not Registerd yet? <a href="/register" className="text-cyan-500 hover:underline">Register here</a>
+						already have an account? <a href="/login" className="text-cyan-500 hover:underline">Login here</a>
 					</motion.div>
 				</div>
 			</motion.div>
 		</div>
 	);
-}
-export default Login;
+};
+export default Register;
