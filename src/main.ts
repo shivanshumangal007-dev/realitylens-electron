@@ -1,6 +1,22 @@
-import { app, BrowserWindow, globalShortcut, screen } from "electron";
+import {
+	app,
+	BrowserWindow,
+	globalShortcut,
+	ipcMain,
+	nativeImage,
+	dialog,
+	screen,
+	desktopCapturer,
+} from "electron";
 import path from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import started from "electron-squirrel-startup";
+import fs from "fs";
+import screenshot from "screenshot-desktop";
+
+const execFileAsync = promisify(execFile);
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -17,7 +33,7 @@ const createWindow = () => {
 		width: 800,
 		height: 600,
 		webPreferences: {
-			preload: path.join(__dirname, "preload.ts"),
+			preload: path.join(__dirname, "preload.js"),
 		},
 	});
 
@@ -31,7 +47,7 @@ const createWindow = () => {
 	}
 
 	// Open the DevTools.
-	// mainWindow.webContents.openDevTools();
+	mainWindow.webContents.openDevTools();
 
 	// When main window closes, quit the app
 	mainWindow.on("closed", () => {
@@ -92,8 +108,9 @@ function createOverlayWindow() {
 		visualEffectState: "active",
 
 		webPreferences: {
-			nodeIntegration: true,
-			contextIsolation: false,
+			preload: path.join(__dirname, "preload.js"),
+			nodeIntegration: false,
+			contextIsolation: true,
 		},
 	});
 
@@ -116,6 +133,28 @@ function createOverlayWindow() {
 	overlayWindow.on("closed", () => {
 		overlayWindow = null;
 	});
+
+	overlayWindow.webContents.on(
+		"did-fail-load",
+		(event, errorCode, errorDescription) => {
+			console.error("Overlay failed to load:", errorCode, errorDescription);
+		},
+	);
+
+	overlayWindow.webContents.on("did-finish-load", () => {
+		console.log("Overlay window loaded");
+	});
+
+	overlayWindow.webContents.on("console-message", (event, level, message) => {
+		console.log(`[Overlay] ${message}`);
+	});
+
+	console.log(
+		"Overlay window created, loading URL:",
+		MAIN_WINDOW_VITE_DEV_SERVER_URL
+			? `${MAIN_WINDOW_VITE_DEV_SERVER_URL}/overlay`
+			: "file URL",
+	);
 }
 
 app.whenReady().then(() => {
@@ -127,6 +166,75 @@ app.whenReady().then(() => {
 	});
 
 	console.log("Shortcut Registered:", ret);
+});
+
+ipcMain.handle("capture-screen", async (_, area) => {
+	try {
+		if (overlayWindow && !overlayWindow.isDestroyed()) {
+			overlayWindow.hide();
+		}
+
+		await delay(150);
+
+		const primaryDisplay = screen.getPrimaryDisplay();
+		const scaleFactor = primaryDisplay.scaleFactor || 1;
+
+		const sources = await desktopCapturer.getSources({
+			types: ["screen"],
+			thumbnailSize: {
+				width: primaryDisplay.bounds.width * scaleFactor,
+				height: primaryDisplay.bounds.height * scaleFactor,
+			},
+		});
+
+		const primaryScreenSource = sources.find(
+			(source) => source.display_id === String(primaryDisplay.id),
+		);
+
+		if (!primaryScreenSource) {
+			throw new Error("Primary screen source not found.");
+		}
+
+		const image = primaryScreenSource.thumbnail;
+
+		const x = Math.min(area.start.x, area.end.x);
+		const y = Math.min(area.start.y, area.end.y);
+		const width = Math.abs(area.end.x - area.start.x);
+		const height = Math.abs(area.end.y - area.start.y);
+
+		const selection = {
+			x: Math.round(x * scaleFactor),
+			y: Math.round(y * scaleFactor),
+			width: Math.round(width * scaleFactor),
+			height: Math.round(height * scaleFactor),
+		};
+
+		const croppedImage = image.crop(selection);
+
+		const uploadsPath = path.join(process.cwd(), "uploads");
+		if (!fs.existsSync(uploadsPath)) {
+			fs.mkdirSync(uploadsPath, { recursive: true });
+		}
+		const filePath = path.join(uploadsPath, `capture-${Date.now()}.png`);
+		fs.writeFileSync(filePath, croppedImage.toPNG());
+
+		console.log("Saved at:", filePath);
+
+		return filePath;
+	} catch (err) {
+		console.error(err);
+		dialog.showErrorBox(
+			"Capture failed",
+			err instanceof Error
+				? err.message
+				: "Unknown error while capturing screen",
+		);
+		throw err;
+	} finally {
+		if (overlayWindow && !overlayWindow.isDestroyed()) {
+			overlayWindow.showInactive();
+		}
+	}
 });
 
 // Unregister all shortcuts when the app is quitting.
