@@ -1,37 +1,47 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
+import OverlayDiv from "./Overlay";
 
 function App() {
+	const location = useLocation();
+	const isOverlay = location.pathname === "/overlay";
+
+	if (isOverlay) {
+		return (
+			<div className='size-full bg-transparent text-foreground'>
+				<OverlayDiv />
+			</div>
+		);
+	}
+
 	return (
 		<div className='size-full dark bg-background text-foreground'>
-			<BrowserRouter>
-				<Routes>
-					<Route
-						path='/'
-						element={<Home />}
-					/>
-					<Route
-						path='/login'
-						element={<Login />}
-					/>
-					<Route
-						path='/Register'
-						element={<Register />}
-					/>
-					<Route
-						path='*'
-						element={<Login/>}
-					/>
-					<Route
-						path='/dashboard'
-						element={<Dashboard />}
-					/>
-				</Routes>
-			</BrowserRouter>
+			<Routes>
+				<Route
+					path='/'
+					element={<Home />}
+				/>
+				<Route
+					path='/login'
+					element={<Login />}
+				/>
+				<Route
+					path='/Register'
+					element={<Register />}
+				/>
+				<Route
+					path='*'
+					element={<Login />}
+				/>
+				<Route
+					path='/dashboard'
+					element={<Dashboard />}
+				/>
+			</Routes>
 		</div>
 	);
 }
