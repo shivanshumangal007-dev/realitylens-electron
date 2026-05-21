@@ -7,15 +7,15 @@ import Cookies from "js-cookie";
 
 const Login = () => {
 	const navigate = useNavigate();
-	const [email, setEmail] = useState("");
+	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 
 	const handleLogin = (e: React.FormEvent) => {
 		e.preventDefault();
-		loginHandler(email, password)
+		loginHandler(username, password)
 			.then((res) => {
 				navigate("/");
-				Cookies.set("token", res.data.token, { expires: 7 });
+				Cookies.set("token", res.data.access_token, { expires: 7 });
 			})
 			.catch((error) => {
 				console.error("Login error:", error);
@@ -94,8 +94,8 @@ const Login = () => {
 								<Mail className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
 								<input
 									type='email'
-									value={email}
-									onChange={(e) => setEmail(e.target.value)}
+									value={username}
+									onChange={(e) => setUsername(e.target.value)}
 									placeholder='you@example.com'
 									className='w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all'
 									required

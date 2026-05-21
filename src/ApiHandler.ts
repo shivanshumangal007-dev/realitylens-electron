@@ -1,9 +1,9 @@
 import api from "./Api";
 
 
-const loginHandler = async (email: string, password: string) => {
+const loginHandler = async (username: string, password: string) => {
     try {
-        const response = await api.post("/login", { email, password });
+        const response = await api.post("/login", { username, password });
         return response;
     } catch (error) {
         console.error("Login error:", error);
@@ -11,9 +11,9 @@ const loginHandler = async (email: string, password: string) => {
     }
 };
 
-const registerHandler = async (name: string, email: string, password: string) => {
+const registerHandler = async (username: string, password: string) => {
     try {
-        const response = await api.post("/register", { name, email, password });
+        const response = await api.post("/register", { username, password });
         return response;
     } catch (error) {
         console.error("Register error:", error);
@@ -23,7 +23,7 @@ const registerHandler = async (name: string, email: string, password: string) =>
 
 const HistoryHandler = async (userID : string) => {
     try{
-        const response = await api.get(`/history/${userID}`);
+        const response = await api.get(`/history`);
         return response;
     }
     catch(error){
