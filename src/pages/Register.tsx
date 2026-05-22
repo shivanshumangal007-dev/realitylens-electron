@@ -11,7 +11,7 @@ const Register = () => {
 
 	const handleRegister = (e: React.FormEvent) => {
 		e.preventDefault();
-		registerHandler(name, email, password)
+		registerHandler( email, password)
 			.then(() => {
 				navigate("/login");
 			})

@@ -10,50 +10,65 @@ import {
 	ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { HistoryHandler } from "../ApiHandler";
 
-const mockVerifications = [
-	{
-		id: "1",
-		title: "COVID-19 vaccine efficacy claim",
-		preview:
-			"Verified: The claim about 95% efficacy matches published clinical trial data from Pfizer-BioNTech...",
-		timestamp: "2 hours ago",
-		status: "true" as const,
-	},
-	{
-		id: "2",
-		title: "Climate change statistics tweet",
-		preview:
-			"Mixed: While the overall trend is accurate, some specific numbers need context and clarification...",
-		timestamp: "5 hours ago",
-		status: "mixed" as const,
-	},
-	{
-		id: "3",
-		title: "Political quote verification",
-		preview:
-			"False: The quote attributed to this politician was actually said by someone else in a different context...",
-		timestamp: "1 day ago",
-		status: "false" as const,
-	},
-	{
-		id: "4",
-		title: "Scientific breakthrough announcement",
-		preview:
-			"Uncertain: The research is preliminary and has not yet been peer-reviewed or independently verified...",
-		timestamp: "2 days ago",
-		status: "uncertain" as const,
-	},
-	{
-		id: "5",
-		title: "Historical fact check",
-		preview:
-			"Verified: Historical records confirm this event occurred on the stated date with matching details...",
-		timestamp: "3 days ago",
-		status: "true" as const,
-	},
-];
+// const mockVerifications = [
+// 	{
+// 		id: "f56e7df6-6ed5-4e96-bd95-6a5080cede9c",
+// 		created_at: "2026-05-22T09:58:03.991134+00:00",
+// 		status: "done",
+// 		result: {
+// 			claim:
+// 				"This video authentically depicts a massive mushroom cloud explosion in Israel.",
+// 			verdict: "LIKELY REAL",
+// 			evidence: [
+// 				{
+// 					url: "",
+// 					title: "Tavily AI Summary",
+// 					source: "Tavily",
+// 					stance: "supports",
+// 				},
+// 				{
+// 					url: "https://www.youtube.com/watch?v=42V8DnCSKpE",
+// 					title:
+// 						"Israel’s SECRET Blast at Military Site Sparks Massive Mushroom Cloud",
+// 					source: "Oneindia News",
+// 					stance: "supports",
+// 				},
+// 				{
+// 					url: "https://www.youtube.com/watch?v=ij5fAKxHgds",
+// 					title:
+// 						"NUCLEAR TEST OR ATTACK? Giant Fireball Sparks Panic in Israel",
+// 					source: "ET Now",
+// 					stance: "supports",
+// 				},
+// 				{
+// 					url: "https://timesofindia.indiatimes.com/videos/international/massive-explosion-hits-israels-nuclear-missile-hub-irans-first-strike-move/videoshow/131149924.cms",
+// 					title:
+// 						"Massive Explosion Hits Israel's 'Nuclear, Missile Hub'; Iran's First Strike Move?",
+// 					source: "Times of India",
+// 					stance: "supports",
+// 				},
+// 				{
+// 					url: "https://www.instagram.com/reel/DYcKqABJhOw",
+// 					title:
+// 						"A massive explosion in central Israel triggered panic across social media",
+// 					source: "Instagram",
+// 					stance: "related",
+// 				},
+// 			],
+// 			confidence: 0.88,
+// 			explanation:
+// 				"Multiple credible sources, including Tavily AI Summary and news outlets, confirm that a massive explosion occurred in central Israel, producing a mushroom cloud, which Israel attributed to a controlled missile test. The event was reported by various news sources, including YouTube news channels and online news websites, with consistent details. Although some speculation and conspiracy theories are present, the core claim is supported by credible sources.",
+// 			reality_score: 0.92,
+// 		},
+// 		error: null,
+// 		user_id: "47a617fc-861d-4f46-8348-9e78374cdb54",
+// 		image_url:
+// 			"https://res.cloudinary.com/dwe6n6goq/image/upload/v1779443883/realitylens_uploads/fpsd1wfizqpn81faoi6q.png",
+// 	},
+// ];
 
 const statusColors = {
 	true: "from-green-500/20 to-green-600/20 border-green-500/30 text-green-400",
@@ -70,10 +85,39 @@ const statusLabels = {
 	uncertain: "Uncertain",
 };
 
+const getStatusKey = (verification: any) => {
+	const verdict = String(verification?.result?.verdict || "").toLowerCase();
+	const score = verification?.result?.reality_score;
+	if (verdict.includes("real") || (typeof score === "number" && score >= 0.7))
+		return "true";
+	if (verdict.includes("false") || (typeof score === "number" && score <= 0.3))
+		return "false";
+	if (verdict.includes("mixed")) return "mixed";
+	return "uncertain";
+};
+
+const formatTimestamp = (iso?: string) => {
+	if (!iso) return "";
+	try {
+		return new Date(iso).toLocaleString();
+	} catch (e) {
+		return iso;
+	}
+};
+
 const Dashboard = () => {
 	const navigate = useNavigate();
 	const [activeSection, setActiveSection] = useState("new");
 
+	const [UserHistory, setUserHistory] = useState<any[]>([]);
+	useEffect(() => {
+		HistoryHandler().then((res) => {
+			// console.log("User history:", res.data);
+			setUserHistory(res.data);
+		}).catch((error) => {
+			console.error("Error fetching history:", error);
+		});
+	}, []);
 	return (
 		<div className='size-full flex bg-background h-screen w-full'>
 			{/* Sidebar */}
@@ -193,7 +237,7 @@ const Dashboard = () => {
 						<h2 className='mb-6'>Recent Verifications</h2>
 
 						<div className='space-y-4'>
-							{mockVerifications.map((verification, index) => (
+							{UserHistory.map((verification, index) => (
 								<motion.div
 									key={verification.id}
 									initial={{ opacity: 0, x: -20 }}
@@ -204,24 +248,34 @@ const Dashboard = () => {
 									className='bg-card/50 backdrop-blur border border-border rounded-2xl p-6 cursor-pointer hover:bg-card hover:border-black/20 transition-all group dark:hover:bg-card dark:hover:border-white/20'
 								>
 									<div className='flex items-start justify-between gap-4'>
+										{verification.image_url && (
+											<img
+												src={verification.image_url}
+												alt='thumbnail'
+												className='w-16 h-16 rounded-lg object-cover flex-shrink-0'
+											/>
+										)}
 										<div className='flex-1 min-w-0'>
 											<div className='flex items-center gap-3 mb-2'>
 												<h3 className='text-base truncate'>
-													{verification.title}
+													{verification.result?.claim || "Verification"}
 												</h3>
 												<span
 													className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs border bg-linear-to-r ${
-														statusColors[verification.status]
+														statusColors[getStatusKey(verification)]
 													}`}
 												>
-													{statusLabels[verification.status]}
+													{statusLabels[getStatusKey(verification)]}
+													{verification.result?.verdict
+														? ` • ${verification.result.verdict}`
+														: ""}
 												</span>
 											</div>
 											<p className='text-sm text-muted-foreground line-clamp-2 mb-2'>
-												{verification.preview}
+												{verification.result?.explanation}
 											</p>
 											<p className='text-xs text-muted-foreground'>
-												{verification.timestamp}
+												{formatTimestamp(verification.created_at)}
 											</p>
 										</div>
 										<ChevronRight className='w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0' />
@@ -234,6 +288,6 @@ const Dashboard = () => {
 			</main>
 		</div>
 	);
-}
+};
 
 export default Dashboard;
