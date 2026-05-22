@@ -1,4 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
+import {
+	getJobResultHandler,
+	getJobStatusHandler,
+	submitImageHandler,
+} from "./ApiHandler";
+import VerificationResultCard from "./components/VerificationResultCard";
+import { getFinalKeyframe } from "motion";
 
 const OverlayDiv = () => {
 	const startRef = useRef({ x: 0, y: 0 });
@@ -9,6 +16,8 @@ const OverlayDiv = () => {
 	const [end, setEnd] = useState({ x: 0, y: 0 });
 	const [dragging, setDragging] = useState(false);
 	const [status, setStatus] = useState("Ready to select an area");
+	const [jobStatus, setJobStatus] = useState(null);
+	const [result, setResult] = useState<any>(null);
 
 	useEffect(() => {
 		console.log("Overlay mounted");
@@ -38,24 +47,43 @@ const OverlayDiv = () => {
 			draggingRef.current = false;
 			setDragging(false);
 			setStatus("Capturing selection...");
-		
+
 			console.log("Sending to capture (raw points):", {
 				start: startRef.current,
 				end: endRef.current,
 			});
+
+			if (!window.electronAPI) {
+				console.error(
+					"electronAPI bridge is missing. Preload did not load in this window.",
+				);
+				setStatus("Electron bridge unavailable. Restart the app.");
+				return;
+			}
 
 			const filePath = await window.electronAPI.captureScreen({
 				start: startRef.current,
 				end: endRef.current,
 			});
 
-			console.log("Captured Image Path:", filePath);
-			setStatus(`Saved to ${filePath}`);
+			const fileData = await window.electronAPI.readFile(filePath);
 
-			// Close the overlay window after showing success message
-			setTimeout(() => {
-				window.close();
-			}, 2000);
+			const uint8Array = new Uint8Array(fileData);
+
+			const blob = new Blob([uint8Array], {
+				type: "image/png",
+			});
+
+			const file = new File([blob], "screenshot.png", {
+				type: "image/png",
+			});
+
+			const result = await submitImageHandler(file);
+			console.log(result);
+
+			console.log("Captured Image Path:", filePath);
+			setStatus(`generating results... (Job ID: ${result.data.job_id})`);
+			getStatusOfJob(result.data.job_id);
 		};
 
 		document.addEventListener("keydown", handleKeyDown);
@@ -68,7 +96,26 @@ const OverlayDiv = () => {
 			document.removeEventListener("mouseup", handleGlobalMouseUp);
 		};
 	}, []);
-
+	const getStatusOfJob = async (jobId: string) => {
+		const inte = setInterval(async () => {
+			const response = await getJobStatusHandler(jobId);
+			console.log("Job status response:", response.data.status);
+			setJobStatus(response.data.status);
+			if (
+				response.data.status === "done" ||
+				response.data.status === "failed"
+			) {
+				GetfinalResult(jobId);
+				clearInterval(inte);
+			}
+		}, 2000);
+	};
+	const GetfinalResult = async (jobId: string) => {
+		const response = await getJobResultHandler(jobId);
+		console.log("Job result response:", response.data);
+		setResult(response.data);
+		setStatus("Result ready");
+	};
 	const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
 		e.preventDefault();
 		const point = { x: e.clientX, y: e.clientY };
@@ -91,9 +138,10 @@ const OverlayDiv = () => {
 	return (
 		<div
 			ref={overlayRef}
-			className='w-screen h-screen bg-transparent cursor-crosshair relative'
+			className='w-screen h-screen bg-black/20 cursor-crosshair relative overflow-hidden'
 			onMouseDown={handleMouseDown}
 		>
+			<div className='absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.18),transparent_35%),linear-gradient(135deg,rgba(2,6,23,0.72),rgba(15,23,42,0.88),rgba(17,24,39,0.96))]' />
 			<div className='absolute left-4 top-4 rounded-lg bg-black/70 px-3 py-2 text-sm text-white backdrop-blur'>
 				{status}
 			</div>
@@ -106,6 +154,13 @@ const OverlayDiv = () => {
 						width,
 						height,
 					}}
+				/>
+			)}
+
+			{result && (
+				<VerificationResultCard
+					result={result}
+					onClose={() => window.electronAPI?.finishVerification()}
 				/>
 			)}
 		</div>

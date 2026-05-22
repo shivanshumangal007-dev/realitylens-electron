@@ -33,7 +33,8 @@ const createWindow = () => {
 		width: 800,
 		height: 600,
 		webPreferences: {
-			preload: path.join(__dirname, "preload.js"),
+			preload: path.resolve(__dirname, "preload.js"),
+			sandbox: false,
 		},
 	});
 
@@ -108,9 +109,10 @@ function createOverlayWindow() {
 		visualEffectState: "active",
 
 		webPreferences: {
-			preload: path.join(__dirname, "preload.js"),
+			preload: path.resolve(__dirname, "preload.js"),
 			nodeIntegration: false,
 			contextIsolation: true,
+			sandbox: false,
 		},
 	});
 
@@ -170,6 +172,10 @@ app.whenReady().then(() => {
 
 ipcMain.handle("capture-screen", async (_, area) => {
 	try {
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			mainWindow.hide();
+		}
+
 		if (overlayWindow && !overlayWindow.isDestroyed()) {
 			overlayWindow.hide();
 		}
@@ -212,9 +218,9 @@ ipcMain.handle("capture-screen", async (_, area) => {
 		const croppedImage = image.crop(selection);
 
 		const uploadsPath = path.join(process.cwd(), "uploads");
-		if (!fs.existsSync(uploadsPath)) {
-			fs.mkdirSync(uploadsPath, { recursive: true });
-		}
+		fs.rmSync(uploadsPath, { recursive: true, force: true });
+		fs.mkdirSync(uploadsPath, { recursive: true });
+
 		const filePath = path.join(uploadsPath, `capture-${Date.now()}.png`);
 		fs.writeFileSync(filePath, croppedImage.toPNG());
 
@@ -234,6 +240,17 @@ ipcMain.handle("capture-screen", async (_, area) => {
 		if (overlayWindow && !overlayWindow.isDestroyed()) {
 			overlayWindow.showInactive();
 		}
+	}
+});
+
+ipcMain.handle("finish-verification", async () => {
+	if (overlayWindow && !overlayWindow.isDestroyed()) {
+		overlayWindow.close();
+	}
+
+	if (mainWindow && !mainWindow.isDestroyed()) {
+		mainWindow.show();
+		mainWindow.focus();
 	}
 });
 

@@ -32,4 +32,41 @@ const HistoryHandler = async () => {
     }
 }
 
-export { loginHandler, registerHandler, HistoryHandler };
+const submitImageHandler = async (image : File) => {
+    try{
+        const formData = new FormData();
+        formData.append("file", image);
+        
+        const response = await api.post("/submit", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        return response;
+    } catch (error) {
+        console.error("Image submission error:", error);
+        throw error;
+    }
+}
+
+const getJobStatusHandler = async (jobId : string) => {
+    try{
+        const response = await api.get(`/status/${jobId}`);
+        return response;
+    }
+    catch(error){
+        console.error("Job status fetch error:", error);
+        throw error;
+    } 
+}
+const getJobResultHandler = async (jobId : string) => {
+    try{
+        const response = await api.get(`/result/${jobId}`);
+        return response;
+    }
+    catch(error){
+        console.error("Job result fetch error:", error);
+        throw error;
+    } 
+}
+export { loginHandler, registerHandler, HistoryHandler, submitImageHandler, getJobStatusHandler, getJobResultHandler };
