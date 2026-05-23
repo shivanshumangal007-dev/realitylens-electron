@@ -12,3 +12,18 @@ body,
   height: 100%;
   overflow: hidden;
 }
+
+/* def accent_for_verdict(verdict: str) -> str:
+	normalized = _normalize_verdict_label(verdict)
+	if normalized == "Likely Fake":
+		return "#FF4B4B"
+	if normalized == "Suspicious":
+		return "#FFD700"
+	if normalized == "Likely Real":
+		return "#00FF7F"
+	if normalized == "SATIRE":
+		return "#FF6BD6"
+	if normalized == "UNREADABLE":
+		return "#9AA4B2"
+	return "#00FFFF" */
+

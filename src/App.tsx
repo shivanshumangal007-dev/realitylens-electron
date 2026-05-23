@@ -5,15 +5,24 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
 import OverlayDiv from "./Overlay";
+import { useState } from "react";
 
 function App() {
 	const location = useLocation();
 	const isOverlay = location.pathname === "/overlay";
+	const [isResultLoading, setIsResultLoading] = useState(false)
 
 	if (isOverlay) {
 		return (
 			<div className='size-full bg-transparent text-foreground'>
-				<OverlayDiv />
+				<OverlayDiv isResultLoading={isResultLoading} setIsResultLoading={setIsResultLoading} />
+			</div>
+		);
+	}
+	if (isResultLoading) {
+		return (
+			<div className='size-full bg-transparent text-foreground'>
+				<OverlayDiv isResultLoading={isResultLoading} setIsResultLoading={setIsResultLoading} />
 			</div>
 		);
 	}
@@ -41,6 +50,7 @@ function App() {
 					path='/dashboard'
 					element={<Dashboard />}
 				/>
+				
 			</Routes>
 		</div>
 	);
