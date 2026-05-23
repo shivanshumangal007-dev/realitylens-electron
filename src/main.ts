@@ -117,6 +117,7 @@ function createOverlayWindow() {
 	});
 
 	overlayWindow.setAlwaysOnTop(true, "screen-saver");
+	overlayWindow.setIgnoreMouseEvents(false);
 
 	overlayWindow.setVisibleOnAllWorkspaces(true, {
 		visibleOnFullScreen: true,
@@ -238,6 +239,7 @@ ipcMain.handle("capture-screen", async (_, area) => {
 		throw err;
 	} finally {
 		if (overlayWindow && !overlayWindow.isDestroyed()) {
+			overlayWindow.setIgnoreMouseEvents(true, { forward: true });
 			overlayWindow.showInactive();
 		}
 	}
@@ -253,6 +255,17 @@ ipcMain.handle("finish-verification", async () => {
 		mainWindow.focus();
 	}
 });
+
+ipcMain.handle(
+	"set-overlay-click-through",
+	async (_, shouldClickThrough: boolean) => {
+		if (!overlayWindow || overlayWindow.isDestroyed()) {
+			return;
+		}
+
+		overlayWindow.setIgnoreMouseEvents(shouldClickThrough, { forward: true });
+	},
+);
 
 // Unregister all shortcuts when the app is quitting.
 app.on("will-quit", () => {

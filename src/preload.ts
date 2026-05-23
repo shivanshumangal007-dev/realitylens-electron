@@ -12,6 +12,9 @@ const electronAPI = {
 	finishVerification: async () => {
 		return ipcRenderer.invoke("finish-verification");
 	},
+	setOverlayClickThrough: async (shouldClickThrough: boolean) => {
+		return ipcRenderer.invoke("set-overlay-click-through", shouldClickThrough);
+	},
 	readFile: async (filePath: string) => {
 		const data = fs.readFileSync(filePath);
 		return Array.from(data);
