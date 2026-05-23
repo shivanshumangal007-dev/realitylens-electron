@@ -6,6 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
 import OverlayDiv from "./Overlay";
 import { useState } from "react";
+import Setting from "./pages/Setting";
+import NewSettings from "./pages/NewSetting";
 
 function App() {
 	const location = useLocation();
@@ -41,6 +43,10 @@ function App() {
 				<Route
 					path='/Register'
 					element={<Register />}
+				/>
+				<Route
+					path='/settings'
+					element={<NewSettings />}
 				/>
 				<Route
 					path='*'

@@ -126,8 +126,11 @@ const Dashboard = () => {
 		fetchUser().then((res) => {
 			// console.log("User data:", res.data);
 			setuser(res.data);
-		})
-	})
+		}).catch((error) => {
+			console.error("Error fetching user data:", error);
+		});
+	}, []);
+
 	return (
 		<div className='size-full flex bg-background h-screen w-full'>
 			{/* Sidebar */}
