@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
-import { HistoryHandler } from "../ApiHandler";
+import { fetchUser, HistoryHandler } from "../ApiHandler";
+import LogoutBtn from "../components/LogoutBtn";
 
 // const mockVerifications = [
 // 	{
@@ -104,12 +105,15 @@ const formatTimestamp = (iso?: string) => {
 		return iso;
 	}
 };
-
+interface userProps{
+	email: string;
+	username: string;
+}
 const Dashboard = () => {
 	const navigate = useNavigate();
 	const [activeSection, setActiveSection] = useState("new");
-
 	const [UserHistory, setUserHistory] = useState<any[]>([]);
+	const [user, setuser] = useState<userProps | null>(null);
 	useEffect(() => {
 		HistoryHandler().then((res) => {
 			// console.log("User history:", res.data);
@@ -118,6 +122,12 @@ const Dashboard = () => {
 			console.error("Error fetching history:", error);
 		});
 	}, []);
+	useEffect(() => {
+		fetchUser().then((res) => {
+			// console.log("User data:", res.data);
+			setuser(res.data);
+		})
+	})
 	return (
 		<div className='size-full flex bg-background h-screen w-full'>
 			{/* Sidebar */}
@@ -167,19 +177,6 @@ const Dashboard = () => {
 
 					<motion.button
 						whileHover={{ x: 4 }}
-						onClick={() => setActiveSection("saved")}
-						className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-							activeSection === "saved"
-								? "bg-sidebar-accent text-sidebar-accent-foreground"
-								: "text-sidebar-foreground hover:bg-sidebar-accent/50"
-						}`}
-					>
-						<BookmarkCheck className='w-5 h-5' />
-						<span>Saved</span>
-					</motion.button>
-
-					<motion.button
-						whileHover={{ x: 4 }}
 						onClick={() => navigate("/settings")}
 						className='w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors'
 					>
@@ -198,9 +195,9 @@ const Dashboard = () => {
 							<User className='w-5 h-5 text-white' />
 						</div>
 						<div className='flex-1 min-w-0'>
-							<p className='text-sm truncate'>John Doe</p>
+							<p className='text-sm truncate'>{user?.username}</p>
 							<p className='text-xs text-muted-foreground truncate'>
-								john@example.com
+								{user?.email}
 							</p>
 						</div>
 					</motion.div>
@@ -215,9 +212,9 @@ const Dashboard = () => {
 						initial={{ y: -20, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						transition={{ duration: 0.4, delay: 0.1 }}
-						className='mb-12'
+						className='mb-12 flex justify-between items-center'
 					>
-						<div className='relative group'>
+						<div className='relative group w-full'>
 							<Search className='absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
 							<input
 								type='text'
@@ -226,6 +223,9 @@ const Dashboard = () => {
 							/>
 							<div className='absolute inset-0 rounded-2xl bg-linear-to-r from-cyan-500/0 via-blue-500/0 to-purple-600/0 group-focus-within:from-cyan-500/10 group-focus-within:via-blue-500/10 group-focus-within:to-purple-600/10 transition-all pointer-events-none' />
 						</div>
+						<LogoutBtn logouthandler={() => {
+							navigate('/login');
+						}}  />
 					</motion.div>
 
 					{/* Recent Verifications */}
@@ -252,7 +252,7 @@ const Dashboard = () => {
 											<img
 												src={verification.image_url}
 												alt='thumbnail'
-												className='w-16 h-16 rounded-lg object-cover flex-shrink-0'
+												className='w-16 h-16 rounded-lg object-cover shrink-0'
 											/>
 										)}
 										<div className='flex-1 min-w-0'>

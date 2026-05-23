@@ -8,22 +8,24 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
+import LogoutBtn from "../components/LogoutBtn";
 
 const Home = () => {
 	const navigate = useNavigate();
-	const [LoggedIn, setLoggedIn] = useState(false);
+	// const [LoggedIn, setLoggedIn] = useState(false);
 
 
 	return (
 		<div className='size-full flex items-center justify-center relative overflow-hidden h-screen w-full'>
 			{/* Animated gradient background */}
 			<div className='absolute inset-0 bg-linear-to-br from-blue-950 via-background to-purple-950 opacity-50' />
-			<Link
-				to='/login'
-				className='absolute top-4 right-4 text-xl text-white hover:underline'
-			>
-				Login
-			</Link>
+			<LogoutBtn
+				logouthandler={() => {
+					// setLoggedIn(false);
+					navigate("/login");
+				}}
+				classname='absolute top-4 right-4'
+			/>
 
 			{/* Floating gradient orbs */}
 			<motion.div

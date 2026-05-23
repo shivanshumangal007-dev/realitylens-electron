@@ -69,4 +69,15 @@ const getJobResultHandler = async (jobId : string) => {
         throw error;
     } 
 }
-export { loginHandler, registerHandler, HistoryHandler, submitImageHandler, getJobStatusHandler, getJobResultHandler };
+
+const fetchUser = async () => {
+    try{
+        const response = await api.get("/me");
+        return response;
+    }
+    catch(error){
+        console.error("User fetch error:", error);
+        throw error;
+    }
+}
+export { loginHandler, registerHandler, HistoryHandler, submitImageHandler, getJobStatusHandler, getJobResultHandler, fetchUser  };
