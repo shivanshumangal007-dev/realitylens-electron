@@ -18,6 +18,10 @@ const Home = () => {
 		Cookies.get("token") || navigate("/login");
 	}, [navigate]);
 
+	const minimiseApphandler = () => {
+		window.electronAPI.minimiseApp();
+	}
+
 	return (
 		<div className='size-full flex items-center justify-center relative overflow-hidden h-screen w-full'>
 			{/* Animated gradient background */}
@@ -154,6 +158,7 @@ const Home = () => {
 						whileHover={{ scale: 1.05 }}
 						whileTap={{ scale: 0.95 }}
 						className='flex items-center gap-2 bg-white/5 backdrop-blur border border-white/10 text-foreground rounded-xl px-6 py-3 font-medium hover:bg-white/10 transition-all'
+						onClick={minimiseApphandler}
 					>
 						<Minimize2 className='w-5 h-5' />
 						Minimize to Tray

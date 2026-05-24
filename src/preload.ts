@@ -19,6 +19,9 @@ const electronAPI = {
 		const data = fs.readFileSync(filePath);
 		return Array.from(data);
 	},
+	minimiseApp: () => {
+		ipcRenderer.invoke("minimise-app");
+	}
 };
 
 console.log("preload loaded");

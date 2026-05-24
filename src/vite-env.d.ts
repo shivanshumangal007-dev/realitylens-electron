@@ -7,6 +7,7 @@ declare global {
 			finishVerification: () => Promise<void>;
 			setOverlayClickThrough: (shouldClickThrough: boolean) => Promise<void>;
 			readFile: (filePath: string) => Promise<number[]>;
+			minimiseApp: () => void;
 		};
 	}
 }

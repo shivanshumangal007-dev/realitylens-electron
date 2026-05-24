@@ -7,6 +7,8 @@ import {
 	dialog,
 	screen,
 	desktopCapturer,
+	Tray,
+	Menu,
 } from "electron";
 import path from "node:path";
 import { execFile } from "node:child_process";
@@ -17,7 +19,7 @@ import screenshot from "screenshot-desktop";
 
 const execFileAsync = promisify(execFile);
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
+let tray: Tray | null = null;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
 	app.quit();
@@ -37,6 +39,7 @@ const createWindow = () => {
 			preload: path.resolve(__dirname, "preload.js"),
 			sandbox: false,
 		},
+		icon: "../App_icons/icon.png",
 	});
 
 	// and load the index.html of the app.
@@ -58,6 +61,10 @@ const createWindow = () => {
 			overlayWindow = null;
 		}
 		app.quit();
+	});
+	mainWindow.on("minimize", function (event) {
+		event.preventDefault();
+		mainWindow?.hide();
 	});
 
 	return mainWindow;
@@ -161,6 +168,8 @@ function createOverlayWindow() {
 	);
 }
 
+const icon = nativeImage.createFromPath(path.join(__dirname, "App_icons/icon.png")).resize({ width: 16, height: 16 });
+
 app.whenReady().then(() => {
 	createWindow();
 
@@ -168,10 +177,33 @@ app.whenReady().then(() => {
 		console.log("Shortcut Pressed");
 		createOverlayWindow();
 	});
-
+	tray = new Tray(icon);
+	console.log(path.join(__dirname, "App_icons/icon.png"));
+	var contextMenu = Menu.buildFromTemplate([
+		{
+			label: "Show App",
+			click: function () {
+				mainWindow?.show();
+			},
+		},
+		{
+			label: "Quit",
+			click: function () {
+				app.quit();
+			},
+		},
+	]);
+	tray.setToolTip("RealityLens");
+	tray.setContextMenu(contextMenu);
+	tray.setIgnoreDoubleClickEvents(true);
 	console.log("Shortcut Registered:", ret);
 });
 
+ipcMain.handle("minimise-app", () => {
+	if (mainWindow && !mainWindow.isDestroyed()) {
+		mainWindow.hide();
+	}
+});
 ipcMain.handle("capture-screen", async (_, area) => {
 	try {
 		if (mainWindow && !mainWindow.isDestroyed()) {
