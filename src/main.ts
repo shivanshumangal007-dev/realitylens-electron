@@ -218,7 +218,7 @@ ipcMain.handle("capture-screen", async (_, area) => {
 
 		const croppedImage = image.crop(selection);
 
-		const uploadsPath = path.join(process.cwd(), "uploads");
+		const uploadsPath = path.join(app.getPath("temp"), "realitylens-uploads");
 		fs.rmSync(uploadsPath, { recursive: true, force: true });
 		fs.mkdirSync(uploadsPath, { recursive: true });
 
@@ -230,6 +230,15 @@ ipcMain.handle("capture-screen", async (_, area) => {
 		return filePath;
 	} catch (err) {
 		console.error(err);
+		// Clean up overlay and restore main window so the shortcut works again
+		if (overlayWindow && !overlayWindow.isDestroyed()) {
+			overlayWindow.destroy();
+			overlayWindow = null;
+		}
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			mainWindow.show();
+			mainWindow.focus();
+		}
 		dialog.showErrorBox(
 			"Capture failed",
 			err instanceof Error

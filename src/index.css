@@ -27,3 +27,9 @@ body,
 		return "#9AA4B2"
 	return "#00FFFF" */
 
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

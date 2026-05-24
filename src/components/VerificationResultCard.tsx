@@ -1,3 +1,5 @@
+import { useState, useRef, useEffect } from "react";
+
 type VerificationEvidence = {
 	title?: string;
 	source?: string;
@@ -24,10 +26,54 @@ const VerificationResultCard = ({
 	result,
 	onClose,
 }: VerificationResultCardProps) => {
+	const [position, setPosition] = useState({ x: 0, y: 0 });
+	const [isDragging, setIsDragging] = useState(false);
+	const dragStart = useRef({ x: 0, y: 0 });
+
+	useEffect(() => {
+		const handleMouseMove = (e: MouseEvent) => {
+			if (!isDragging) return;
+			setPosition({
+				x: e.clientX - dragStart.current.x,
+				y: e.clientY - dragStart.current.y,
+			});
+		};
+
+		const handleMouseUp = () => {
+			setIsDragging(false);
+		};
+
+		if (isDragging) {
+			window.addEventListener("mousemove", handleMouseMove);
+			window.addEventListener("mouseup", handleMouseUp);
+		}
+
+		return () => {
+			window.removeEventListener("mousemove", handleMouseMove);
+			window.removeEventListener("mouseup", handleMouseUp);
+		};
+	}, [isDragging]);
+
+	const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+		// Prevent dragging if clicking a button
+		if ((e.target as HTMLElement).tagName === "BUTTON") return;
+		setIsDragging(true);
+		dragStart.current = {
+			x: e.clientX - position.x,
+			y: e.clientY - position.y,
+		};
+	};
+
 	return (
-		<div className='absolute inset-x-4 bottom-4 md:inset-auto md:right-6 md:top-6 md:w-105'>
-			<div className='rounded-3xl border border-white/10 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-cyan-500/10 overflow-hidden'>
-				<div className='border-b border-white/10 px-5 py-4 bg-linear-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10'>
+		<div 
+			className='absolute inset-x-4 bottom-4 md:inset-auto md:right-6 md:top-6 md:w-[400px] flex flex-col max-h-[90vh]'
+			style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
+		>
+			<div className='rounded-3xl border border-white/10 bg-slate-950 backdrop-blur-xl shadow-2xl shadow-cyan-500/10 overflow-hidden flex flex-col min-h-0'>
+				<div 
+					className='shrink-0 border-b border-white/10 px-5 py-4 bg-linear-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10 cursor-grab active:cursor-grabbing'
+					onMouseDown={handleMouseDown}
+				>
 					<div className='flex items-start justify-between gap-3'>
 						<div>
 							<p className='text-xs uppercase tracking-[0.24em] text-cyan-200/80'>
@@ -47,7 +93,7 @@ const VerificationResultCard = ({
 					</div>
 				</div>
 
-				<div className='space-y-4 px-5 py-5 text-sm text-slate-200'>
+				<div className='overflow-y-auto space-y-4 px-5 py-5 text-sm text-slate-200 hide-scrollbar'>
 					<div className='flex flex-wrap items-center gap-2'>
 						<span className='inline-flex items-center rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-100'>
 							{result.verdict || "UNREADABLE"}

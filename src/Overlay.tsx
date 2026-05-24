@@ -122,6 +122,7 @@ const OverlayDiv = ({
 		setResult(response.data);
 		setStatus("Result ready");
 		setIsResultLoading(false);
+		window.electronAPI?.setOverlayClickThrough(false);
 	};
 	const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
 		e.preventDefault();
