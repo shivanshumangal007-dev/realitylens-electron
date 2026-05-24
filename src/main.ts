@@ -31,7 +31,7 @@ let mainWindow: BrowserWindow | null = null;
 
 const createWindow = () => {
 	// Create the browser window.
-	mainWindow = new BrowserWindow({
+	const win = new BrowserWindow({
 		width: 1000,
 		height: 800,
 		autoHideMenuBar: true,
@@ -42,32 +42,38 @@ const createWindow = () => {
 		icon: "../App_icons/icon.png",
 	});
 
+	mainWindow = win;
+
 	// and load the index.html of the app.
 	if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-		mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+		win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
 	} else {
-		mainWindow.loadFile(
+		win.loadFile(
 			path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
 		);
 	}
 
 	// Open the DevTools.
-	mainWindow.webContents.openDevTools();
+	win.webContents.openDevTools();
 
 	// When main window closes, quit the app
-	mainWindow.on("closed", () => {
+	win.on("closed", () => {
 		if (overlayWindow) {
 			overlayWindow.destroy();
 			overlayWindow = null;
 		}
 		app.quit();
 	});
-	mainWindow.on("minimize", function (event) {
-		event.preventDefault();
-		mainWindow?.hide();
+
+	(win as any).on("minimize", (event: any) => {
+		// Prevent default minimize behavior and hide to tray instead
+		if (event && typeof event.preventDefault === "function") {
+			event.preventDefault();
+		}
+		win.hide();
 	});
 
-	return mainWindow;
+	return win;
 };
 
 // This method will be called when Electron has finished
@@ -168,7 +174,9 @@ function createOverlayWindow() {
 	);
 }
 
-const icon = nativeImage.createFromPath(path.join(__dirname, "App_icons/icon.png")).resize({ width: 16, height: 16 });
+const icon = nativeImage
+	.createFromPath(path.join(__dirname, "App_icons/icon.png"))
+	.resize({ width: 16, height: 16 });
 
 app.whenReady().then(() => {
 	createWindow();
