@@ -9,6 +9,7 @@ import {
 	desktopCapturer,
 	Tray,
 	Menu,
+	shell,
 } from "electron";
 import path from "node:path";
 import { execFile } from "node:child_process";
@@ -24,7 +25,17 @@ let tray: Tray | null = null;
 if (started) {
 	app.quit();
 }
-app.disableHardwareAcceleration();
+// Disable CalculateNativeWinOcclusion so the transparent overlay window
+// does not interfere with hardware-accelerated video planes (MPO) in other apps
+// like Chrome/Edge showing X/Twitter or YouTube videos underneath.
+// Also disable direct composition to stop per-pixel alpha layered windows from
+// disrupting Windows DWM compositing of video below the overlay.
+if (process.platform === "win32") {
+	app.commandLine.appendSwitch(
+		"disable-features",
+		"CalculateNativeWinOcclusion,HardwareMediaKeyHandling,MediaFoundationVideoCapture",
+	); 
+}
 
 let overlayWindow: BrowserWindow | null = null;
 let mainWindow: BrowserWindow | null = null;
@@ -290,6 +301,7 @@ ipcMain.handle("capture-screen", async (_, area) => {
 	} finally {
 		if (overlayWindow && !overlayWindow.isDestroyed()) {
 			overlayWindow.setIgnoreMouseEvents(true, { forward: true });
+			overlayWindow.setFocusable(false);
 			overlayWindow.showInactive();
 		}
 	}
@@ -298,11 +310,6 @@ ipcMain.handle("capture-screen", async (_, area) => {
 ipcMain.handle("finish-verification", async () => {
 	if (overlayWindow && !overlayWindow.isDestroyed()) {
 		overlayWindow.close();
-	}
-
-	if (mainWindow && !mainWindow.isDestroyed()) {
-		mainWindow.show();
-		mainWindow.focus();
 	}
 });
 
@@ -320,4 +327,8 @@ ipcMain.handle(
 // Unregister all shortcuts when the app is quitting.
 app.on("will-quit", () => {
 	globalShortcut.unregisterAll();
+});
+
+ipcMain.handle("open-external", (_, url) => {
+	shell.openExternal(url);
 });

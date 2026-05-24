@@ -127,7 +127,6 @@ const OverlayDiv = ({
 		setResult(response.data);
 		setStatus("Result ready");
 		setIsResultLoading(false);
-		window.electronAPI?.setOverlayClickThrough(false);
 	};
 	const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
 		e.preventDefault();
@@ -163,21 +162,23 @@ const OverlayDiv = ({
 	return (
 		<div
 			ref={overlayRef}
-			className='relative h-screen w-screen cursor-crosshair overflow-hidden bg-black/20'
+			className='relative h-screen w-screen cursor-crosshair overflow-hidden'
 			onMouseDown={handleMouseDown}
 		>
-			<div className='absolute inset-0' />
-			<div className='absolute left-4 top-4 rounded-lg bg-black/70 px-3 py-2 text-sm text-white backdrop-blur'>
+			{!dragging && <div className='absolute inset-0 bg-black/50 pointer-events-none' />}
+			
+			<div className='absolute left-4 top-4 rounded-lg bg-black/70 px-3 py-2 text-sm text-white backdrop-blur z-50'>
 				{status}
 			</div>
 			{dragging && (
 				<div
-					className='absolute border-2 border-cyan-400 bg-cyan-400/20'
+					className='absolute border-2 border-cyan-400'
 					style={{
 						left,
 						top,
 						width,
 						height,
+						boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)'
 					}}
 				/>
 			)}

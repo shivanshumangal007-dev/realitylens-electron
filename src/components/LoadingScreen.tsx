@@ -3,6 +3,15 @@ type LoadingScreenProps = {
 };
 
 const LoadingScreen = ({ status }: LoadingScreenProps) => {
+	let progress = 30; // default
+	if (status) {
+		const s = status.toLowerCase();
+		if (s.includes("extracting") || s.includes("capturing")) progress = 60;
+		else if (s.includes("searching")) progress = 90;
+		else if (s.includes("generating") || s.includes("result")) progress = 95;
+		else if (s.includes("done") || s.includes("ready")) progress = 100;
+	}
+
 	return (
 		<div className='absolute right-4 bottom-4 z-50 w-[min(26rem,calc(100vw-2rem))]'>
 			<div className='overflow-hidden rounded-2xl border border-white/10 bg-slate-950/85 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl'>
@@ -27,7 +36,10 @@ const LoadingScreen = ({ status }: LoadingScreenProps) => {
 
 				<div className='space-y-3 px-4 py-3'>
 					<div className='h-1.5 overflow-hidden rounded-full bg-white/8'>
-						<div className='h-full w-1/2 animate-pulse rounded-full bg-linear-to-r from-cyan-400 via-blue-400 to-purple-400' />
+						<div 
+							className='h-full animate-pulse rounded-full bg-linear-to-r from-cyan-400 via-blue-400 to-purple-400 transition-all duration-500' 
+							style={{ width: `${progress}%` }} 
+						/>
 					</div>
 
 					<div className='flex items-center justify-between text-xs text-slate-400'>

@@ -21,6 +21,9 @@ const electronAPI = {
 	},
 	minimiseApp: () => {
 		ipcRenderer.invoke("minimise-app");
+	},
+	openExternal: async (url: string) => {
+		return ipcRenderer.invoke("open-external", url);
 	}
 };
 

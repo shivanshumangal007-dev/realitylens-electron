@@ -11,34 +11,15 @@ type recentHistoryProps = {
     setSelectedCurrentHistory: (verification: any) => void;
 };
 const RecentHIstory = ({ UserHistory, setSelectedCurrentHistory }: recentHistoryProps) => {
-	const statusColors = {
-		true: "from-green-500/20 to-green-600/20 border-green-500/30 text-green-400",
-		false: "from-red-500/20 to-red-600/20 border-red-500/30 text-red-400",
-		mixed:
-			"from-yellow-500/20 to-yellow-600/20 border-yellow-500/30 text-yellow-400",
-		uncertain:
-			"from-gray-500/20 to-gray-600/20 border-gray-500/30 text-gray-400",
-	};
-
-	const statusLabels = {
-		true: "Verified",
-		false: "False",
-		mixed: "Mixed",
-		uncertain: "Uncertain",
-	};
-
-	const getStatusKey = (verification: any) => {
-		const verdict = String(verification?.result?.verdict || "").toLowerCase();
-		const score = verification?.result?.reality_score;
-		if (verdict.includes("real") || (typeof score === "number" && score >= 0.7))
-			return "true";
-		if (
-			verdict.includes("false") ||
-			(typeof score === "number" && score <= 0.3)
-		)
-			return "false";
-		if (verdict.includes("mixed")) return "mixed";
-		return "uncertain";
+	const getVerdictColors = (verdict?: string) => {
+		const normalized = (verdict || "").trim().toLowerCase();
+		if (normalized === "likely fake") return { badge: "border-red-400/30 bg-red-400/10 text-red-500 dark:text-red-100", text: "text-red-500 dark:text-red-400" };
+		if (normalized === "suspicious") return { badge: "border-yellow-400/30 bg-yellow-400/10 text-yellow-600 dark:text-yellow-100", text: "text-yellow-600 dark:text-yellow-400" };
+		if (normalized === "likely real") return { badge: "border-green-400/30 bg-green-400/10 text-green-600 dark:text-green-100", text: "text-green-600 dark:text-green-400" };
+		if (normalized === "satire") return { badge: "border-pink-400/30 bg-pink-400/10 text-pink-600 dark:text-pink-100", text: "text-pink-600 dark:text-pink-400" };
+		if (normalized === "unreadable") return { badge: "border-slate-400/30 bg-slate-400/10 text-slate-600 dark:text-slate-100", text: "text-slate-600 dark:text-slate-400" };
+		// default / anything else
+		return { badge: "border-blue-400/30 bg-blue-400/10 text-blue-600 dark:text-blue-100", text: "text-blue-600 dark:text-cyan-400" };
 	};
 
 	const formatTimestamp = (iso?: string) => {
@@ -84,14 +65,13 @@ const RecentHIstory = ({ UserHistory, setSelectedCurrentHistory }: recentHistory
 										{verification.result?.claim || "Verification"}
 									</h3>
 									<span
-										className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs border bg-linear-to-r ${
-											statusColors[getStatusKey(verification)]
+										className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs border ${
+											getVerdictColors(verification.result?.verdict).badge
 										}`}
 									>
-										{statusLabels[getStatusKey(verification)]}
 										{verification.result?.verdict
-											? ` • ${verification.result.verdict}`
-											: ""}
+											? verification.result.verdict
+											: "UNREADABLE"}
 									</span>
 								</div>
 								<p className='text-sm text-muted-foreground line-clamp-2 mb-2'>

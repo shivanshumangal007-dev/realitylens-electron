@@ -8,6 +8,7 @@ declare global {
 			setOverlayClickThrough: (shouldClickThrough: boolean) => Promise<void>;
 			readFile: (filePath: string) => Promise<number[]>;
 			minimiseApp: () => void;
+			openExternal: (url: string) => Promise<void>;
 		};
 	}
 }
