@@ -13,6 +13,7 @@ import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { fetchUser, HistoryHandler } from "../ApiHandler";
 import LogoutBtn from "../components/LogoutBtn";
+import Cookies from "js-cookie";
 
 // const mockVerifications = [
 // 	{
@@ -105,7 +106,7 @@ const formatTimestamp = (iso?: string) => {
 		return iso;
 	}
 };
-interface userProps{
+interface userProps {
 	email: string;
 	username: string;
 }
@@ -115,20 +116,27 @@ const Dashboard = () => {
 	const [UserHistory, setUserHistory] = useState<any[]>([]);
 	const [user, setuser] = useState<userProps | null>(null);
 	useEffect(() => {
-		HistoryHandler().then((res) => {
-			// console.log("User history:", res.data);
-			setUserHistory(res.data);
-		}).catch((error) => {
-			console.error("Error fetching history:", error);
-		});
+		Cookies.get("token") || navigate("/login");
+	}, [navigate]);
+	useEffect(() => {
+		HistoryHandler()
+			.then((res) => {
+				// console.log("User history:", res.data);
+				setUserHistory(res.data);
+			})
+			.catch((error) => {
+				console.error("Error fetching history:", error);
+			});
 	}, []);
 	useEffect(() => {
-		fetchUser().then((res) => {
-			// console.log("User data:", res.data);
-			setuser(res.data);
-		}).catch((error) => {
-			console.error("Error fetching user data:", error);
-		});
+		fetchUser()
+			.then((res) => {
+				// console.log("User data:", res.data);
+				setuser(res.data);
+			})
+			.catch((error) => {
+				console.error("Error fetching user data:", error);
+			});
 	}, []);
 
 	return (
@@ -226,9 +234,11 @@ const Dashboard = () => {
 							/>
 							<div className='absolute inset-0 rounded-2xl bg-linear-to-r from-cyan-500/0 via-blue-500/0 to-purple-600/0 group-focus-within:from-cyan-500/10 group-focus-within:via-blue-500/10 group-focus-within:to-purple-600/10 transition-all pointer-events-none' />
 						</div>
-						<LogoutBtn logouthandler={() => {
-							navigate('/login');
-						}}  />
+						<LogoutBtn
+							logouthandler={() => {
+								navigate("/login");
+							}}
+						/>
 					</motion.div>
 
 					{/* Recent Verifications */}

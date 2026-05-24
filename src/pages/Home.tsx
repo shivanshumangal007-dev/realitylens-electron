@@ -7,13 +7,16 @@ import {
 	Command,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LogoutBtn from "../components/LogoutBtn";
+import Cookies from "js-cookie";
 
 const Home = () => {
 	const navigate = useNavigate();
 	// const [LoggedIn, setLoggedIn] = useState(false);
-
+	useEffect(() => {
+		Cookies.get("token") || navigate("/login");
+	}, [navigate]);
 
 	return (
 		<div className='size-full flex items-center justify-center relative overflow-hidden h-screen w-full'>

@@ -6,13 +6,13 @@ import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
 import OverlayDiv from "./Overlay";
 import { useState } from "react";
-import Setting from "./pages/Setting";
 import NewSettings from "./pages/NewSetting";
 
 function App() {
 	const location = useLocation();
 	const isOverlay = location.pathname === "/overlay";
 	const [isResultLoading, setIsResultLoading] = useState(false)
+	const [theme, setTheme] = useState("dark")
 
 	if (isOverlay) {
 		return (
@@ -30,7 +30,7 @@ function App() {
 	}
 
 	return (
-		<div className='size-full dark bg-background text-foreground'>
+		<div className={`size-full bg-background text-foreground ${theme === "dark" ? "dark" : ""}`}>
 			<Routes>
 				<Route
 					path='/'
@@ -46,7 +46,7 @@ function App() {
 				/>
 				<Route
 					path='/settings'
-					element={<NewSettings />}
+					element={<NewSettings theme={theme} setTheme={setTheme} />}
 				/>
 				<Route
 					path='*'

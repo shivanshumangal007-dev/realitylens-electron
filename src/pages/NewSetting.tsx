@@ -13,10 +13,13 @@ import { useNavigate } from "react-router";
 import { useState } from "react";
 import * as Switch from "@radix-ui/react-switch";
 import Cookies from "js-cookie";
-
-const NewSettings = () => {
+type NewSettingsProps = {
+	theme: string;
+	setTheme: (value: string) => void;
+};
+const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 	const navigate = useNavigate();
-	const [darkMode, setDarkMode] = useState(true);
+	const [darkMode, setDarkMode] = useState(theme === "dark");
 	const [notifications, setNotifications] = useState(true);
 	const [soundEffects, setSoundEffects] = useState(false);
 	const [autoStart, setAutoStart] = useState(true);
@@ -67,7 +70,10 @@ const NewSettings = () => {
 							</div>
 							<Switch.Root
 								checked={darkMode}
-								onCheckedChange={setDarkMode}
+								onCheckedChange={(checked) => {
+									setDarkMode(checked);
+									setTheme(checked ? "dark" : "light");
+								}}
 								className='w-11 h-6 bg-muted rounded-full relative data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-cyan-500 data-[state=checked]:to-blue-600 transition-all'
 							>
 								<Switch.Thumb className='block w-5 h-5 bg-white rounded-full transition-transform translate-x-0.5 data-[state=checked]:translate-x-[22px]' />
