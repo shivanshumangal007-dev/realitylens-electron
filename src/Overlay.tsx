@@ -21,8 +21,9 @@ const OverlayDiv = ({
 	const [end, setEnd] = useState({ x: 0, y: 0 });
 	const [dragging, setDragging] = useState(false);
 	const [selectionComplete, setSelectionComplete] = useState(false);
-	const [status, setStatus] = useState("Ready to select an area");
+	const [status, setStatus] = useState<string | null>("Ready to select an area");
 	const [result, setResult] = useState<any>(null);
+	const [jobStatus, setJobStatus] = useState<string | null>(null);
 
 	useEffect(() => {
 		console.log("Overlay mounted");
@@ -104,9 +105,13 @@ const OverlayDiv = ({
 		};
 	}, []);
 	const getStatusOfJob = async (jobId: string) => {
+		const response = await getJobStatusHandler(jobId);
+		console.log("Job status response:", response.data.status);
+		setJobStatus(response.data.status);
 		const inte = setInterval(async () => {
 			const response = await getJobStatusHandler(jobId);
 			console.log("Job status response:", response.data.status);
+			setJobStatus(response.data.status);
 			if (
 				response.data.status === "done" ||
 				response.data.status === "failed"
@@ -114,7 +119,7 @@ const OverlayDiv = ({
 				GetfinalResult(jobId);
 				clearInterval(inte);
 			}
-		}, 2000);
+		}, 1000);
 	};
 	const GetfinalResult = async (jobId: string) => {
 		const response = await getJobResultHandler(jobId);
@@ -149,7 +154,7 @@ const OverlayDiv = ({
 		return (
 			<ResultLoading
 				result={result}
-				status={status}
+				status={jobStatus}
 				isResultLoading={isResultLoading}
 			/>
 		);
