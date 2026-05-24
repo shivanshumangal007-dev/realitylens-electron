@@ -30,8 +30,9 @@ let mainWindow: BrowserWindow | null = null;
 const createWindow = () => {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
-		width: 1000,
-		height: 800,
+		width: 800,
+		height: 600,
+		autoHideMenuBar: true,
 		webPreferences: {
 			preload: path.resolve(__dirname, "preload.js"),
 			sandbox: false,
