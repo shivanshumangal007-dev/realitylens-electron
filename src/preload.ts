@@ -24,6 +24,12 @@ const electronAPI = {
 	},
 	openExternal: async (url: string) => {
 		return ipcRenderer.invoke("open-external", url);
+	},
+	getShortcut: async () => {
+		return ipcRenderer.invoke("get-shortcut");
+	},
+	updateShortcut: async (shortcut: string) => {
+		return ipcRenderer.invoke("update-shortcut", shortcut);
 	}
 };
 

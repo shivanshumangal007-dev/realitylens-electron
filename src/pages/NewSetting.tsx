@@ -10,7 +10,7 @@ import {
 	Command,
 } from "lucide-react";
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as Switch from "@radix-ui/react-switch";
 import Cookies from "js-cookie";
 type NewSettingsProps = {
@@ -23,6 +23,60 @@ const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 	const [notifications, setNotifications] = useState(true);
 	const [soundEffects, setSoundEffects] = useState(false);
 	const [autoStart, setAutoStart] = useState(true);
+
+	const [shortcut, setShortcut] = useState<string>("CommandOrControl+Shift+L");
+	const [isListening, setIsListening] = useState(false);
+
+	useEffect(() => {
+		if (window.electronAPI && window.electronAPI.getShortcut) {
+			window.electronAPI.getShortcut().then((sc) => {
+				if (sc) setShortcut(sc);
+			});
+		}
+	}, []);
+
+	useEffect(() => {
+		if (!isListening) return;
+
+		const handleKeyDown = async (e: KeyboardEvent) => {
+			e.preventDefault();
+			e.stopPropagation();
+
+			if (e.key === "Escape") {
+				setIsListening(false);
+				return;
+			}
+
+			const keys = [];
+			if (e.ctrlKey || e.metaKey) keys.push("CommandOrControl");
+			if (e.shiftKey) keys.push("Shift");
+			if (e.altKey) keys.push("Alt");
+
+			const isModifier = ["Control", "Shift", "Alt", "Meta", "Escape"].includes(e.key);
+			if (!isModifier) {
+				const keyName = e.code.replace("Key", "").replace("Digit", "");
+				keys.push(keyName.toUpperCase());
+				
+				const newShortcut = keys.join("+");
+				setShortcut(newShortcut);
+				setIsListening(false);
+				
+				if (window.electronAPI && window.electronAPI.updateShortcut) {
+					await window.electronAPI.updateShortcut(newShortcut);
+				}
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [isListening]);
+
+	const formatShortcutKey = (key: string) => {
+		if (key === "CommandOrControl") return <Command className='w-4 h-4 inline' />;
+		if (key === "Shift") return "⇧";
+		if (key === "Alt") return "Alt";
+		return key;
+	};
 
 	return (
 		<div className='size-full bg-background overflow-auto'>
@@ -100,20 +154,28 @@ const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 									Global shortcut to open RealityLens
 								</p>
 								<div className='flex items-center gap-2 mb-3'>
-									<div className='bg-muted border border-border rounded-lg px-3 py-2 text-sm'>
-										<Command className='w-4 h-4 inline' />
-									</div>
-									<span className='text-muted-foreground'>+</span>
-									<div className='bg-muted border border-border rounded-lg px-3 py-2 text-sm'>
-										⇧
-									</div>
-									<span className='text-muted-foreground'>+</span>
-									<div className='bg-muted border border-border rounded-lg px-3 py-2 text-sm'>
-										L
-									</div>
+									{isListening ? (
+										<div className='bg-cyan-500/10 border border-cyan-500/50 rounded-lg px-3 py-2 text-sm text-cyan-400 animate-pulse'>
+											Press your new shortcut (Esc to cancel)...
+										</div>
+									) : (
+										shortcut.split("+").map((key, index, arr) => (
+											<div key={index} className='flex items-center gap-2'>
+												<div className='bg-muted border border-border rounded-lg px-3 py-2 text-sm min-w-[32px] text-center'>
+													{formatShortcutKey(key)}
+												</div>
+												{index < arr.length - 1 && (
+													<span className='text-muted-foreground'>+</span>
+												)}
+											</div>
+										))
+									)}
 								</div>
-								<button className='text-sm text-cyan-500 hover:text-cyan-400 transition-colors'>
-									Change shortcut
+								<button 
+									onClick={() => setIsListening(true)}
+									className='text-sm text-cyan-500 hover:text-cyan-400 transition-colors'
+								>
+									{isListening ? "Listening..." : "Change shortcut"}
 								</button>
 							</div>
 						</div>

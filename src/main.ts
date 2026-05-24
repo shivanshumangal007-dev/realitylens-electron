@@ -19,6 +19,19 @@ import fs from "fs";
 import screenshot from "screenshot-desktop";
 
 const execFileAsync = promisify(execFile);
+const configPath = path.join(app.getPath("userData"), "config.json");
+
+function getConfig() {
+	try {
+		return JSON.parse(fs.readFileSync(configPath, "utf8"));
+	} catch (e) {
+		return { shortcut: "CommandOrControl+Shift+L" };
+	}
+}
+
+function saveConfig(config: any) {
+	fs.writeFileSync(configPath, JSON.stringify(config));
+}
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 let tray: Tray | null = null;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -192,7 +205,8 @@ const icon = nativeImage
 app.whenReady().then(() => {
 	createWindow();
 
-	const ret = globalShortcut.register("CommandOrControl+Shift+L", () => {
+	const config = getConfig();
+	const ret = globalShortcut.register(config.shortcut, () => {
 		console.log("Shortcut Pressed");
 		createOverlayWindow();
 	});
@@ -331,4 +345,21 @@ app.on("will-quit", () => {
 
 ipcMain.handle("open-external", (_, url) => {
 	shell.openExternal(url);
+});
+
+ipcMain.handle("get-shortcut", () => {
+	return getConfig().shortcut;
+});
+
+ipcMain.handle("update-shortcut", (_, newShortcut) => {
+	const config = getConfig();
+	config.shortcut = newShortcut;
+	saveConfig(config);
+
+	globalShortcut.unregisterAll();
+	const ret = globalShortcut.register(newShortcut, () => {
+		console.log("Shortcut Pressed");
+		createOverlayWindow();
+	});
+	return ret;
 });

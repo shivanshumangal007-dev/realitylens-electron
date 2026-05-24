@@ -9,6 +9,8 @@ declare global {
 			readFile: (filePath: string) => Promise<number[]>;
 			minimiseApp: () => void;
 			openExternal: (url: string) => Promise<void>;
+			getShortcut: () => Promise<string>;
+			updateShortcut: (shortcut: string) => Promise<boolean>;
 		};
 	}
 }
