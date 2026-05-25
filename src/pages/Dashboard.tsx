@@ -3,82 +3,23 @@ import {
 	Eye,
 	Plus,
 	Clock,
-	BookmarkCheck,
 	Settings as SettingsIcon,
 	User,
 	Search,
-	ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { fetchUser, HistoryHandler } from "../ApiHandler";
 import LogoutBtn from "../components/LogoutBtn";
-import Cookies from "js-cookie";
 import CurrentSelectedHistory from "../components/CurrentSelectedHistory";
 import RecentHIstory from "../components/RecentHIstory";
-
-// const mockVerifications = [
-// 	{
-// 		id: "f56e7df6-6ed5-4e96-bd95-6a5080cede9c",
-// 		created_at: "2026-05-22T09:58:03.991134+00:00",
-// 		status: "done",
-// 		result: {
-// 			claim:
-// 				"This video authentically depicts a massive mushroom cloud explosion in Israel.",
-// 			verdict: "LIKELY REAL",
-// 			evidence: [
-// 				{
-// 					url: "",
-// 					title: "Tavily AI Summary",
-// 					source: "Tavily",
-// 					stance: "supports",
-// 				},
-// 				{
-// 					url: "https://www.youtube.com/watch?v=42V8DnCSKpE",
-// 					title:
-// 						"Israel’s SECRET Blast at Military Site Sparks Massive Mushroom Cloud",
-// 					source: "Oneindia News",
-// 					stance: "supports",
-// 				},
-// 				{
-// 					url: "https://www.youtube.com/watch?v=ij5fAKxHgds",
-// 					title:
-// 						"NUCLEAR TEST OR ATTACK? Giant Fireball Sparks Panic in Israel",
-// 					source: "ET Now",
-// 					stance: "supports",
-// 				},
-// 				{
-// 					url: "https://timesofindia.indiatimes.com/videos/international/massive-explosion-hits-israels-nuclear-missile-hub-irans-first-strike-move/videoshow/131149924.cms",
-// 					title:
-// 						"Massive Explosion Hits Israel's 'Nuclear, Missile Hub'; Iran's First Strike Move?",
-// 					source: "Times of India",
-// 					stance: "supports",
-// 				},
-// 				{
-// 					url: "https://www.instagram.com/reel/DYcKqABJhOw",
-// 					title:
-// 						"A massive explosion in central Israel triggered panic across social media",
-// 					source: "Instagram",
-// 					stance: "related",
-// 				},
-// 			],
-// 			confidence: 0.88,
-// 			explanation:
-// 				"Multiple credible sources, including Tavily AI Summary and news outlets, confirm that a massive explosion occurred in central Israel, producing a mushroom cloud, which Israel attributed to a controlled missile test. The event was reported by various news sources, including YouTube news channels and online news websites, with consistent details. Although some speculation and conspiracy theories are present, the core claim is supported by credible sources.",
-// 			reality_score: 0.92,
-// 		},
-// 		error: null,
-// 		user_id: "47a617fc-861d-4f46-8348-9e78374cdb54",
-// 		image_url:
-// 			"https://res.cloudinary.com/dwe6n6goq/image/upload/v1779443883/realitylens_uploads/fpsd1wfizqpn81faoi6q.png",
-// 	},
-// ];
-
+import LoadingScreen from "../components/LoadingScreen";
 
 interface userProps {
 	email: string;
 	username: string;
 }
+
 const Dashboard = () => {
 	const navigate = useNavigate();
 	const [activeSection, setActiveSection] = useState("new");
@@ -87,40 +28,109 @@ const Dashboard = () => {
 	const [selectedcurrentHistory, setSelectedCurrentHistory] = useState<
 		any | null
 	>(null);
+	const [isBootLoading, setIsBootLoading] = useState(true);
+	const [loadError, setLoadError] = useState<string | null>(null);
+
 	useEffect(() => {
 		localStorage.getItem("token") || navigate("/login");
 	}, [navigate]);
+
 	useEffect(() => {
-		HistoryHandler()
-			.then((res) => {
-				// console.log("User history:", res.data);
-				setUserHistory(res.data);
-			})
-			.catch((error) => {
-				console.error("Error fetching history:", error);
-			});
-	}, []);
-	useEffect(() => {
-		fetchUser()
-			.then((res) => {
-				// console.log("User data:", res.data);
-				setuser(res.data);
-			})
-			.catch((error) => {
-				console.error("Error fetching user data:", error);
-			});
-	}, []);
+		let mounted = true;
+
+		const loadDashboardData = async () => {
+			setIsBootLoading(true);
+			setLoadError(null);
+
+			try {
+				const [historyResponse, userResponse] = await Promise.all([
+					HistoryHandler(),
+					fetchUser(),
+				]);
+
+				if (!mounted) return;
+				setUserHistory(
+					Array.isArray(historyResponse.data) ? historyResponse.data : [],
+				);
+				setuser(userResponse.data);
+			} catch (error) {
+				if (!mounted) return;
+				const message =
+					error instanceof Error
+						? error.message
+						: "Unable to load dashboard right now.";
+				console.error("Dashboard load error:", error);
+				setLoadError(message);
+
+				if (
+					message.toLowerCase().includes("session expired") ||
+					message.toLowerCase().includes("sign in again")
+				) {
+					localStorage.removeItem("token");
+					navigate("/login");
+				}
+			} finally {
+				if (mounted) setIsBootLoading(false);
+			}
+		};
+
+		void loadDashboardData();
+
+		return () => {
+			mounted = false;
+		};
+	}, [navigate]);
+
+	if (isBootLoading) {
+		return (
+			<LoadingScreen
+				status='Loading your dashboard...'
+				fullScreen
+			/>
+		);
+	}
+
+	if (loadError) {
+		return (
+			<div className='flex size-full items-center justify-center bg-background px-4 text-foreground'>
+				<div className='w-full max-w-lg rounded-3xl border border-white/10 bg-card/70 p-8 text-center shadow-2xl backdrop-blur-xl'>
+					<p className='text-xs uppercase tracking-[0.22em] text-red-300'>
+						Dashboard unavailable
+					</p>
+					<h1 className='mt-3 text-3xl'>We could not load your data</h1>
+					<p className='mt-3 text-sm text-muted-foreground'>{loadError}</p>
+					<div className='mt-6 flex flex-wrap justify-center gap-3'>
+						<button
+							type='button'
+							onClick={() => window.location.reload()}
+							className='rounded-xl bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 px-4 py-2 text-sm font-medium text-white'
+						>
+							Retry
+						</button>
+						<button
+							type='button'
+							onClick={() => {
+								localStorage.removeItem("token");
+								navigate("/login");
+							}}
+							className='rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-foreground hover:bg-white/10'
+						>
+							Go to login
+						</button>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className='size-full flex bg-background h-screen w-full'>
-			{/* Sidebar */}
 			<motion.aside
 				initial={{ x: -20, opacity: 0 }}
 				animate={{ x: 0, opacity: 1 }}
 				transition={{ duration: 0.3 }}
 				className='w-64 bg-sidebar border-r border-sidebar-border flex flex-col'
 			>
-				{/* Logo */}
 				<div className='p-6 border-b border-sidebar-border'>
 					<div className='flex items-center gap-3'>
 						<div className='w-10 h-10 rounded-xl bg-linear-to-br from-cyan-500 via-blue-500 to-purple-600 flex items-center justify-center'>
@@ -130,7 +140,6 @@ const Dashboard = () => {
 					</div>
 				</div>
 
-				{/* Navigation */}
 				<nav className='flex-1 p-4 space-y-1'>
 					<motion.button
 						whileHover={{ x: 4 }}
@@ -168,7 +177,6 @@ const Dashboard = () => {
 					</motion.button>
 				</nav>
 
-				{/* User profile */}
 				<div className='p-4 border-t border-sidebar-border'>
 					<motion.div
 						whileHover={{ scale: 1.02 }}
@@ -178,19 +186,19 @@ const Dashboard = () => {
 							<User className='w-5 h-5 text-white' />
 						</div>
 						<div className='flex-1 min-w-0'>
-							<p className='text-sm truncate'>{user?.username}</p>
+							<p className='text-sm truncate'>
+								{user?.username || "Loading user..."}
+							</p>
 							<p className='text-xs text-muted-foreground truncate'>
-								{user?.email}
+								{user?.email || ""}
 							</p>
 						</div>
 					</motion.div>
 				</div>
 			</motion.aside>
 
-			{/* Main content */}
 			<main className='flex-1 overflow-auto'>
 				<div className='max-w-6xl mx-auto p-8'>
-					{/* Search bar */}
 					<motion.div
 						initial={{ y: -20, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
@@ -208,6 +216,7 @@ const Dashboard = () => {
 						</div>
 						<LogoutBtn
 							logouthandler={() => {
+								localStorage.removeItem("token");
 								navigate("/login");
 							}}
 						/>

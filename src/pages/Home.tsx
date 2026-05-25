@@ -1,4 +1,3 @@
-
 import { motion } from "motion/react";
 import {
 	CheckCircle2,
@@ -19,8 +18,8 @@ const Home = () => {
 	}, [navigate]);
 
 	const minimiseApphandler = () => {
-		window.electronAPI.minimiseApp();
-	}
+		window.electronAPI?.minimiseApp?.();
+	};
 
 	return (
 		<div className='size-full flex items-center justify-center relative overflow-hidden h-screen w-full'>
@@ -187,6 +186,6 @@ const Home = () => {
 			</motion.div>
 		</div>
 	);
-}
+};
 
 export default Home;

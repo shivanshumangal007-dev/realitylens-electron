@@ -2,7 +2,7 @@ import LoadingScreen from "./components/LoadingScreen";
 import VerificationResultCard from "./components/VerificationResultCard";
 type ResultLoadingProps = {
 	result: any;
-	status: string;
+	status: string | null;
 	isResultLoading: boolean;
 };
 const ResultLoading = ({
@@ -16,7 +16,7 @@ const ResultLoading = ({
 
 	return (
 		<div className='pointer-events-none fixed inset-0 z-50'>
-			{isResultLoading && <LoadingScreen status={status} />}
+			{isResultLoading && <LoadingScreen status={status || "Working..."} />}
 			{result && !isResultLoading && (
 				<div className='pointer-events-auto'>
 					<VerificationResultCard
