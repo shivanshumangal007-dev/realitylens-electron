@@ -30,7 +30,10 @@ const electronAPI = {
 	},
 	updateShortcut: async (shortcut: string) => {
 		return ipcRenderer.invoke("update-shortcut", shortcut);
-	}
+	},
+	onNavigateToLogin: (callback: () => void) => {
+		ipcRenderer.on("navigate-to-login", () => callback());
+	},
 };
 
 console.log("preload loaded");
