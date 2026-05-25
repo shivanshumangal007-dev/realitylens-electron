@@ -118,6 +118,12 @@ let overlayWindow: BrowserWindow | null = null;
 let mainWindow: BrowserWindow | null = null;
 let isQuitting = false;
 
+const getIconPath = () => {
+	return app.isPackaged 
+		? path.join(process.resourcesPath, "App_icons", "icon.png")
+		: path.join(__dirname, "../../src/App_icons/icon.png");
+};
+
 const createWindow = () => {
 	// Create the browser window.
 	const win = new BrowserWindow({
@@ -128,7 +134,7 @@ const createWindow = () => {
 			preload: path.resolve(__dirname, "preload.js"),
 			sandbox: false,
 		},
-		icon: path.join(__dirname, "App_icons/icon.png"),
+		icon: getIconPath(),
 	});
 
 	mainWindow = win;
@@ -205,7 +211,7 @@ function createOverlayWindow() {
 		},
 	});
 
-	overlayWindow.setAlwaysOnTop(true, "screen-saver");
+	overlayWindow.setAlwaysOnTop(true, process.platform === "darwin" ? "pop-up-menu" : "screen-saver");
 	overlayWindow.setIgnoreMouseEvents(false);
 
 	overlayWindow.setVisibleOnAllWorkspaces(true, {
@@ -254,7 +260,7 @@ if (!started) {
 	// Do NOT quit when all windows are closed — the app lives in the tray.
 	// User must click Quit in the tray context menu to exit.
 	const icon = nativeImage
-	.createFromPath(path.join(__dirname, "App_icons/icon.png"))
+	.createFromPath(getIconPath())
 	.resize({ width: 16, height: 16 });
 
 	app.on("window-all-closed", () => {
@@ -276,7 +282,7 @@ app.whenReady().then(() => {
 		createOverlayWindow();
 	});
 	tray = new Tray(icon);
-	console.log(path.join(__dirname, "App_icons/icon.png"));
+	console.log("Tray icon path:", getIconPath());
 	var contextMenu = Menu.buildFromTemplate([
 		{
 			label: "Show App",
@@ -380,9 +386,11 @@ ipcMain.handle("capture-screen", async (_, area) => {
 		throw err;
 	} finally {
 		if (overlayWindow && !overlayWindow.isDestroyed()) {
-			overlayWindow.setIgnoreMouseEvents(true, { forward: true });
-			overlayWindow.setFocusable(false);
-			overlayWindow.showInactive();
+			if (process.platform !== "linux") {
+				overlayWindow.setIgnoreMouseEvents(true, { forward: true });
+			}
+			overlayWindow.setFocusable(true);
+			overlayWindow.show();
 		}
 	}
 });

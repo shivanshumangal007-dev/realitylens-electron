@@ -31,7 +31,7 @@ const OverlayDiv = ({
 
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Escape") {
-				window.close();
+				window.electronAPI?.finishVerification();
 			}
 		};
 

@@ -15,6 +15,7 @@ const config: ForgeConfig = {
     name: 'RealityLens',
     executableName: 'RealityLens',
     icon: './src/App_icons/icon',
+    extraResource: ['./src/App_icons'],
     appVersion: '11.2.8',
     appCopyright: `Copyright © ${new Date().getFullYear()} Hannu Verma`,
   },
