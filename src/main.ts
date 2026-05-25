@@ -14,7 +14,6 @@ import {
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import started from "electron-squirrel-startup";
 import fs from "fs";
 import screenshot from "screenshot-desktop";
 import log from "electron-log/main";
@@ -64,12 +63,44 @@ function saveConfig(config: any) {
 }
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 let tray: Tray | null = null;
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-// IMPORTANT: guard ALL app init below with !started — the tray-keep-alive
-// mechanism would otherwise block app.quit() and hang the Squirrel installer.
+function handleSquirrelEvent() {
+	if (process.argv.length === 1) return false;
+
+	const squirrelEvent = process.argv[1];
+	if (!squirrelEvent.startsWith("--squirrel")) return false;
+
+	const ChildProcess = require("node:child_process");
+	const appFolder = path.resolve(process.execPath, "..");
+	const rootAtomFolder = path.resolve(appFolder, "..");
+	const updateDotExe = path.resolve(path.join(rootAtomFolder, "Update.exe"));
+	const exeName = path.basename(process.execPath);
+
+	const spawnUpdate = (args: string[]) => {
+		try {
+			ChildProcess.spawn(updateDotExe, args, { detached: true });
+		} catch (error) {}
+	};
+
+	switch (squirrelEvent) {
+		case "--squirrel-install":
+		case "--squirrel-updated":
+			spawnUpdate(["--createShortcut", exeName]);
+			setTimeout(app.quit, 500); // Quit quickly without waiting, avoids deadlocks
+			return true;
+		case "--squirrel-uninstall":
+			spawnUpdate(["--removeShortcut", exeName]);
+			setTimeout(app.quit, 500);
+			return true;
+		case "--squirrel-obsolete":
+			app.quit();
+			return true;
+	}
+	return false;
+}
+
+const started = handleSquirrelEvent();
 if (started) {
-	log.info("Squirrel event detected, quitting for installer.");
-	app.quit();
+	log.info("Squirrel event handled, quitting.");
 }
 // Disable CalculateNativeWinOcclusion so the transparent overlay window
 // does not interfere with hardware-accelerated video planes (MPO) in other apps
@@ -182,7 +213,7 @@ function createOverlayWindow() {
 	});
 
 	if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-		overlayWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/overlay`);
+		overlayWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}#/overlay`);
 	} else {
 		const overlayPath = path.join(
 			__dirname,
