@@ -7,7 +7,7 @@ type LogoutBtnProps = {
 }
 const LogoutBtn = ({ logouthandler, classname  }: LogoutBtnProps) => {
     const removeToken = () => {
-        Cookies.remove("token");
+        localStorage.removeItem("token");
         logouthandler();
     }
   return (

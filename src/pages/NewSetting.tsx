@@ -194,7 +194,7 @@ const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 						whileHover={{ scale: 1.01 }}
 						whileTap={{ scale: 0.99 }}
 						onClick={() => {
-                            Cookies.remove("token");
+                            localStorage.removeItem("token");
                             navigate("/login");
                         }}
 						className='w-full bg-red-500/10 border border-red-500/30 rounded-2xl p-6 flex items-center gap-3 hover:bg-red-500/20 transition-colors'

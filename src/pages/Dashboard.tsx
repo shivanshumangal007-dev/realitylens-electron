@@ -88,7 +88,7 @@ const Dashboard = () => {
 		any | null
 	>(null);
 	useEffect(() => {
-		Cookies.get("token") || navigate("/login");
+		localStorage.getItem("token") || navigate("/login");
 	}, [navigate]);
 	useEffect(() => {
 		HistoryHandler()

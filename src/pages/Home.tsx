@@ -15,7 +15,7 @@ const Home = () => {
 	const navigate = useNavigate();
 	// const [LoggedIn, setLoggedIn] = useState(false);
 	useEffect(() => {
-		Cookies.get("token") || navigate("/login");
+		localStorage.getItem("token") || navigate("/login");
 	}, [navigate]);
 
 	const minimiseApphandler = () => {

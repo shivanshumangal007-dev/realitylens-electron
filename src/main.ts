@@ -62,8 +62,12 @@ function saveConfig(config: any) {
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 let tray: Tray | null = null;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
+// IMPORTANT: guard ALL app init below with !started — the tray-keep-alive
+// mechanism would otherwise block app.quit() and hang the Squirrel installer.
 if (started) {
+	log.info("Squirrel event detected, quitting for installer.");
 	app.quit();
+	process.exit(0);
 }
 // Disable CalculateNativeWinOcclusion so the transparent overlay window
 // does not interfere with hardware-accelerated video planes (MPO) in other apps
@@ -133,26 +137,7 @@ const createWindow = () => {
 	return win;
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 
-// Quit when the main window is closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-// Do NOT quit when all windows are closed — the app lives in the tray.
-// User must click Quit in the tray context menu to exit.
-app.on("window-all-closed", () => {
-	// intentionally empty — tray keeps the app alive
-});
-
-app.on("activate", () => {
-	// On OS X it's common to re-create a window in the app when the
-	// dock icon is clicked and there are no other windows open.
-	if (BrowserWindow.getAllWindows().length === 0) {
-		createWindow();
-	}
-});
 
 function createOverlayWindow() {
 	if (overlayWindow) return;
@@ -234,6 +219,19 @@ function createOverlayWindow() {
 const icon = nativeImage
 	.createFromPath(path.join(__dirname, "App_icons/icon.png"))
 	.resize({ width: 16, height: 16 });
+
+if (!started) {
+	// Do NOT quit when all windows are closed — the app lives in the tray.
+	// User must click Quit in the tray context menu to exit.
+	app.on("window-all-closed", () => {
+		// intentionally empty — tray keeps the app alive
+	});
+
+	app.on("activate", () => {
+		if (BrowserWindow.getAllWindows().length === 0) {
+			createWindow();
+		}
+	});
 
 app.whenReady().then(() => {
 	createWindow();
@@ -397,3 +395,4 @@ ipcMain.handle("update-shortcut", (_, newShortcut) => {
 	});
 	return ret;
 });
+} // end if (!started)

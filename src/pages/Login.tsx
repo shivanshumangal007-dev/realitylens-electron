@@ -14,7 +14,7 @@ const Login = () => {
 		e.preventDefault();
 		loginHandler(email, password)
 			.then((res) => {
-				Cookies.set("token", res.data.access_token, { expires: 7 });
+				localStorage.setItem("token", res.data.access_token);
 				navigate("/");
 			})
 			.catch((error) => {
