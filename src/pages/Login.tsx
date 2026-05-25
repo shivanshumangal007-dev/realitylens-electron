@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { Eye, Mail, Lock } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { useState } from "react";
 import { loginHandler } from "../ApiHandler";
 import Cookies from "js-cookie";
@@ -14,8 +14,8 @@ const Login = () => {
 		e.preventDefault();
 		loginHandler(email, password)
 			.then((res) => {
-				navigate("/");
 				Cookies.set("token", res.data.access_token, { expires: 7 });
+				navigate("/");
 			})
 			.catch((error) => {
 				console.error("Login error:", error);
@@ -170,7 +170,7 @@ const Login = () => {
 						transition={{ delay: 1 }}
 						className='mt-8 text-center text-sm text-muted-foreground'
 					>
-						not Registerd yet? <a href="/register" className="text-cyan-500 hover:underline">Register here</a>
+						not Registerd yet? <Link to="/Register" className="text-cyan-500 hover:underline">Register here</Link>
 					</motion.div>
 				</div>
 			</motion.div>

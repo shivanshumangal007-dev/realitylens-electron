@@ -17,6 +17,33 @@ import { promisify } from "node:util";
 import started from "electron-squirrel-startup";
 import fs from "fs";
 import screenshot from "screenshot-desktop";
+import log from "electron-log/main";
+
+// ── Logging setup ────────────────────────────────────────────────────────────
+// Logs are written to: %AppData%\RealityLens\logs\main.log
+log.initialize();
+log.transports.file.level = "debug";
+log.transports.console.level = "debug";
+log.transports.file.format = "[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}";
+
+// Forward all console.* to electron-log so nothing is lost
+Object.assign(console, log.functions);
+
+// Catch any crash before Electron even fires — this is what fills the log
+// when the Squirrel installer silently fails
+process.on("uncaughtException", (error) => {
+	log.error("[uncaughtException]", error);
+});
+process.on("unhandledRejection", (reason) => {
+	log.error("[unhandledRejection]", reason);
+});
+
+log.info("=== RealityLens starting ===");
+log.info("Platform:", process.platform, "| Arch:", process.arch);
+log.info("Electron:", process.versions.electron, "| Node:", process.versions.node);
+log.info("Args:", process.argv.join(" "));
+log.info("Log file:", log.transports.file.getFile().path);
+// ─────────────────────────────────────────────────────────────────────────────
 
 const execFileAsync = promisify(execFile);
 const configPath = path.join(app.getPath("userData"), "config.json");
@@ -52,6 +79,7 @@ if (process.platform === "win32") {
 
 let overlayWindow: BrowserWindow | null = null;
 let mainWindow: BrowserWindow | null = null;
+let isQuitting = false;
 
 const createWindow = () => {
 	// Create the browser window.
@@ -63,7 +91,7 @@ const createWindow = () => {
 			preload: path.resolve(__dirname, "preload.js"),
 			sandbox: false,
 		},
-		icon: "../App_icons/icon.png",
+		icon: path.join(__dirname, "App_icons/icon.png"),
 	});
 
 	mainWindow = win;
@@ -77,16 +105,21 @@ const createWindow = () => {
 		);
 	}
 
-	// Open the DevTools.
-	win.webContents.openDevTools();
+	// Open DevTools only in development
+	if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+		win.webContents.openDevTools();
+	}
 
-	// When main window closes, quit the app
-	win.on("closed", () => {
-		if (overlayWindow) {
-			overlayWindow.destroy();
-			overlayWindow = null;
+	// When main window is closed, hide it to tray instead of quitting
+	win.on("close", (event) => {
+		if (!isQuitting) {
+			event.preventDefault();
+			win.hide();
+			if (overlayWindow && !overlayWindow.isDestroyed()) {
+				overlayWindow.destroy();
+				overlayWindow = null;
+			}
 		}
-		app.quit();
 	});
 
 	(win as any).on("minimize", (event: any) => {
@@ -107,10 +140,10 @@ const createWindow = () => {
 // Quit when the main window is closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
+// Do NOT quit when all windows are closed — the app lives in the tray.
+// User must click Quit in the tray context menu to exit.
 app.on("window-all-closed", () => {
-	if (process.platform !== "darwin") {
-		app.quit();
-	}
+	// intentionally empty — tray keeps the app alive
 });
 
 app.on("activate", () => {
@@ -222,6 +255,7 @@ app.whenReady().then(() => {
 		{
 			label: "Quit",
 			click: function () {
+				isQuitting = true;
 				app.quit();
 			},
 		},

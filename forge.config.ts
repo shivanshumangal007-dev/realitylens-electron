@@ -9,11 +9,21 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: true,
+    asar: {
+      unpack: '**/node_modules/screenshot-desktop/lib/win32/**',
+    },
+    name: 'RealityLens',
+    executableName: 'RealityLens',
+    icon: './src/App_icons/icon',
+    appVersion: '11.2.8',
+    appCopyright: `Copyright © ${new Date().getFullYear()} Shivanshu Mangal`,
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      name: 'RealityLens',
+      setupIcon: './src/App_icons/icon.ico',
+    }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
     new MakerDeb({}),

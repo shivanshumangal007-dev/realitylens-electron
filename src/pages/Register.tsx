@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { Eye, Mail, Lock } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { useState } from "react";
 import { registerHandler } from "../ApiHandler";
 const Register = () => {
@@ -186,7 +186,7 @@ const Register = () => {
 						transition={{ delay: 1 }}
 						className='mt-8 text-center text-sm text-muted-foreground'
 					>
-						already have an account? <a href="/login" className="text-cyan-500 hover:underline">Login here</a>
+						already have an account? <Link to="/login" className="text-cyan-500 hover:underline">Login here</Link>
 					</motion.div>
 				</div>
 			</motion.div>
