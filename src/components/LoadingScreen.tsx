@@ -2,14 +2,15 @@ type LoadingScreenProps = {
 	status: string;
 	fullScreen?: boolean;
 	tone?: "default" | "error";
+	progress?:number;
 };
 
 const LoadingScreen = ({
 	status,
 	fullScreen = false,
 	tone = "default",
+	progress = 30,
 }: LoadingScreenProps) => {
-	let progress = 30; // default
 	if (status) {
 		const s = status.toLowerCase();
 		if (s.includes("extracting") || s.includes("capturing")) progress = 60;

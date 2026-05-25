@@ -45,6 +45,7 @@ const Login = () => {
 				<LoadingScreen
 					status='Signing you in...'
 					fullScreen
+					progress={100}
 				/>
 			)}
 			{/* Animated gradient background */}
