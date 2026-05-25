@@ -3,12 +3,14 @@ import { Eye, Mail, Lock } from "lucide-react";
 import { useNavigate, Link } from "react-router";
 import { useState, useEffect } from "react";
 import { loginHandler } from "../ApiHandler";
-import Cookies from "js-cookie";
+import LoadingScreen from "../components/LoadingScreen";
 
 const Login = () => {
 	const navigate = useNavigate();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (localStorage.getItem("token")) {
@@ -16,20 +18,35 @@ const Login = () => {
 		}
 	}, [navigate]);
 
-	const handleLogin = (e: React.FormEvent) => {
+	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
-		loginHandler(email, password)
-			.then((res) => {
-				localStorage.setItem("token", res.data.access_token);
-				navigate("/");
-			})
-			.catch((error) => {
-				console.error("Login error:", error);
-			});
+		setIsSubmitting(true);
+		setErrorMessage(null);
+
+		try {
+			const res = await loginHandler(email, password);
+			localStorage.setItem("token", res.data.access_token);
+			navigate("/");
+		} catch (error) {
+			console.error("Login error:", error);
+			setErrorMessage(
+				error instanceof Error
+					? error.message
+					: "Login failed. Please try again.",
+			);
+		} finally {
+			setIsSubmitting(false);
+		}
 	};
 
 	return (
 		<div className='size-full flex items-center justify-center relative overflow-hidden w-full h-screen'>
+			{isSubmitting && (
+				<LoadingScreen
+					status='Signing you in...'
+					fullScreen
+				/>
+			)}
 			{/* Animated gradient background */}
 			<div className='absolute inset-0 bg-linear-to-br from-blue-950 via-background to-purple-950 opacity-50' />
 			<motion.div
@@ -90,6 +107,11 @@ const Login = () => {
 						onSubmit={handleLogin}
 						className='space-y-4'
 					>
+						{errorMessage && (
+							<div className='rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100'>
+								{errorMessage}
+							</div>
+						)}
 						<motion.div
 							initial={{ opacity: 0, x: -20 }}
 							animate={{ opacity: 1, x: 0 }}
@@ -105,6 +127,7 @@ const Login = () => {
 									placeholder='you@example.com'
 									className='w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all'
 									required
+									disabled={isSubmitting}
 								/>
 							</div>
 						</motion.div>
@@ -124,6 +147,7 @@ const Login = () => {
 									placeholder='••••••••'
 									className='w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all'
 									required
+									disabled={isSubmitting}
 								/>
 							</div>
 						</motion.div>
@@ -135,9 +159,10 @@ const Login = () => {
 							whileHover={{ scale: 1.02 }}
 							whileTap={{ scale: 0.98 }}
 							type='submit'
-							className='w-full bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 text-white rounded-xl py-3 font-medium shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all'
+							disabled={isSubmitting}
+							className='w-full bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 text-white rounded-xl py-3 font-medium shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:cursor-not-allowed disabled:opacity-70'
 						>
-							Continue
+							{isSubmitting ? "Signing in..." : "Continue"}
 						</motion.button>
 
 						<motion.div
@@ -163,7 +188,8 @@ const Login = () => {
 							whileHover={{ scale: 1.02 }}
 							whileTap={{ scale: 0.98 }}
 							type='button'
-							className='w-full bg-white/5 backdrop-blur border border-white/10 text-foreground rounded-xl py-3 font-medium hover:bg-white/10 transition-all'
+							disabled={isSubmitting}
+							className='w-full bg-white/5 backdrop-blur border border-white/10 text-foreground rounded-xl py-3 font-medium hover:bg-white/10 transition-all disabled:cursor-not-allowed disabled:opacity-60'
 						>
 							Continue with Google
 						</motion.button>
@@ -176,11 +202,17 @@ const Login = () => {
 						transition={{ delay: 1 }}
 						className='mt-8 text-center text-sm text-muted-foreground'
 					>
-						not Registerd yet? <Link to="/Register" className="text-cyan-500 hover:underline">Register here</Link>
+						not Registerd yet?{" "}
+						<Link
+							to='/Register'
+							className='text-cyan-500 hover:underline'
+						>
+							Register here
+						</Link>
 					</motion.div>
 				</div>
 			</motion.div>
 		</div>
 	);
-}
+};
 export default Login;

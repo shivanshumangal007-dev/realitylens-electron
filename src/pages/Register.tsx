@@ -3,11 +3,14 @@ import { Eye, Mail, Lock } from "lucide-react";
 import { useNavigate, Link } from "react-router";
 import { useState, useEffect } from "react";
 import { registerHandler } from "../ApiHandler";
+import LoadingScreen from "../components/LoadingScreen";
 const Register = () => {
 	const navigate = useNavigate();
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (localStorage.getItem("token")) {
@@ -15,19 +18,34 @@ const Register = () => {
 		}
 	}, [navigate]);
 
-	const handleRegister = (e: React.FormEvent) => {
+	const handleRegister = async (e: React.FormEvent) => {
 		e.preventDefault();
-		registerHandler(name, email, password)
-			.then(() => {
-				navigate("/login");
-			})
-			.catch((error) => {
-				console.error("Registration error:", error);
-			});
+		setIsSubmitting(true);
+		setErrorMessage(null);
+
+		try {
+			await registerHandler(name, email, password);
+			navigate("/login");
+		} catch (error) {
+			console.error("Registration error:", error);
+			setErrorMessage(
+				error instanceof Error
+					? error.message
+					: "Registration failed. Please try again.",
+			);
+		} finally {
+			setIsSubmitting(false);
+		}
 	};
 
 	return (
 		<div className='size-full flex items-center justify-center relative overflow-hidden w-full h-screen'>
+			{isSubmitting && (
+				<LoadingScreen
+					status='Creating your account...'
+					fullScreen
+				/>
+			)}
 			{/* Animated gradient background */}
 			<div className='absolute inset-0 bg-linear-to-br from-blue-950 via-background to-purple-950 opacity-50' />
 			<motion.div
@@ -88,6 +106,11 @@ const Register = () => {
 						onSubmit={handleRegister}
 						className='space-y-4'
 					>
+						{errorMessage && (
+							<div className='rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100'>
+								{errorMessage}
+							</div>
+						)}
 						<motion.div
 							initial={{ opacity: 0, x: -20 }}
 							animate={{ opacity: 1, x: 0 }}
@@ -103,6 +126,7 @@ const Register = () => {
 									placeholder='John Doe'
 									className='w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all'
 									required
+									disabled={isSubmitting}
 								/>
 							</div>
 						</motion.div>
@@ -121,6 +145,7 @@ const Register = () => {
 									placeholder='you@example.com'
 									className='w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all'
 									required
+									disabled={isSubmitting}
 								/>
 							</div>
 						</motion.div>
@@ -140,6 +165,7 @@ const Register = () => {
 									placeholder='••••••••'
 									className='w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all'
 									required
+									disabled={isSubmitting}
 								/>
 							</div>
 						</motion.div>
@@ -151,9 +177,10 @@ const Register = () => {
 							whileHover={{ scale: 1.02 }}
 							whileTap={{ scale: 0.98 }}
 							type='submit'
-							className='w-full bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 text-white rounded-xl py-3 font-medium shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all'
+							disabled={isSubmitting}
+							className='w-full bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 text-white rounded-xl py-3 font-medium shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:cursor-not-allowed disabled:opacity-70'
 						>
-							Continue
+							{isSubmitting ? "Creating account..." : "Continue"}
 						</motion.button>
 
 						<motion.div
@@ -179,7 +206,8 @@ const Register = () => {
 							whileHover={{ scale: 1.02 }}
 							whileTap={{ scale: 0.98 }}
 							type='button'
-							className='w-full bg-white/5 backdrop-blur border border-white/10 text-foreground rounded-xl py-3 font-medium hover:bg-white/10 transition-all'
+							disabled={isSubmitting}
+							className='w-full bg-white/5 backdrop-blur border border-white/10 text-foreground rounded-xl py-3 font-medium hover:bg-white/10 transition-all disabled:cursor-not-allowed disabled:opacity-60'
 						>
 							SignUp with Google
 						</motion.button>
@@ -192,7 +220,13 @@ const Register = () => {
 						transition={{ delay: 1 }}
 						className='mt-8 text-center text-sm text-muted-foreground'
 					>
-						already have an account? <Link to="/login" className="text-cyan-500 hover:underline">Login here</Link>
+						already have an account?{" "}
+						<Link
+							to='/login'
+							className='text-cyan-500 hover:underline'
+						>
+							Login here
+						</Link>
 					</motion.div>
 				</div>
 			</motion.div>
