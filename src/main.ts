@@ -67,7 +67,6 @@ let tray: Tray | null = null;
 if (started) {
 	log.info("Squirrel event detected, quitting for installer.");
 	app.quit();
-	process.exit(0);
 }
 // Disable CalculateNativeWinOcclusion so the transparent overlay window
 // does not interfere with hardware-accelerated video planes (MPO) in other apps

@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { Eye, Mail, Lock } from "lucide-react";
 import { useNavigate, Link } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { registerHandler } from "../ApiHandler";
 const Register = () => {
 	const navigate = useNavigate();
@@ -9,9 +9,15 @@ const Register = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
+	useEffect(() => {
+		if (localStorage.getItem("token")) {
+			navigate("/");
+		}
+	}, [navigate]);
+
 	const handleRegister = (e: React.FormEvent) => {
 		e.preventDefault();
-		registerHandler( email, password)
+		registerHandler(name, email, password)
 			.then(() => {
 				navigate("/login");
 			})

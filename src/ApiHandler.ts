@@ -11,9 +11,9 @@ const loginHandler = async (email: string, password: string) => {
     }
 };
 
-const registerHandler = async (email: string, password: string) => {
+const registerHandler = async (username: string, email: string, password: string) => {
     try {
-        const response = await api.post("/register", { email , password });
+        const response = await api.post("/register", { username, email , password });
         return response;
     } catch (error) {
         console.error("Register error:", error);
