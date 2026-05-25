@@ -332,9 +332,14 @@ ipcMain.handle("capture-screen", async (_, area) => {
 			},
 		});
 
-		const primaryScreenSource = sources.find(
+		let primaryScreenSource = sources.find(
 			(source) => source.display_id === String(primaryDisplay.id),
 		);
+
+		if (!primaryScreenSource) {
+			console.warn("Primary screen source not found by display_id, falling back to first available screen.");
+			primaryScreenSource = sources[0];
+		}
 
 		if (!primaryScreenSource) {
 			throw new Error("Primary screen source not found.");
