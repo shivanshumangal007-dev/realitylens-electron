@@ -16,13 +16,15 @@ const config: ForgeConfig = {
     executableName: 'RealityLens',
     icon: './src/App_icons/icon',
     appVersion: '11.2.8',
-    appCopyright: `Copyright © ${new Date().getFullYear()} Shivanshu Mangal`,
+    appCopyright: `Copyright © ${new Date().getFullYear()} Hannu Verma`,
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
       name: 'RealityLens',
       setupIcon: './src/App_icons/icon.ico',
+        authors: 'Hannu Verma',        // ← add this
+        description: 'RealityLens',
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),

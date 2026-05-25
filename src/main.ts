@@ -21,6 +21,9 @@ import log from "electron-log/main";
 
 // ── Logging setup ────────────────────────────────────────────────────────────
 // Logs are written to: %AppData%\RealityLens\logs\main.log
+
+
+
 log.initialize();
 log.transports.file.level = "debug";
 log.transports.console.level = "debug";
@@ -215,13 +218,14 @@ function createOverlayWindow() {
 	);
 }
 
-const icon = nativeImage
-	.createFromPath(path.join(__dirname, "App_icons/icon.png"))
-	.resize({ width: 16, height: 16 });
 
 if (!started) {
 	// Do NOT quit when all windows are closed — the app lives in the tray.
 	// User must click Quit in the tray context menu to exit.
+	const icon = nativeImage
+	.createFromPath(path.join(__dirname, "App_icons/icon.png"))
+	.resize({ width: 16, height: 16 });
+
 	app.on("window-all-closed", () => {
 		// intentionally empty — tray keeps the app alive
 	});
