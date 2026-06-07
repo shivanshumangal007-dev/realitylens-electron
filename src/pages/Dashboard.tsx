@@ -14,6 +14,7 @@ import LogoutBtn from "../components/LogoutBtn";
 import CurrentSelectedHistory from "../components/CurrentSelectedHistory";
 import RecentHIstory from "../components/RecentHIstory";
 import LoadingScreen from "../components/LoadingScreen";
+import NewVarification from "../components/NewVarification";
 
 interface userProps {
 	email: string;
@@ -199,7 +200,22 @@ const Dashboard = () => {
 
 			<main className='flex-1 overflow-auto'>
 				<div className='max-w-6xl mx-auto p-8'>
-					<motion.div
+					{activeSection == "new" ? (
+						<section className='flex min-h-[calc(100vh-8rem)] items-start'>
+							<NewVarification />
+						</section>
+					) : selectedcurrentHistory ? (
+						<CurrentSelectedHistory
+							setSelectedCurrentHistory={setSelectedCurrentHistory}
+							selectedcurrentHistory={selectedcurrentHistory}
+						/>
+					) : (
+						<RecentHIstory
+							UserHistory={UserHistory}
+							setSelectedCurrentHistory={setSelectedCurrentHistory}
+						/>
+					)}
+					{/* <motion.div
 						initial={{ y: -20, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						transition={{ duration: 0.4, delay: 0.1 }}
@@ -220,18 +236,8 @@ const Dashboard = () => {
 								navigate("/login");
 							}}
 						/>
-					</motion.div>
-					{selectedcurrentHistory ? (
-						<CurrentSelectedHistory
-							setSelectedCurrentHistory={setSelectedCurrentHistory}
-							selectedcurrentHistory={selectedcurrentHistory}
-						/>
-					) : (
-						<RecentHIstory
-							UserHistory={UserHistory}
-							setSelectedCurrentHistory={setSelectedCurrentHistory}
-						/>
-					)}
+					</motion.div> */}
+					{}
 				</div>
 			</main>
 		</div>
