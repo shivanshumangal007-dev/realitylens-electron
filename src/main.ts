@@ -277,9 +277,35 @@ app.whenReady().then(() => {
 	createWindow();
 
 	const config = getConfig();
-	const ret = globalShortcut.register(config.shortcut, () => {
+	const ret = globalShortcut.register(config.shortcut, async () => {
 		console.log("Shortcut Pressed");
-		createOverlayWindow();
+		try {
+			let hasToken = false;
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				hasToken = await mainWindow.webContents.executeJavaScript(
+					'!!(localStorage.getItem("token"))'
+				);
+			}
+			if (hasToken) {
+				createOverlayWindow();
+			} else {
+				// No token — open the main window and navigate to login
+				if (mainWindow && !mainWindow.isDestroyed()) {
+					mainWindow.show();
+					mainWindow.focus();
+					mainWindow.webContents.send("navigate-to-login");
+				} else {
+					createWindow();
+				}
+			}
+		} catch (err) {
+			console.error("Shortcut auth check failed:", err);
+			// Fallback: open login window
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show();
+				mainWindow.focus();
+			}
+		}
 	});
 	tray = new Tray(icon);
 	console.log("Tray icon path:", getIconPath());
@@ -332,9 +358,14 @@ ipcMain.handle("capture-screen", async (_, area) => {
 			},
 		});
 
-		const primaryScreenSource = sources.find(
+		let primaryScreenSource = sources.find(
 			(source) => source.display_id === String(primaryDisplay.id),
 		);
+
+		if (!primaryScreenSource) {
+			console.warn("Primary screen source not found by display_id, falling back to first available screen.");
+			primaryScreenSource = sources[0];
+		}
 
 		if (!primaryScreenSource) {
 			throw new Error("Primary screen source not found.");
@@ -431,9 +462,34 @@ ipcMain.handle("update-shortcut", (_, newShortcut) => {
 	saveConfig(config);
 
 	globalShortcut.unregisterAll();
-	const ret = globalShortcut.register(newShortcut, () => {
+	const ret = globalShortcut.register(newShortcut, async () => {
 		console.log("Shortcut Pressed");
-		createOverlayWindow();
+		try {
+			let hasToken = false;
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				hasToken = await mainWindow.webContents.executeJavaScript(
+					'!!(localStorage.getItem("token"))'
+				);
+			}
+			if (hasToken) {
+				createOverlayWindow();
+			} else {
+				if (mainWindow && !mainWindow.isDestroyed()) {
+					mainWindow.show();
+					mainWindow.focus();
+					mainWindow.webContents.send("navigate-to-login");
+				} else {
+					createWindow();
+				}
+			}
+		} catch (err) {
+			console.error("Shortcut auth check failed:", err);
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show();
+				mainWindow.focus();
+				mainWindow.webContents.send("navigate-to-login");
+			}
+		}
 	});
 	return ret;
 });
