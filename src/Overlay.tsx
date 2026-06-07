@@ -5,6 +5,7 @@ import {
 	submitImageHandler,
 } from "./ApiHandler";
 import ResultLoading from "./ResultLoading";
+import RateLimitScreen from "./components/RateLimitScreen";
 type OverlayDivProps = {
 	isResultLoading: boolean;
 	setIsResultLoading: (value: boolean) => void;
@@ -208,6 +209,18 @@ const OverlayDiv = ({
 
 	const width = Math.abs(end.x - start.x);
 	const height = Math.abs(end.y - start.y);
+
+	const isRateLimited =
+		status?.includes("Too many requests") ||
+		status?.toLowerCase().includes("rate limit");
+
+	if (isRateLimited) {
+		return (
+			<RateLimitScreen
+				onClose={() => window.electronAPI?.finishVerification()}
+			/>
+		);
+	}
 
 	if (selectionComplete || isResultLoading) {
 		return (

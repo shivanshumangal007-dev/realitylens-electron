@@ -125,7 +125,7 @@ const Login = () => {
 									type='email'
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
-									placeholder='you@example.com'
+									placeholder='johndoe@mail.com'
 									className='w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all'
 									required
 									disabled={isSubmitting}

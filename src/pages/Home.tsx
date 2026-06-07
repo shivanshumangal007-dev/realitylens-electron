@@ -4,9 +4,10 @@ import {
 	Minimize2,
 	LayoutDashboard,
 	Command,
+	
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import LogoutBtn from "../components/LogoutBtn";
 import Cookies from "js-cookie";
 
@@ -19,6 +20,31 @@ const Home = () => {
 
 	const minimiseApphandler = () => {
 		window.electronAPI?.minimiseApp?.();
+	};
+
+	const [shortcut, setShortcut] = useState<string>("CommandOrControl+Shift+L");
+
+	useEffect(() => {
+		if (window.electronAPI && window.electronAPI.getShortcut) {
+			window.electronAPI.getShortcut().then((sc: string) => {
+				if (sc) setShortcut(sc);
+			});
+		}
+	}, []);
+
+	const formatShortcutKey = (key: string) => {
+		if (key === "CommandOrControl") {
+			return (
+				<>
+					<span className='text-xl font-medium'>Cmd</span>
+					<span className='text-xl font-medium text-muted-foreground'>/</span>
+					<span className='text-xl font-medium'>Ctrl</span>
+				</>
+			);
+		}
+		if (key === "Shift") return <span className='text-xl'>⇧</span>;
+		if (key === "Alt") return <span className='text-xl'>Alt</span>;
+		return <span className='text-xl'>{key}</span>;
 	};
 
 	return (
@@ -118,26 +144,19 @@ const Home = () => {
 					<p className='text-muted-foreground mb-6'>Global keyboard shortcut</p>
 
 					<div className='flex items-center justify-center gap-3 mb-6'>
-						<motion.div
-							whileHover={{ scale: 1.05, y: -2 }}
-							className='bg-linear-to-b from-white/10 to-white/5 border border-white/20 rounded-xl px-6 py-4 shadow-lg'
-						>
-							<Command className='w-6 h-6' />
-						</motion.div>
-						<span className='text-2xl text-muted-foreground'>+</span>
-						<motion.div
-							whileHover={{ scale: 1.05, y: -2 }}
-							className='bg-linear-to-b from-white/10 to-white/5 border border-white/20 rounded-xl px-6 py-4 shadow-lg'
-						>
-							<span className='text-xl'>⇧</span>
-						</motion.div>
-						<span className='text-2xl text-muted-foreground'>+</span>
-						<motion.div
-							whileHover={{ scale: 1.05, y: -2 }}
-							className='bg-linear-to-b from-white/10 to-white/5 border border-white/20 rounded-xl px-6 py-4 shadow-lg'
-						>
-							<span className='text-xl'>L</span>
-						</motion.div>
+						{shortcut.split("+").map((key, index, arr) => (
+							<React.Fragment key={index}>
+								<motion.div
+									whileHover={{ scale: 1.05, y: -2 }}
+									className='flex items-center gap-2 bg-linear-to-b from-white/10 to-white/5 border border-white/20 rounded-xl px-6 py-4 shadow-lg'
+								>
+									{formatShortcutKey(key)}
+								</motion.div>
+								{index < arr.length - 1 && (
+									<span className='text-2xl text-muted-foreground'>+</span>
+								)}
+							</React.Fragment>
+						))}
 					</div>
 
 					<p className='text-muted-foreground text-sm'>

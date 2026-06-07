@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RealityLens · AI Verification</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    
+    :root {
+      --bg: #020617;
+      --surface: rgba(2, 6, 23, 0.85);
+      --fg: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.1);
+      
+      /* Global Theme (Changes dynamically) */
+      --theme-color: #22c55e; 
+      --theme-glow: rgba(34, 197, 94, 0.2);
+      --theme-gradient: linear-gradient(to right, #22c55e, #10b981);
+      
+      /* Verdict Card specific (Changes dynamically) */
+      --verdict-color: #22c55e;
+      --verdict-gradient: linear-gradient(to right, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1), rgba(16, 185, 129, 0.1));
+      --verdict-shadow: rgba(34, 197, 94, 0.2);
+      
+      --font-display: 'Inter', system-ui, sans-serif;
+      --font-mono: ui-monospace, 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-display);
+      line-height: 1.5;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient Background Glows */
+    .mouse-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+      transition: top 0.1s ease-out, left 0.1s ease-out, background 0.5s ease;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    /* Hero Layout */
+    .hero {
+      display: flex;
+      gap: 60px;
+      min-height: 80vh;
+      align-items: center;
+      margin-bottom: 40px;
+      perspective: 1000px;
+    }
+
+    .hero-content {
+      flex: 1;
+      animation: slideInLeft 1s cubic-bezier(0.2, 0, 0, 1) forwards;
+    }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+      color: var(--theme-color);
+      transition: color 0.5s ease;
+    }
+    
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--theme-gradient);
+      position: relative;
+      animation: pulseGlow 3s infinite;
+      transition: background 0.5s ease;
+    }
+    .brand-icon::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      background: var(--bg);
+      border-radius: 6px;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 15px var(--theme-glow); }
+      50% { box-shadow: 0 0 30px var(--theme-glow); }
+    }
+
+    h1 {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+    .text-dynamic {
+      background: var(--theme-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: background 0.5s ease;
+      display: inline-block;
+    }
+
+    .lead {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 480px;
+      margin-bottom: 40px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 16px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 0.75rem;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .btn-primary {
+      background: var(--theme-gradient);
+      color: white;
+      box-shadow: 0 4px 20px var(--theme-glow);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--theme-glow);
+    }
+    .btn-outline {
+      background: rgba(255,255,255,0.05);
+      color: var(--fg);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--theme-color);
+      color: var(--theme-color);
+      transform: translateY(-2px);
+    }
+
+    /* Verification Card (App Style) */
+    .hero-visual {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      animation: slideInRight 1s cubic-bezier(0.2, 0, 0, 1) forwards;
+      transform-style: preserve-3d;
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .verification-card {
+      width: 100%;
+      max-width: 480px;
+      border-radius: 1.5rem;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      backdrop-filter: blur(24px);
+      box-shadow: 0 25px 50px -12px var(--verdict-shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.5s ease, transform 0.1s ease-out;
+      will-change: transform;
+    }
+    
+    .card-header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
+      background: var(--verdict-gradient);
+      transition: background 0.5s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    
+    .verdict-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 4px;
+    }
+    
+    .verdict-title {
+      font-size: 24px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--verdict-color);
+      transition: color 0.5s ease;
+    }
+
+    .close-btn {
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      padding: 6px 12px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .close-btn:hover { background: rgba(255,255,255,0.1); }
+
+    .card-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      color: #e2e8f0;
+      font-size: 14px;
+    }
+
+    .score-row { display: flex; flex-direction: column; gap: 6px; }
+    .score-label { display: flex; justify-content: space-between; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.7); }
+    .score-track { height: 8px; width: 100%; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+    .score-fill { height: 100%; background: var(--verdict-color); border-radius: 4px; transition: width 1s cubic-bezier(0.2, 0, 0, 1), background 0.5s ease; width: 0%; }
+
+    .divider { height: 1px; width: 100%; background: var(--border); }
+
+    .section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--muted); margin-bottom: 6px; }
+    
+    .claim-text { font-size: 16px; font-weight: 500; color: white; line-height: 1.4; }
+    .explanation-text { color: #cbd5e1; line-height: 1.6; }
+
+    .evidence-box {
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      padding: 16px;
+    }
+    .evidence-item {
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.5);
+      padding: 12px;
+      margin-top: 12px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .evidence-item:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: var(--theme-color);
+      transform: translateY(-2px);
+    }
+    .evidence-item p { margin: 0; }
+    .evidence-title { font-size: 14px; color: white; }
+    .evidence-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* Controls */
+    .state-selector {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 40px;
+    }
+    .state-btn {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .state-btn:hover, .state-btn.active {
+      border-color: var(--theme-color);
+      color: white;
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 0 20px var(--theme-glow);
+      transform: scale(1.05);
+    }
+
+    /* Section: Features */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+    }
+    .feature-card {
+      padding: 32px;
+      border-radius: 1.5rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      transition: all 0.4s;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .feature-card.visible { opacity: 1; transform: translateY(0); }
+    .feature-card:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: var(--theme-color);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px var(--theme-glow);
+    }
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .feature-card h3 { font-size: 20px; margin-bottom: 12px; }
+    .feature-card p { color: var(--muted); line-height: 1.6; }
+
+    /* Section: How It Works */
+    .steps-container {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      position: relative;
+    }
+    .step {
+      flex: 1;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .step.visible { opacity: 1; transform: translateY(0); }
+    .step-number {
+      width: 64px; height: 64px;
+      margin: 0 auto 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 800;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+      border: 2px solid var(--theme-color);
+      color: var(--theme-color);
+      box-shadow: 0 0 20px var(--theme-glow);
+      transition: all 0.5s ease;
+    }
+    .step h4 { font-size: 18px; margin-bottom: 12px; }
+    .step p { color: var(--muted); line-height: 1.6; font-size: 14px; }
+    
+    .step-line {
+      flex: 0.5;
+      height: 2px;
+      background: var(--theme-gradient);
+      margin-top: 32px;
+      opacity: 0;
+      transition: opacity 1s, background 0.5s ease;
+    }
+    .step-line.visible { opacity: 0.3; }
+
+
+    /* Section: Interactive Grid */
+    .section-title {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 48px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.8s ease;
+    }
+    .section-title.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .grid-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .grid-card {
+      padding: 24px;
+      border-radius: 1.5rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .grid-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .grid-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255,255,255,0.04);
+      border-color: var(--tag-color, var(--theme-color));
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .grid-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 4px;
+      background: var(--tag-color, var(--theme-color));
+      transition: height 0.2s;
+    }
+    .grid-card:hover::before { height: 6px; }
+    
+    .grid-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .grid-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--tag-color, var(--theme-color));
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 99px;
+    }
+    
+    .grid-card h4 { font-size: 16px; line-height: 1.4; font-weight: 600; }
+    .grid-card p { font-size: 14px; color: var(--muted); }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      margin-top: 80px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Tag Colors */
+    .tag-real { --tag-color: #22c55e; } 
+    .tag-fake { --tag-color: #ef4444; } 
+    .tag-suspicious { --tag-color: #f59e0b; } 
+    .tag-unverified { --tag-color: cyan; } 
+    .tag-satire { --tag-color: #ec4899; } 
+
+    @media (max-width: 920px) {
+      .hero { flex-direction: column; margin-bottom: 80px; }
+      .hero-visual { transform-style: flat; }
+      .steps-container { flex-direction: column; gap: 40px; }
+      .step-line { display: none; }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="mouse-glow" id="mouse-glow"></div>
+
+  <div class="container">
+    
+    <!-- Hero Section -->
+    <div class="hero">
+      <div class="hero-content">
+        <div class="brand">
+          <div class="brand-icon"></div>
+          RealityLens
+        </div>
+
+        <h1>
+          Reality is<br>
+          <span class="text-dynamic" id="dynamic-headline">VERIFIED</span>
+        </h1>
+        <p class="lead">Intercept screenshots and decode the truth instantly. Powered by multi-modal AI, delivering real-time verdicts across the full spectrum of misinformation directly to your desktop.</p>
+        
+        <div class="actions">
+          <a href="#" class="btn btn-primary">Download App</a>
+          <a href="#how-it-works" class="btn btn-outline">See How It Works</a>
+        </div>
+
+        <div class="state-selector" id="state-controls">
+          <!-- Buttons injected by JS -->
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="verification-card" id="tilt-card">
+          <div class="card-header" id="card-header">
+            <div>
+              <p class="verdict-label">RealityLens Verdict</p>
+              <h3 class="verdict-title" id="hud-verdict">LIKELY REAL</h3>
+            </div>
+            <button class="close-btn">Close</button>
+          </div>
+          
+          <div class="card-body">
+            
+            <div class="score-row">
+              <div class="score-label"><span>Reality Score</span><span id="hud-score-val">100%</span></div>
+              <div class="score-track"><div class="score-fill" id="hud-score-bar" style="width: 100%"></div></div>
+            </div>
+            
+            <div class="score-row">
+              <div class="score-label"><span>Confidence</span><span id="hud-conf-val">99%</span></div>
+              <div class="score-track"><div class="score-fill" id="hud-conf-bar" style="width: 99%"></div></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div>
+              <p class="section-label">Claim Extracted</p>
+              <p class="claim-text" id="hud-claim">Federal agents seize 1,000 bottles of baby oil from Diddy's mansion.</p>
+            </div>
+
+            <div>
+              <p class="section-label">Explanation</p>
+              <p class="explanation-text" id="hud-desc">Verified by official DOJ press releases and raid inventory logs. The logistics of transporting this much baby oil remain a mystery.</p>
+            </div>
+
+            <div class="evidence-box">
+              <p class="section-label">Evidence</p>
+              <div class="evidence-item">
+                <p class="evidence-title" id="hud-evidence">justice.gov/news/raid-inventory</p>
+                <p class="evidence-meta">Official Source • Confirms Claim</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div id="features" style="padding-top: 100px;">
+      <div class="features-grid">
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">👁️</div>
+          <h3>Unseen Observers</h3>
+          <p>Runs silently in the background, monitoring your clipboard and screen grabs without bogging down your system or triggering anti-cheat.</p>
+        </div>
+        <div class="feature-card scroll-reveal" style="transition-delay: 100ms">
+          <div class="feature-icon">⚡</div>
+          <h3>Sub-second Analysis</h3>
+          <p>Powered by highly optimized neural networks to ensure you find out if a celebrity is actually guilty before they flee the country.</p>
+        </div>
+        <div class="feature-card scroll-reveal" style="transition-delay: 200ms">
+          <div class="feature-icon">🔍</div>
+          <h3>Deep Cross-Referencing</h3>
+          <p>Checks against thousands of trusted databases, public flight logs, and CVS receipts to bring you the cold, hard truth.</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- How It Works Section -->
+    <div id="how-it-works" style="padding-top: 120px; padding-bottom: 60px;">
+      <h2 class="section-title scroll-reveal">How It Works</h2>
+      <div class="steps-container">
+        <div class="step scroll-reveal">
+          <div class="step-number">01</div>
+          <h4>Capture the Suspect</h4>
+          <p>Hit the global hotkey to freeze your screen and select any questionable claim, altered image, or baby oil receipt.</p>
+        </div>
+        <div class="step-line scroll-reveal"></div>
+        <div class="step scroll-reveal" style="transition-delay: 100ms">
+          <div class="step-number">02</div>
+          <h4>AI Interrogation</h4>
+          <p>Our models ruthlessly interrogate the pixels, cross-referencing shadows, metadata, and flight logs in milliseconds.</p>
+        </div>
+        <div class="step-line scroll-reveal" style="transition-delay: 100ms"></div>
+        <div class="step scroll-reveal" style="transition-delay: 200ms">
+          <div class="step-number">03</div>
+          <h4>The Verdict</h4>
+          <p>A beautiful glassmorphic HUD slides into view, delivering the absolute truth directly to your retinas.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent History Section -->
+    <div id="history" style="padding-top: 100px;">
+      <h2 class="section-title scroll-reveal">Recent Verifications</h2>
+      <div class="grid-results">
+        
+        <div class="grid-card scroll-reveal tag-real">
+          <div class="grid-header">
+            <span class="grid-tag">Likely Real</span>
+          </div>
+          <h4>Diddy's lawyer accidentally emails defense strategy to prosecutors, CCs TMZ.</h4>
+          <p>Confirmed by 14 separate major news outlets and a frantic, now-deleted tweet from the lawyer's official account.</p>
+          <div class="score-row mt-auto">
+            <div class="score-label"><span>Reality Score</span><span>98%</span></div>
+            <div class="score-track"><div class="score-fill" style="width: 98%; background: var(--tag-color)"></div></div>
+          </div>
+        </div>
+
+        <div class="grid-card scroll-reveal tag-fake">
+          <div class="grid-header">
+            <span class="grid-tag">Likely Fake</span>
+          </div>
+          <h4>Diddy changes legal name to 'P Innocent' ahead of trial.</h4>
+          <p>No legal filings found. Started as a rumor on a meme page and got picked up by extremely gullible breakfast show hosts.</p>
+          <div class="score-row mt-auto">
+            <div class="score-label"><span>Reality Score</span><span>2%</span></div>
+            <div class="score-track"><div class="score-fill" style="width: 2%; background: var(--tag-color)"></div></div>
+          </div>
+        </div>
+
+        <div class="grid-card scroll-reveal tag-suspicious">
+          <div class="grid-header">
+            <span class="grid-tag">Suspicious</span>
+          </div>
+          <h4>Disney Cruise Line reportedly installing 'Incognito Mode' on all employee laptops.</h4>
+          <p>While 4 former employees were indeed caught in a sting, the 'Incognito Mode' mandate appears to be an unconfirmed rumor.</p>
+          <div class="score-row mt-auto">
+            <div class="score-label"><span>Reality Score</span><span>45%</span></div>
+            <div class="score-track"><div class="score-fill" style="width: 45%; background: var(--tag-color)"></div></div>
+          </div>
+        </div>
+
+        <div class="grid-card scroll-reveal tag-satire">
+          <div class="grid-header">
+            <span class="grid-tag">Satire</span>
+          </div>
+          <h4>Diddy hires team of scientists to prove baby oil is a necessary dietary supplement.</h4>
+          <p>Article originates from a well-known satire blog. The quoted 'Dr. S. Lick' does not exist in any medical registry.</p>
+          <div class="score-row mt-auto">
+            <div class="score-label"><span>Reality Score</span><span>0%</span></div>
+            <div class="score-track"><div class="score-fill" style="width: 0%; background: var(--tag-color)"></div></div>
+          </div>
+        </div>
+        <div class="grid-card scroll-reveal tag-unverified">
+          <div class="grid-header">
+            <span class="grid-tag">Unverified</span>
+          </div>
+          <h4>Epstein's cell guards admit they were distracted by an intense game of Uno.</h4>
+          <p>While logs show they were indeed not at their posts, the 'Uno' detail originates from an unreliable anonymous 4chan post.</p>
+          <div class="score-row mt-auto">
+            <div class="score-label"><span>Reality Score</span><span>70%</span></div>
+            <div class="score-track"><div class="score-fill" style="width: 70%; background: var(--tag-color)"></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    
+    <footer>
+      <p>&copy; 2024 RealityLens. Keeping the internet honest, one pixel at a time.</p>
+    </footer>
+  </div>
+
+  <script>
+    // --- Data Definitions matching App Colors ---
+    const states = [
+      { 
+        id: 'real', 
+        color: '#22c55e', 
+        gradient: 'linear-gradient(to right, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1), rgba(16, 185, 129, 0.1))',
+        solidGradient: 'linear-gradient(to right, #22c55e, #10b981)',
+        shadow: 'rgba(34, 197, 94, 0.2)',
+        word: 'VERIFIED', 
+        verdict: 'LIKELY REAL', 
+        claim: "Federal agents seize 1,000 bottles of baby oil from Diddy's mansion.", 
+        desc: 'Verified by official DOJ press releases and raid inventory logs. The logistics of transporting this much baby oil remain a mystery.',
+        evidence: 'justice.gov/news/raid-inventory',
+        reality: 100, conf: 99 
+      },
+      { 
+        id: 'fake', 
+        color: '#ef4444', 
+        gradient: 'linear-gradient(to right, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1), rgba(249, 115, 22, 0.1))',
+        solidGradient: 'linear-gradient(to right, #ef4444, #f97316)',
+        shadow: 'rgba(239, 68, 68, 0.2)',
+        word: 'FABRICATED', 
+        verdict: 'LIKELY FAKE', 
+        claim: 'Jeffrey Epstein found alive and well, working as a barista in a Portland Starbucks.', 
+        desc: 'The barista in question is just a 24-year-old art student named Todd who unfortunately shares a striking resemblance.',
+        evidence: 'factcheck.org/todd-not-epstein',
+        reality: 2, conf: 98 
+      },
+      { 
+        id: 'suspicious', 
+        color: '#f59e0b', 
+        gradient: 'linear-gradient(to right, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1), rgba(245, 158, 11, 0.1))',
+        solidGradient: 'linear-gradient(to right, #f59e0b, #eab308)',
+        shadow: 'rgba(245, 158, 11, 0.2)',
+        word: 'ALTERED', 
+        verdict: 'SUSPICIOUS', 
+        claim: "P Diddy attempting to buy private island, insists it will strictly be a 'monastery'.", 
+        desc: "Financial records show large transfers to offshore accounts, but the 'monastery' claim remains highly questionable given recent events.",
+        evidence: 'reuters.com/finance/island-purchase',
+        reality: 45, conf: 65 
+      },
+      { 
+        id: 'satire', 
+        color: '#ec4899', 
+        gradient: 'linear-gradient(to right, rgba(236, 72, 153, 0.1), rgba(219, 39, 119, 0.1), rgba(244, 63, 94, 0.1))',
+        solidGradient: 'linear-gradient(to right, #ec4899, #f43f5e)',
+        shadow: 'rgba(236, 72, 153, 0.2)',
+        word: 'PARODY', 
+        verdict: 'SATIRE', 
+        claim: "Epstein's client list finally released: It's just a 400-page CVS receipt for baby oil.", 
+        desc: 'Content confirmed as satire. However, Diddy\'s warehouse inventory suspiciously matches this exact description.',
+        evidence: 'theonion.com/cvs-receipt-leak',
+        reality: 0, conf: 99 
+      },
+      { 
+        id: 'unreadable', 
+        color: '#94a3b8', 
+        gradient: 'linear-gradient(to right, rgba(100, 116, 139, 0.1), rgba(71, 85, 105, 0.1), rgba(107, 114, 128, 0.1))',
+        solidGradient: 'linear-gradient(to right, #94a3b8, #64748b)',
+        shadow: 'rgba(100, 116, 139, 0.2)',
+        word: 'OBSCURED', 
+        verdict: 'UNREADABLE', 
+        claim: 'Blurry photo claimed to be Epstein boarding a UFO with Diddy.', 
+        desc: 'Image consists of exactly 4 pixels. Could be a UFO, could be a toaster. AI refuses to analyze this garbage.',
+        evidence: 'No evidence found',
+        reality: 0, conf: 0 
+      }
+    ];
+
+    let currentIndex = 0;
+    let autoPlay = true;
+    let intervalId;
+
+    const root = document.documentElement;
+    const headline = document.getElementById('dynamic-headline');
+    const hudClaim = document.getElementById('hud-claim');
+    const hudDesc = document.getElementById('hud-desc');
+    const hudVerdict = document.getElementById('hud-verdict');
+    const hudEvidence = document.getElementById('hud-evidence');
+    const scoreVal = document.getElementById('hud-score-val');
+    const scoreBar = document.getElementById('hud-score-bar');
+    const confVal = document.getElementById('hud-conf-val');
+    const confBar = document.getElementById('hud-conf-bar');
+    const controlsContainer = document.getElementById('state-controls');
+    const mouseGlow = document.getElementById('mouse-glow');
+
+    // Create interactive buttons
+    states.forEach((state, index) => {
+      const btn = document.createElement('button');
+      btn.className = `state-btn ${index === 0 ? 'active' : ''}`;
+      btn.textContent = state.verdict;
+      
+      // Dynamic hover styles using JS since CSS variables transition
+      btn.onmouseenter = () => {
+        if (!btn.classList.contains('active')) {
+          btn.style.borderColor = state.color;
+          btn.style.color = '#fff';
+        }
+      };
+      btn.onmouseleave = () => {
+        if (!btn.classList.contains('active')) {
+          btn.style.borderColor = 'var(--border)';
+          btn.style.color = 'var(--muted)';
+        }
+      };
+
+      btn.onclick = () => {
+        autoPlay = false;
+        clearInterval(intervalId);
+        applyState(index);
+      };
+      controlsContainer.appendChild(btn);
+    });
+
+    function applyState(index) {
+      const state = states[index];
+      
+      // Update global Theme CSS variables (This shifts the entire page theme)
+      root.style.setProperty('--theme-color', state.color);
+      root.style.setProperty('--theme-glow', state.shadow);
+      root.style.setProperty('--theme-gradient', state.solidGradient);
+
+      // Update Verdict Card variables
+      root.style.setProperty('--verdict-color', state.color);
+      root.style.setProperty('--verdict-gradient', state.gradient);
+      root.style.setProperty('--verdict-shadow', state.shadow);
+
+      // Update ambient mouse glow to match current state theme
+      // Extract RGB values crudely from hex for the radial gradient
+      const hex = state.color.replace('#', '');
+      const r = parseInt(hex.substring(0,2), 16);
+      const g = parseInt(hex.substring(2,4), 16);
+      const b = parseInt(hex.substring(4,6), 16);
+      mouseGlow.style.background = `radial-gradient(circle, rgba(${r}, ${g}, ${b}, 0.15) 0%, transparent 70%)`;
+
+      // Update text
+      headline.textContent = state.word;
+      hudClaim.textContent = state.claim;
+      hudDesc.textContent = state.desc;
+      hudVerdict.textContent = state.verdict;
+      hudEvidence.textContent = state.evidence;
+      
+      // Animate Bars (drop to 0 then fill up)
+      scoreBar.style.width = '0%';
+      confBar.style.width = '0%';
+      scoreVal.textContent = '...';
+      confVal.textContent = '...';
+      
+      setTimeout(() => {
+        scoreBar.style.width = state.reality + '%';
+        confBar.style.width = state.conf + '%';
+        
+        // Counter animation
+        animateValue(scoreVal, 0, state.reality, 800);
+        animateValue(confVal, 0, state.conf, 800);
+      }, 100);
+
+      // Update active button state
+      document.querySelectorAll('.state-btn').forEach((btn, i) => {
+        if(i === index) {
+          btn.classList.add('active');
+          btn.style.borderColor = state.color;
+          btn.style.color = '#fff';
+          btn.style.background = 'rgba(255,255,255,0.1)';
+        } else {
+          btn.classList.remove('active');
+          btn.style.borderColor = 'var(--border)';
+          btn.style.color = 'var(--muted)';
+          btn.style.background = 'rgba(255,255,255,0.02)';
+        }
+      });
+    }
+
+    function animateValue(obj, start, end, duration) {
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        obj.innerHTML = Math.floor(progress * (end - start)) + '%';
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        } else {
+          obj.innerHTML = end + '%';
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+
+    function cycleState() {
+      currentIndex = (currentIndex + 1) % states.length;
+      applyState(currentIndex);
+    }
+
+    // Initial play
+    intervalId = setInterval(() => {
+      if(autoPlay) cycleState();
+    }, 5500);
+
+    // --- Interactive Mouse Effects ---
+    
+    // 1. Mouse Glow Tracking
+    document.addEventListener('mousemove', (e) => {
+      mouseGlow.style.left = e.clientX + 'px';
+      mouseGlow.style.top = e.clientY + 'px';
+    });
+
+    // 2. 3D Tilt Effect for the Card
+    const tiltCard = document.getElementById('tilt-card');
+    let cachedRect = tiltCard.getBoundingClientRect();
+    
+    window.addEventListener('scroll', () => cachedRect = tiltCard.getBoundingClientRect());
+    window.addEventListener('resize', () => cachedRect = tiltCard.getBoundingClientRect());
+
+    document.addEventListener('mousemove', (e) => {
+      // Calculate mouse position relative to card center
+      const cardCenterX = cachedRect.left + cachedRect.width / 2;
+      const cardCenterY = cachedRect.top + cachedRect.height / 2;
+      
+      const distanceX = e.clientX - cardCenterX;
+      const distanceY = e.clientY - cardCenterY;
+
+      // Max rotation angles
+      const maxRotate = 6;
+      
+      // If mouse is within a reasonable radius of the card, apply tilt
+      if(Math.abs(distanceX) < 600 && Math.abs(distanceY) < 600 && window.innerWidth > 920) {
+        const rotateY = (distanceX / 600) * maxRotate;
+        const rotateX = -(distanceY / 600) * maxRotate;
+        tiltCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+      } else {
+        tiltCard.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)`;
+      }
+    });
+
+    // 3. Scroll Reveal Animation
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.15
+    };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, index * 100); // staggered delay
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.scroll-reveal, .section-title, .feature-card, .step').forEach(el => observer.observe(el));
+
+  </script>
+</body>
+</html>
