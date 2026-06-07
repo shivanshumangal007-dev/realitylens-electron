@@ -182,7 +182,7 @@ const NewVarification = () => {
     result: result
   };
 	return (
-		<div className='relative flex h-full min-h-screen w-full items-center justify-center px-4 py-8'>
+		<div className='relative flex h-full w-full px-4 py-8'>
 			{isSubmitting && (
 				<LoadingScreen
 					status={
@@ -198,12 +198,11 @@ const NewVarification = () => {
 				<CurrentSelectedHistory selectedcurrentHistory={selectedcurrentHistory} setSelectedCurrentHistory={setResult} />
 			) : (
 				<motion.section
-					initial={{ y: 24, opacity: 0 }}
+					initial={{ y: 20, opacity: 0 }}
 					animate={{ y: 0, opacity: 1 }}
-					transition={{ duration: 0.35 }}
-					className='relative mx-auto w-full max-w-4xl rounded-3xl border border-border/60 bg-card/60 p-4 shadow-[0_30px_80px_-40px_rgba(45,180,255,0.4)] backdrop-blur-xl sm:p-6'
+					transition={{ duration: 0.4 }}
+					className='w-full max-w-4xl rounded-2xl border border-border bg-card/50 p-4 backdrop-blur sm:p-6'
 				>
-					<div className='pointer-events-none absolute inset-0 rounded-3xl bg-linear-to-br from-cyan-400/10 via-transparent to-blue-500/10' />
 					<div className='relative w-full'>
 						<div className='mb-6 flex flex-wrap items-center justify-between gap-3'>
 							<div>
@@ -217,10 +216,10 @@ const NewVarification = () => {
 									type='button'
 									onClick={() => setActiveMode("file")}
 									className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
-										activeMode === "file"
-											? "bg-linear-to-r from-cyan-500 to-blue-500 text-white"
-											: "text-muted-foreground hover:text-foreground"
-									}`}
+									activeMode === "file"
+										? "bg-cyan-500/10 text-cyan-500 font-medium"
+										: "text-muted-foreground hover:text-foreground"
+								}`}
 								>
 									File
 								</button>
@@ -228,10 +227,10 @@ const NewVarification = () => {
 									type='button'
 									onClick={() => setActiveMode("text")}
 									className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
-										activeMode === "text"
-											? "bg-linear-to-r from-cyan-500 to-blue-500 text-white"
-											: "text-muted-foreground hover:text-foreground"
-									}`}
+									activeMode === "text"
+										? "bg-cyan-500/10 text-cyan-500 font-medium"
+										: "text-muted-foreground hover:text-foreground"
+								}`}
 								>
 									Text
 								</button>
@@ -247,10 +246,10 @@ const NewVarification = () => {
 								onDragLeave={() => setIsDragging(false)}
 								onDrop={handleDrop}
 								className={`rounded-2xl border border-dashed p-5 transition-colors sm:p-8 ${
-									isDragging
-										? "border-cyan-400 bg-cyan-500/10"
-										: "border-border/70 bg-background/30"
-								}`}
+								isDragging
+									? "border-cyan-400 bg-cyan-500/10"
+									: "border-border bg-background/30 hover:border-cyan-500/30"
+							}`}
 							>
 								<input
 									ref={fileInputRef}
@@ -260,8 +259,8 @@ const NewVarification = () => {
 									className='hidden'
 								/>
 								<div className='flex flex-col items-center justify-center text-center'>
-									<div className='mb-4 rounded-2xl bg-linear-to-br from-cyan-500 via-sky-500 to-blue-600 p-4 text-white shadow-lg shadow-cyan-500/30'>
-										<Upload className='h-7 w-7' />
+									<div className='mb-4 rounded-xl bg-cyan-500/10 p-3 text-cyan-500'>
+										<Upload className='h-6 w-6' />
 									</div>
 									<p className='text-sm text-muted-foreground'>
 										Choose a file or drag and drop it here
@@ -272,16 +271,16 @@ const NewVarification = () => {
 									<button
 										type='button'
 										onClick={() => fileInputRef.current?.click()}
-										className='mt-4 rounded-full bg-linear-to-r from-cyan-500 to-blue-500 px-5 py-2 text-sm text-white transition-transform hover:scale-[1.02]'
+										className='mt-4 rounded-xl border border-border bg-background/50 px-5 py-2 text-sm text-foreground transition-colors hover:border-cyan-500/30 hover:bg-cyan-500/5'
 									>
 										Browse File
 									</button>
 								</div>
 
 								{selectedFile && (
-									<div className='mt-5 flex items-center justify-between rounded-xl border border-border/70 bg-background/50 p-3'>
+									<div className='mt-5 flex items-center justify-between rounded-xl border border-border bg-background/50 p-3'>
 										<div className='flex min-w-0 items-center gap-2'>
-											<FileText className='h-4 w-4 shrink-0 text-cyan-400' />
+											<FileText className='h-4 w-4 shrink-0 text-cyan-500' />
 											<p className='truncate text-sm'>{selectedFile.name}</p>
 										</div>
 										<button
@@ -295,7 +294,7 @@ const NewVarification = () => {
 								)}
 							</div>
 						) : (
-							<div className='rounded-2xl border border-border/70 bg-background/30 p-5 sm:p-6'>
+							<div className='rounded-2xl border border-border bg-background/30 p-5 sm:p-6'>
 								<label
 									htmlFor='verificationText'
 									className='mb-3 block text-sm text-muted-foreground'
@@ -307,7 +306,7 @@ const NewVarification = () => {
 									value={textVerification}
 									onChange={(event) => setTextVerification(event.target.value)}
 									placeholder='Paste the claim, headline, or message you want to verify...'
-									className='min-h-40 w-full resize-y rounded-xl border border-border/70 bg-card/60 p-4 text-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-cyan-400'
+									className='min-h-40 w-full resize-y rounded-xl border border-border bg-card/60 p-4 text-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-cyan-500/50 focus:bg-cyan-500/5'
 								/>
 								<p className='mt-2 text-xs text-muted-foreground'>
 									{textVerification.length} characters
@@ -319,7 +318,7 @@ const NewVarification = () => {
 							<button
 								type='button'
 								onClick={handleReset}
-								className='rounded-xl border border-border/80 bg-background/40 px-4 py-2 text-sm text-muted-foreground hover:text-foreground'
+								className='rounded-xl border border-border bg-background/40 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors'
 							>
 								Reset
 							</button>
@@ -330,14 +329,14 @@ const NewVarification = () => {
 									isSubmitting ||
 									(activeMode === "file" ? !selectedFile : !canSubmitText)
 								}
-								className='rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 px-5 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50'
+								className='rounded-xl bg-linear-to-r from-cyan-500 to-blue-500 px-5 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50 transition-all hover:shadow-lg hover:shadow-cyan-500/20'
 							>
 								{isSubmitting ? "Processing..." : "Send Verification"}
 							</button>
 						</div>
 
 						{error && (
-							<p className='mt-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200'>
+							<p className='mt-4 rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-400'>
 								{error}
 							</p>
 						)}
