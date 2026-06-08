@@ -16,7 +16,23 @@ const Login = () => {
 		if (localStorage.getItem("token")) {
 			navigate("/");
 		}
+
+		// Listen for Google deep link success
+		if ((window as any).electronAPI?.onGoogleLoginSuccess) {
+			(window as any).electronAPI.onGoogleLoginSuccess((data: { token: string; userId: string }) => {
+				localStorage.setItem("token", data.token);
+				navigate("/");
+			});
+		}
 	}, [navigate]);
+
+	const handleGoogleLogin = () => {
+		if ((window as any).electronAPI) {
+			(window as any).electronAPI.openExternal("https://realitylens-9qu1.onrender.com/login/google");
+		} else {
+			window.location.href = "https://realitylens-9qu1.onrender.com/login/google";
+		}
+	};
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -189,6 +205,7 @@ const Login = () => {
 							whileHover={{ scale: 1.02 }}
 							whileTap={{ scale: 0.98 }}
 							type='button'
+							onClick={handleGoogleLogin}
 							disabled={isSubmitting}
 							className='w-full bg-white/5 backdrop-blur border border-white/10 text-foreground rounded-xl py-3 font-medium hover:bg-white/10 transition-all disabled:cursor-not-allowed disabled:opacity-60'
 						>

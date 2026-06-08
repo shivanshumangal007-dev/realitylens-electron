@@ -34,6 +34,9 @@ const electronAPI = {
 	onNavigateToLogin: (callback: () => void) => {
 		ipcRenderer.on("navigate-to-login", () => callback());
 	},
+	onGoogleLoginSuccess: (callback: (data: { token: string; userId: string }) => void) => {
+		ipcRenderer.on("google-login-success", (event, data) => callback(data));
+	},
 };
 
 console.log("preload loaded");

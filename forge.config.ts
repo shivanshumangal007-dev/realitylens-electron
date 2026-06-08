@@ -17,14 +17,15 @@ const config: ForgeConfig = {
 		icon: "./src/App_icons/icon",
 		extraResource: ["./src/App_icons"],
 		appVersion: "11.2.8",
-		appCopyright: `Copyright © ${new Date().getFullYear()} Hannu Verma`,
+		appCopyright: `Copyright © ${new Date().getFullYear()} Hannu Verma, Shivanshu Mangal, Shreyansh Kumar`,
 	},
 	rebuildConfig: {},
 	makers: [
 		new MakerSquirrel({
 			name: "RealityLens",
 			setupIcon: "./src/App_icons/icon.ico",
-			authors: "Hannu Verma", // ← add this
+			iconUrl: "https://raw.githubusercontent.com/shivanshumangal007-dev/realitylens-electron/main/src/App_icons/icon.ico",
+			authors: "Hannu Verma, Shivanshu Mangal, Shreyansh Kumar", 
 			description: "RealityLens",
 		}),
 		new MakerZIP({}, ["darwin"]),

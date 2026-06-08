@@ -257,6 +257,53 @@ function createOverlayWindow() {
 
 
 if (!started) {
+	const gotTheLock = app.requestSingleInstanceLock();
+	if (!gotTheLock) {
+		app.quit();
+	} else {
+		app.on("second-instance", (event, commandLine, workingDirectory) => {
+			if (mainWindow) {
+				if (mainWindow.isMinimized()) mainWindow.restore();
+				mainWindow.show();
+				mainWindow.focus();
+			}
+			const url = commandLine.pop();
+			if (url && url.startsWith("realitylens://")) {
+				handleAuthCallback(url);
+			}
+		});
+
+		app.on("open-url", (event, url) => {
+			event.preventDefault();
+			handleAuthCallback(url);
+		});
+		
+		// Register protocol
+		if (process.defaultApp) {
+			if (process.argv.length >= 2) {
+				app.setAsDefaultProtocolClient("realitylens", process.execPath, [path.resolve(process.argv[1])]);
+			}
+		} else {
+			app.setAsDefaultProtocolClient("realitylens");
+		}
+
+		function handleAuthCallback(url: string) {
+			try {
+				const parsedUrl = new URL(url);
+				if (parsedUrl.hostname === "auth-callback") {
+					const token = parsedUrl.searchParams.get("token");
+					const userId = parsedUrl.searchParams.get("user_id");
+					if (token && mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.show();
+						mainWindow.focus();
+						mainWindow.webContents.send("google-login-success", { token, userId });
+					}
+				}
+			} catch (e) {
+				console.error("Failed to parse deep link URL", e);
+			}
+		}
+
 	// Do NOT quit when all windows are closed — the app lives in the tray.
 	// User must click Quit in the tray context menu to exit.
 	const icon = nativeImage
@@ -277,6 +324,15 @@ app.whenReady().then(() => {
 	createWindow();
 
 	const config = getConfig();
+	
+	// Automatically set to open on startup on first launch
+	if (config.startupConfigured === undefined) {
+		app.setLoginItemSettings({ openAtLogin: true });
+		config.startupConfigured = true;
+		saveConfig(config);
+		console.log("Configured to open on startup.");
+	}
+
 	const ret = globalShortcut.register(config.shortcut, async () => {
 		console.log("Shortcut Pressed");
 		try {
@@ -493,4 +549,5 @@ ipcMain.handle("update-shortcut", (_, newShortcut) => {
 	});
 	return ret;
 });
+} // end if (gotTheLock)
 } // end if (!started)
