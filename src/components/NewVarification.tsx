@@ -12,6 +12,7 @@ import {
 	getJobResultHandler,
 	getJobStatusHandler,
 	submitImageHandler,
+	submitTextHandler,
 } from "../ApiHandler";
 import CurrentSelectedHistory from "./CurrentSelectedHistory";
 
@@ -21,7 +22,7 @@ const NewVarification = () => {
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [isDragging, setIsDragging] = useState(false);
-	const [textVerification, setTextVerification] = useState("");
+	const [textVerification, setTextVerification] = useState<string>("");
 	const [jobStatus, setJobStatus] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [activeMode, setActiveMode] = useState<"file" | "text">("file");
@@ -161,10 +162,18 @@ const NewVarification = () => {
 
 		if (activeMode === "text" && canSubmitText) {
 			setJobStatus("Preparing text verification...");
-			window.setTimeout(() => {
+			try {
+				const response = await submitTextHandler(textVerification);
+				await getStatusOfJob(response.data.job_id);
+			} catch (submissionError) {
+				console.error("Submission error:", submissionError);
 				setIsSubmitting(false);
-				setJobStatus("");
-			}, 1400);
+				setError(
+					submissionError instanceof Error
+						? submissionError.message
+						: "Unable to submit the file for verification.",
+				);
+			}
 			return;
 		}
 	};

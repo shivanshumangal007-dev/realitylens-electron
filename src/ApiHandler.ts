@@ -60,6 +60,18 @@ const submitImageHandler = async (image: File) => {
 	}
 };
 
+const submitTextHandler = async (text: string) => {
+	try {
+		const response = await api.post("/submit-text", { input: text });
+		return response;
+	} catch (error) {
+		console.error("Text submission error:", error);
+		throw new Error(
+			getApiErrorMessage(error, "Text submission failed. Please try again."),
+		);
+	}
+}
+
 const getJobStatusHandler = async (jobId: string) => {
 	try {
 		const response = await api.get(`/status/${jobId}`);
@@ -100,4 +112,5 @@ export {
 	getJobStatusHandler,
 	getJobResultHandler,
 	fetchUser,
+	submitTextHandler,
 };
