@@ -32,6 +32,17 @@ const Dashboard = () => {
   const [isBootLoading, setIsBootLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  const fetchHistory = async () => {
+    try {
+      const historyResponse = await HistoryHandler();
+      setUserHistory(
+        Array.isArray(historyResponse.data) ? historyResponse.data : [],
+      );
+    } catch (error) {
+      console.error("Dashboard history refresh error:", error);
+    }
+  };
+
   useEffect(() => {
     localStorage.getItem("token") || navigate("/login");
   }, [navigate]);
@@ -239,7 +250,10 @@ const Dashboard = () => {
         <div className="max-w-6xl mx-auto p-8">
           {activeSection == "new" ? (
             <section className="flex min-h-[calc(100vh-8rem)] items-start">
-              <NewVarification />
+              <NewVarification
+                username={user?.username || ""}
+                onNewVerification={fetchHistory}
+              />
             </section>
           ) : selectedcurrentHistory ? (
             <CurrentSelectedHistory
