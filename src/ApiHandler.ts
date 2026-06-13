@@ -1,5 +1,6 @@
 import api from "./Api";
 import { getApiErrorMessage } from "./utils/apiError";
+import initRedis from "./RedisConnection"
 
 const loginHandler = async (email: string, password: string) => {
 	try {
@@ -12,6 +13,23 @@ const loginHandler = async (email: string, password: string) => {
 		);
 	}
 };
+
+
+const OTP_checker = async (token : string, enteredOTP: string) => {
+	try{
+		const Redis = await initRedis()
+		const {value} = await Redis.get(`user:${token}`)
+		console.log(value)
+		if(value === enteredOTP){
+			return true
+		}else{
+			throw new Error("Incorrect OTP")
+		}
+	}catch(err){
+		console.log("OTP Checker Error", err)
+		throw new Error(getApiErrorMessage(err, "OTP verification failed"))
+	}
+}
 
 const registerHandler = async (
 	username: string,
@@ -113,4 +131,5 @@ export {
 	getJobResultHandler,
 	fetchUser,
 	submitTextHandler,
+	OTP_checker,
 };
