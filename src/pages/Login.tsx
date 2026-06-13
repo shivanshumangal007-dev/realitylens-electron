@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router";
 import { useState, useEffect } from "react";
 import { loginHandler } from "../ApiHandler";
 import LoadingScreen from "../components/LoadingScreen";
+import icon from "../App_icons/icon.png";
 
 const Login = () => {
 	const navigate = useNavigate();
@@ -19,18 +20,23 @@ const Login = () => {
 
 		// Listen for Google deep link success
 		if ((window as any).electronAPI?.onGoogleLoginSuccess) {
-			(window as any).electronAPI.onGoogleLoginSuccess((data: { token: string; userId: string }) => {
-				localStorage.setItem("token", data.token);
-				navigate("/");
-			});
+			(window as any).electronAPI.onGoogleLoginSuccess(
+				(data: { token: string; userId: string }) => {
+					localStorage.setItem("token", data.token);
+					navigate("/");
+				},
+			);
 		}
 	}, [navigate]);
 
 	const handleGoogleLogin = () => {
 		if ((window as any).electronAPI) {
-			(window as any).electronAPI.openExternal("https://realitylens-9qu1.onrender.com/login/google");
+			(window as any).electronAPI.openExternal(
+				"https://realitylens-9qu1.onrender.com/login/google",
+			);
 		} else {
-			window.location.href = "https://realitylens-9qu1.onrender.com/login/google";
+			window.location.href =
+				"https://realitylens-9qu1.onrender.com/login/google";
 		}
 	};
 
@@ -93,21 +99,18 @@ const Login = () => {
 				<div className='bg-card/40 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl p-8'>
 					{/* Logo and branding */}
 					<div className='text-center mb-8'>
-						<motion.div
-							initial={{ scale: 0.8, opacity: 0 }}
-							animate={{ scale: 1, opacity: 1 }}
-							transition={{ delay: 0.2, duration: 0.5 }}
-							className='inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-cyan-500 via-blue-500 to-purple-600 mb-4'
-						>
-							<Eye className='w-8 h-8 text-white' />
-						</motion.div>
+						<img
+							src={icon}
+							alt='RealityLens'
+							className='w-15 h-15 mx-auto'
+						/>
 						<motion.h1
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
 							transition={{ delay: 0.3 }}
 							className='mb-2'
 						>
-							RealityLens
+							Reality Lens
 						</motion.h1>
 						<motion.p
 							initial={{ opacity: 0 }}
@@ -177,7 +180,7 @@ const Login = () => {
 							whileTap={{ scale: 0.98 }}
 							type='submit'
 							disabled={isSubmitting}
-							className='w-full bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 text-white rounded-xl py-3 font-medium shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:cursor-not-allowed disabled:opacity-70'
+							className='w-full bg-linear-to-r from-cyan-500 via-blue-500 to-blue-900 text-white rounded-xl py-3 font-medium shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:cursor-not-allowed disabled:opacity-70'
 						>
 							{isSubmitting ? "Signing in..." : "Continue"}
 						</motion.button>

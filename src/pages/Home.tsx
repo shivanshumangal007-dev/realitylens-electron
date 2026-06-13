@@ -186,7 +186,7 @@ const Home = () => {
 						whileHover={{ scale: 1.05 }}
 						whileTap={{ scale: 0.95 }}
 						onClick={() => navigate("/dashboard")}
-						className='flex items-center gap-2 bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 text-white rounded-xl px-6 py-3 font-medium shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all'
+						className='flex items-center gap-2 bg-linear-to-r from-cyan-500  to-blue-900 text-white rounded-xl px-6 py-3 font-medium shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all'
 					>
 						<LayoutDashboard className='w-5 h-5' />
 						Open Dashboard
