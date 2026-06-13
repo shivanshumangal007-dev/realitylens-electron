@@ -2,235 +2,364 @@ import { motion } from "motion/react";
 import { Eye, Mail, Lock } from "lucide-react";
 import { useNavigate, Link } from "react-router";
 import { useState, useEffect } from "react";
-import { registerHandler } from "../ApiHandler";
+import { registerHandler, OTP_checker } from "../ApiHandler";
 import LoadingScreen from "../components/LoadingScreen";
+
 const Register = () => {
-	const navigate = useNavigate();
-	const [name, setName] = useState("");
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-	useEffect(() => {
-		if (localStorage.getItem("token")) {
-			navigate("/");
-		}
-	}, [navigate]);
+  const [showOTP, setShowOTP] = useState(false);
+  const [tempToken, setTempToken] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
 
-	const handleRegister = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setIsSubmitting(true);
-		setErrorMessage(null);
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/");
+    }
 
-		try {
-			await registerHandler(name, email, password);
-			navigate("/login");
-		} catch (error) {
-			console.error("Registration error:", error);
-			setErrorMessage(
-				error instanceof Error
-					? error.message
-					: "Registration failed. Please try again.",
-			);
-		} finally {
-			setIsSubmitting(false);
-		}
-	};
+    // Listen for Google deep link success
+    if ((window as any).electronAPI?.onGoogleLoginSuccess) {
+      (window as any).electronAPI.onGoogleLoginSuccess(
+        (data: { token: string; userId: string }) => {
+          localStorage.setItem("token", data.token);
+          navigate("/");
+        },
+      );
+    }
+  }, [navigate]);
 
-	return (
-		<div className='size-full flex items-center justify-center relative overflow-hidden w-full h-screen'>
-			{isSubmitting && (
-				<LoadingScreen
-					status='Creating your account...'
-					fullScreen
-				/>
-			)}
-			{/* Animated gradient background */}
-			<div className='absolute inset-0 bg-linear-to-br from-blue-950 via-background to-purple-950 opacity-50' />
-			<motion.div
-				className='absolute inset-0 opacity-30'
-				animate={{
-					background: [
-						"radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%)",
-						"radial-gradient(circle at 80% 50%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)",
-						"radial-gradient(circle at 50% 80%, rgba(6, 182, 212, 0.3) 0%, transparent 50%)",
-						"radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%)",
-					],
-				}}
-				transition={{
-					duration: 10,
-					repeat: Infinity,
-					ease: "linear",
-				}}
-			/>
+  const handleGoogleLogin = () => {
+    if ((window as any).electronAPI) {
+      (window as any).electronAPI.openExternal(
+        "https://realitylens-9qu1.onrender.com/login/google",
+      );
+    } else {
+      window.location.href =
+        "https://realitylens-9qu1.onrender.com/login/google";
+    }
+  };
 
-			{/* Glassmorphism login card */}
-			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.5 }}
-				className='relative z-10 w-full max-w-md mx-4'
-			>
-				<div className='bg-card/40 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl p-8'>
-					{/* Logo and branding */}
-					<div className='text-center mb-8'>
-						<motion.div
-							initial={{ scale: 0.8, opacity: 0 }}
-							animate={{ scale: 1, opacity: 1 }}
-							transition={{ delay: 0.2, duration: 0.5 }}
-							className='inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-cyan-500 via-blue-500 to-purple-600 mb-4'
-						>
-							<Eye className='w-8 h-8 text-white' />
-						</motion.div>
-						<motion.h1
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							transition={{ delay: 0.3 }}
-							className='mb-2'
-						>
-							RealityLens
-						</motion.h1>
-						<motion.p
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							transition={{ delay: 0.4 }}
-							className='text-muted-foreground'
-						>
-							AI-powered fact verification for the modern internet
-						</motion.p>
-					</div>
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage(null);
 
-					{/* Register form */}
-					<form
-						onSubmit={handleRegister}
-						className='space-y-4'
-					>
-						{errorMessage && (
-							<div className='rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100'>
-								{errorMessage}
-							</div>
-						)}
-						<motion.div
-							initial={{ opacity: 0, x: -20 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ delay: 0.5 }}
-						>
-							<label className='block text-sm mb-2'>Name</label>
-							<div className='relative'>
-								<Mail className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
-								<input
-									type='name'
-									value={name}
-									onChange={(e) => setName(e.target.value)}
-									placeholder='John Doe'
-									className='w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all'
-									required
-									disabled={isSubmitting}
-								/>
-							</div>
-						</motion.div>
-						<motion.div
-							initial={{ opacity: 0, x: -20 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ delay: 0.5 }}
-						>
-							<label className='block text-sm mb-2'>Email</label>
-							<div className='relative'>
-								<Mail className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
-								<input
-									type='email'
-									value={email}
-									onChange={(e) => setEmail(e.target.value)}
-									placeholder='you@example.com'
-									className='w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all'
-									required
-									disabled={isSubmitting}
-								/>
-							</div>
-						</motion.div>
+    try {
+      const res = await registerHandler(name, email, password);
+      // Backend returns access_token on register, use it for OTP check
+      setTempToken(res.data.access_token);
+      setShowOTP(true);
+    } catch (error) {
+      console.error("Registration error:", error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Registration failed. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-						<motion.div
-							initial={{ opacity: 0, x: -20 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ delay: 0.6 }}
-						>
-							<label className='block text-sm mb-2'>New Password</label>
-							<div className='relative'>
-								<Lock className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
-								<input
-									type='password'
-									value={password}
-									onChange={(e) => setPassword(e.target.value)}
-									placeholder='••••••••'
-									className='w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all'
-									required
-									disabled={isSubmitting}
-								/>
-							</div>
-						</motion.div>
+  const handleOTPSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const enteredOTP = otp.join("");
+    if (enteredOTP.length !== 6) {
+      setErrorMessage("Please enter a valid 6-digit OTP.");
+      return;
+    }
 
-						<motion.button
-							initial={{ opacity: 0, y: 10 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.7 }}
-							whileHover={{ scale: 1.02 }}
-							whileTap={{ scale: 0.98 }}
-							type='submit'
-							disabled={isSubmitting}
-							className='w-full bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 text-white rounded-xl py-3 font-medium shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:cursor-not-allowed disabled:opacity-70'
-						>
-							{isSubmitting ? "Creating account..." : "Continue"}
-						</motion.button>
+    setIsSubmitting(true);
+    setErrorMessage(null);
 
-						<motion.div
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							transition={{ delay: 0.8 }}
-							className='relative my-6'
-						>
-							<div className='absolute inset-0 flex items-center'>
-								<div className='w-full border-t border-white/10' />
-							</div>
-							<div className='relative flex justify-center text-sm'>
-								<span className='px-4 bg-card/40 text-muted-foreground'>
-									or
-								</span>
-							</div>
-						</motion.div>
+    try {
+      await OTP_checker(tempToken, enteredOTP);
+      // Once OTP is verified, save the token and login
+      localStorage.setItem("token", tempToken);
+      navigate("/");
+    } catch (error) {
+      console.error("OTP error:", error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "OTP verification failed. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-						<motion.button
-							initial={{ opacity: 0, y: 10 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.9 }}
-							whileHover={{ scale: 1.02 }}
-							whileTap={{ scale: 0.98 }}
-							type='button'
-							disabled={isSubmitting}
-							className='w-full bg-white/5 backdrop-blur border border-white/10 text-foreground rounded-xl py-3 font-medium hover:bg-white/10 transition-all disabled:cursor-not-allowed disabled:opacity-60'
-						>
-							SignUp with Google
-						</motion.button>
-					</form>
+  return (
+    <div className="size-full flex items-center justify-center relative overflow-hidden w-full h-screen">
+      {isSubmitting && (
+        <LoadingScreen status={showOTP ? "Verifying..." : "Creating your account..."} fullScreen />
+      )}
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-linear-to-br from-blue-950 via-background to-purple-950 opacity-50" />
+      <motion.div
+        className="absolute inset-0 opacity-30"
+        animate={{
+          background: [
+            "radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%)",
+            "radial-gradient(circle at 80% 50%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)",
+            "radial-gradient(circle at 50% 80%, rgba(6, 182, 212, 0.3) 0%, transparent 50%)",
+            "radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%)",
+          ],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
 
-					{/* Footer */}
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 1 }}
-						className='mt-8 text-center text-sm text-muted-foreground'
-					>
-						already have an account?{" "}
-						<Link
-							to='/login'
-							className='text-cyan-500 hover:underline'
-						>
-							Login here
-						</Link>
-					</motion.div>
-				</div>
-			</motion.div>
-		</div>
-	);
+      {/* Glassmorphism card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10 w-full max-w-md mx-4"
+      >
+        <div className="bg-card/40 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl p-8">
+          {/* Logo and branding */}
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-cyan-500 via-blue-500 to-purple-600 mb-4"
+            >
+              <Eye className="w-8 h-8 text-white" />
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="mb-2"
+            >
+              RealityLens
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-muted-foreground"
+            >
+              AI-powered fact verification for the modern internet
+            </motion.p>
+          </div>
+
+          {/* Conditional Form Rendering */}
+          {!showOTP ? (
+            <>
+              {/* Register form */}
+              <form onSubmit={handleRegister} className="space-y-4">
+                {errorMessage && (
+                  <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+                    {errorMessage}
+                  </div>
+                )}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <label className="block text-sm mb-2">Name</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="John Doe"
+                      className="w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+                      required
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <label className="block text-sm mb-2">Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+                      required
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <label className="block text-sm mb-2">New Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+                      required
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 text-white rounded-xl py-3 font-medium shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isSubmitting ? "Creating account..." : "Continue"}
+                </motion.button>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                  className="relative my-6"
+                >
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-white/10" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-card/40 text-muted-foreground">
+                      or
+                    </span>
+                  </div>
+                </motion.div>
+
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={isSubmitting}
+                  className="w-full bg-white/5 backdrop-blur border border-white/10 text-foreground rounded-xl py-3 font-medium hover:bg-white/10 transition-all disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  SignUp with Google
+                </motion.button>
+              </form>
+
+              {/* Footer */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+                className="mt-8 text-center text-sm text-muted-foreground"
+              >
+                already have an account?{" "}
+                <Link to="/login" className="text-cyan-500 hover:underline">
+                  Login here
+                </Link>
+              </motion.div>
+            </>
+          ) : (
+            <form onSubmit={handleOTPSubmit} className="space-y-6">
+              {errorMessage && (
+                <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+                  {errorMessage}
+                </div>
+              )}
+              <div className="text-center">
+                <h2 className="text-xl font-semibold mb-2">Check your email</h2>
+                <p className="text-sm text-muted-foreground mb-6">
+                  We've sent a 6-digit verification code to your email address.
+                </p>
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex justify-center gap-3"
+              >
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    id={`otp-${index}`}
+                    type="text"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^[0-9]*$/.test(value)) {
+                        const newOtp = [...otp];
+                        newOtp[index] = value;
+                        setOtp(newOtp);
+                        // Auto-focus next input
+                        if (value && index < 5) {
+                          const nextInput = document.getElementById(
+                            `otp-${index + 1}`
+                          );
+                          nextInput?.focus();
+                        }
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Backspace" && !otp[index] && index > 0) {
+                        const prevInput = document.getElementById(
+                          `otp-${index - 1}`
+                        );
+                        prevInput?.focus();
+                      }
+                    }}
+                    className="w-12 h-14 text-center text-xl font-bold bg-input/50 backdrop-blur border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+                    required
+                    disabled={isSubmitting}
+                  />
+                ))}
+              </motion.div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={isSubmitting || otp.some((d) => d === "")}
+                className="w-full bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 hover:opacity-90 text-white rounded-xl py-3 font-medium transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Verify OTP
+              </motion.button>
+
+              <div className="text-center mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowOTP(false)}
+                  className="text-sm text-muted-foreground hover:text-white transition-colors"
+                >
+                  Back to register
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
 };
 export default Register;

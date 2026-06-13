@@ -13,6 +13,10 @@ const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [showOTP, setShowOTP] = useState(false);
+  const [tempToken, setTempToken] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+
   useEffect(() => {
     if (localStorage.getItem("token")) {
       navigate("/");
@@ -28,10 +32,6 @@ const Login = () => {
       );
     }
   }, [navigate]);
-
-  const [showOTP, setShowOTP] = useState(false);
-  const [tempToken, setTempToken] = useState("");
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
 
   const handleGoogleLogin = () => {
     if ((window as any).electronAPI) {
@@ -51,6 +51,7 @@ const Login = () => {
 
     try {
       const res = await loginHandler(email, password);
+      // Backend returns access_token on login, use it for OTP check
       setTempToken(res.data.access_token);
       setShowOTP(true);
     } catch (error) {
@@ -77,11 +78,9 @@ const Login = () => {
     setErrorMessage(null);
 
     try {
-      // TODO: Import and use your OTP_checker from ApiHandler here if needed:
-      // await OTP_checker("123455", enteredOTP);
-
-      // For now, if they enter an OTP we just log them in
-      localStorage.setItem("token", tempToken);
+      const res = await OTP_checker(tempToken, enteredOTP);
+      // Once OTP is verified, save the real token and redirect
+      localStorage.setItem("token", res.access_token);
       navigate("/");
     } catch (error) {
       console.error("OTP error:", error);
@@ -98,7 +97,7 @@ const Login = () => {
   return (
     <div className="size-full flex items-center justify-center relative overflow-hidden w-full h-screen">
       {isSubmitting && (
-        <LoadingScreen status="Signing you in..." fullScreen progress={100} />
+        <LoadingScreen status={showOTP ? "Verifying..." : "Signing you in..."} fullScreen progress={100} />
       )}
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-linear-to-br from-blue-950 via-background to-purple-950 opacity-50" />
