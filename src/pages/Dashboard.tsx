@@ -134,7 +134,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <nav className="flex-1 p-4 flex flex-col min-h-0">
+        <nav className="flex-1 p-4 space-y-1">
           <motion.button
             whileHover={{ x: 4 }}
             onClick={() => setActiveSection("new")}
@@ -151,14 +151,14 @@ const Dashboard = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mt-6 flex flex-col flex-1 min-h-0"
+            className="mt-6 flex flex-col"
           >
             <h2 className="px-4 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50 mb-2">
               Recent History
             </h2>
-            <div className="space-y-1 overflow-y-auto flex-1 px-2 pb-2 -mx-2">
+            <div className="space-y-1 overflow-y-auto max-h-[80vh] px-2 pb-2">
               {UserHistory.map((item, index) => {
-				// console.log(item)
+                // console.log(item)
                 return (
                   <motion.button
                     key={index}
@@ -208,7 +208,7 @@ const Dashboard = () => {
           <motion.button
             whileHover={{ x: 4 }}
             onClick={() => navigate("/settings")}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors mt-auto shrink-0"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
           >
             <SettingsIcon className="w-5 h-5 " />
             <span>Settings</span>

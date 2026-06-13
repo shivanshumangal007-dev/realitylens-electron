@@ -6,7 +6,7 @@ import React, {
 	useState,
 } from "react";
 import { motion } from "motion/react";
-import { FileText, Upload, X } from "lucide-react";
+import { FileText, Upload, X, Minimize2, MessageSquare, Share2, File } from "lucide-react";
 import LoadingScreen from "./LoadingScreen";
 import {
 	getJobResultHandler,
@@ -18,7 +18,7 @@ import CurrentSelectedHistory from "./CurrentSelectedHistory";
 
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
 
-const NewVarification = () => {
+const NewVarification = ({ username = "Shreyansh" }: { username?: string }) => {
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [isDragging, setIsDragging] = useState(false);
@@ -191,7 +191,7 @@ const NewVarification = () => {
     result: result
   };
 	return (
-		<div className='relative flex h-full w-full px-4 py-8'>
+		<div className='relative flex flex-col min-h-[calc(100vh-8rem)] w-full'>
 			{isSubmitting && (
 				<LoadingScreen
 					status={
@@ -206,151 +206,179 @@ const NewVarification = () => {
 			{result ? (
 				<CurrentSelectedHistory selectedcurrentHistory={selectedcurrentHistory} setSelectedCurrentHistory={setResult} />
 			) : (
-				<motion.section
-					initial={{ y: 20, opacity: 0 }}
-					animate={{ y: 0, opacity: 1 }}
-					transition={{ duration: 0.4 }}
-					className='w-full max-w-4xl rounded-2xl border border-border bg-card/50 p-4 backdrop-blur sm:p-6'
-				>
-					<div className='relative w-full'>
-						<div className='mb-6 flex flex-wrap items-center justify-between gap-3'>
-							<div>
-								<h2 className='text-2xl'>Upload files</h2>
-								<p className='text-sm text-muted-foreground'>
-									Select and upload a file or verify custom text.
-								</p>
-							</div>
-							<div className='rounded-xl border border-border/70 bg-background/40 p-1'>
-								<button
-									type='button'
-									onClick={() => setActiveMode("file")}
-									className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
-									activeMode === "file"
-										? "bg-cyan-500/10 text-cyan-500 font-medium"
-										: "text-muted-foreground hover:text-foreground"
-								}`}
-								>
-									File
-								</button>
-								<button
-									type='button'
-									onClick={() => setActiveMode("text")}
-									className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
-									activeMode === "text"
-										? "bg-cyan-500/10 text-cyan-500 font-medium"
-										: "text-muted-foreground hover:text-foreground"
-								}`}
-								>
-									Text
-								</button>
-							</div>
+				<div className='flex flex-col flex-1 h-full'>
+					{/* Top Header */}
+					<div className='flex justify-between items-start w-full mb-8'>
+						<h1 className='text-2xl font-bold'>Hey {username},</h1>
+						<button className='flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground'>
+							<Minimize2 className='h-4 w-4' /> Minimise to System Tray
+						</button>
+					</div>
+
+					{/* Center Content */}
+					<div className='flex flex-col items-center justify-center flex-1'>
+						<div className='text-center mb-10'>
+							<h1 className='mb-4 text-4xl font-bold tracking-tight'>What are we Investigating today?</h1>
+							<p className='text-cyan-400 font-medium'>
+								Drop a screenshot, article, video, or claim below and we'll do the fact-checking for you.
+							</p>
 						</div>
 
-						{activeMode === "file" ? (
-							<div
-								onDragOver={(event) => {
-									event.preventDefault();
-									setIsDragging(true);
-								}}
-								onDragLeave={() => setIsDragging(false)}
-								onDrop={handleDrop}
-								className={`rounded-2xl border border-dashed p-5 transition-colors sm:p-8 ${
-								isDragging
-									? "border-cyan-400 bg-cyan-500/10"
-									: "border-border bg-background/30 hover:border-cyan-500/30"
-							}`}
-							>
-								<input
-									ref={fileInputRef}
-									type='file'
-									onChange={onFileChange}
-									accept='.jpg,.jpeg,.png,.pdf,.mp4'
-									className='hidden'
-								/>
-								<div className='flex flex-col items-center justify-center text-center'>
-									<div className='mb-4 rounded-xl bg-cyan-500/10 p-3 text-cyan-500'>
-										<Upload className='h-6 w-6' />
-									</div>
-									<p className='text-sm text-muted-foreground'>
-										Choose a file or drag and drop it here
-									</p>
-									<p className='mt-1 text-xs text-muted-foreground'>
-										JPG, PNG, PDF, MP4 up to 50MB
-									</p>
+						<motion.section
+							initial={{ y: 20, opacity: 0 }}
+							animate={{ y: 0, opacity: 1 }}
+							transition={{ duration: 0.4 }}
+							className='w-full max-w-4xl rounded-2xl border border-white/10 bg-card/40 p-6 backdrop-blur sm:p-8 shadow-2xl'
+						>
+							<div className='mb-6 flex flex-wrap items-center justify-between gap-3'>
+								<h2 className='text-xl font-bold'>Upload Files or Enter Text</h2>
+								<div className='flex rounded-xl border border-white/10 bg-background/50 p-1'>
 									<button
 										type='button'
-										onClick={() => fileInputRef.current?.click()}
-										className='mt-4 rounded-xl border border-border bg-background/50 px-5 py-2 text-sm text-foreground transition-colors hover:border-cyan-500/30 hover:bg-cyan-500/5'
+										onClick={() => setActiveMode("file")}
+										className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-all ${
+											activeMode === "file"
+												? "bg-cyan-500/20 text-cyan-400"
+												: "text-muted-foreground hover:text-foreground"
+										}`}
 									>
-										Browse File
+										File
+									</button>
+									<button
+										type='button'
+										onClick={() => setActiveMode("text")}
+										className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-all ${
+											activeMode === "text"
+												? "bg-cyan-500/20 text-cyan-400"
+												: "text-muted-foreground hover:text-foreground"
+										}`}
+									>
+										Text
 									</button>
 								</div>
+							</div>
 
-								{selectedFile && (
-									<div className='mt-5 flex items-center justify-between rounded-xl border border-border bg-background/50 p-3'>
-										<div className='flex min-w-0 items-center gap-2'>
-											<FileText className='h-4 w-4 shrink-0 text-cyan-500' />
-											<p className='truncate text-sm'>{selectedFile.name}</p>
+							<div className='mb-6 flex flex-wrap items-center gap-2 text-xs text-muted-foreground'>
+								<span>Try examples:</span>
+								<button className='flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1.5 transition-colors hover:bg-white/10'>
+									<FileText className='h-3 w-3 text-blue-400' /> News article screenshot
+								</button>
+								<button className='flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1.5 transition-colors hover:bg-white/10'>
+									<MessageSquare className='h-3 w-3 text-cyan-400' /> Political claim
+								</button>
+								<button className='flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1.5 transition-colors hover:bg-white/10'>
+									<Share2 className='h-3 w-3 text-purple-400' /> Viral social media post
+								</button>
+								<button className='flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1.5 transition-colors hover:bg-white/10'>
+									<File className='h-3 w-3 text-gray-400' /> PDF report
+								</button>
+							</div>
+
+							{activeMode === "file" ? (
+								<div
+									onDragOver={(event) => {
+										event.preventDefault();
+										setIsDragging(true);
+									}}
+									onDragLeave={() => setIsDragging(false)}
+									onDrop={handleDrop}
+									className={`rounded-2xl border border-dashed p-8 text-center transition-all sm:p-12 ${
+										isDragging
+											? "border-cyan-400 bg-cyan-500/10"
+											: "border-white/10 bg-background/40 hover:border-cyan-500/30 hover:bg-background/60"
+									}`}
+								>
+									<input
+										ref={fileInputRef}
+										type='file'
+										onChange={onFileChange}
+										accept='.jpg,.jpeg,.png,.pdf,.mp4'
+										className='hidden'
+									/>
+									<div className='flex flex-col items-center justify-center'>
+										<div className='mb-4 rounded-2xl bg-cyan-500/10 p-4 text-cyan-400'>
+											<Upload className='h-6 w-6' />
 										</div>
+										<p className='text-sm text-foreground mb-1'>Choose a file or drag and drop it here</p>
+										<p className='text-xs text-muted-foreground mb-6'>JPG, PNG, PDF, MP4 up to 50MB</p>
 										<button
 											type='button'
-											onClick={clearFile}
-											className='rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-foreground'
+											onClick={() => fileInputRef.current?.click()}
+											className='rounded-xl border border-white/10 bg-white/5 px-6 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-white/10'
 										>
-											<X className='h-4 w-4' />
+											Browse File
 										</button>
 									</div>
-								)}
-							</div>
-						) : (
-							<div className='rounded-2xl border border-border bg-background/30 p-5 sm:p-6'>
-								<label
-									htmlFor='verificationText'
-									className='mb-3 block text-sm text-muted-foreground'
+
+									{selectedFile && (
+										<div className='mx-auto mt-6 flex max-w-md items-center justify-between rounded-xl border border-white/10 bg-background/80 p-3'>
+											<div className='flex min-w-0 items-center gap-3'>
+												<div className='rounded-lg bg-cyan-500/20 p-2'>
+													<FileText className='h-4 w-4 text-cyan-400' />
+												</div>
+												<p className='truncate text-sm font-medium'>{selectedFile.name}</p>
+											</div>
+											<button
+												type='button'
+												onClick={clearFile}
+												className='rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-500/20 hover:text-red-400'
+											>
+												<X className='h-4 w-4' />
+											</button>
+										</div>
+									)}
+								</div>
+							) : (
+								<div className='rounded-2xl border border-white/10 bg-background/40 p-6'>
+									<textarea
+										id='verificationText'
+										value={textVerification}
+										onChange={(event) => setTextVerification(event.target.value)}
+										placeholder='Paste the claim, headline, or message you want to verify...'
+										className='min-h-[200px] w-full resize-y rounded-xl border border-white/10 bg-background/50 p-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-cyan-500/50 focus:bg-background/80'
+									/>
+									<div className='mt-3 flex justify-end'>
+										<p className='text-xs text-muted-foreground'>
+											{textVerification.length} characters
+										</p>
+									</div>
+								</div>
+							)}
+
+							<div className='mt-6 flex flex-wrap justify-end gap-3'>
+								<button
+									type='button'
+									onClick={handleReset}
+									className='rounded-xl border border-white/10 bg-transparent px-6 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground'
 								>
-									Type your text for verification
-								</label>
-								<textarea
-									id='verificationText'
-									value={textVerification}
-									onChange={(event) => setTextVerification(event.target.value)}
-									placeholder='Paste the claim, headline, or message you want to verify...'
-									className='min-h-40 w-full resize-y rounded-xl border border-border bg-card/60 p-4 text-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-cyan-500/50 focus:bg-cyan-500/5'
-								/>
-								<p className='mt-2 text-xs text-muted-foreground'>
-									{textVerification.length} characters
-								</p>
+									Reset
+								</button>
+								<button
+									type='button'
+									onClick={submitHandler}
+									disabled={
+										isSubmitting ||
+										(activeMode === "file" ? !selectedFile : !canSubmitText)
+									}
+									className='rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-all hover:shadow-lg hover:shadow-cyan-500/25 disabled:cursor-not-allowed disabled:opacity-50'
+								>
+									{isSubmitting ? "Processing..." : "Send Verification"}
+								</button>
 							</div>
-						)}
 
-						<div className='mt-5 flex flex-wrap justify-end gap-3'>
-							<button
-								type='button'
-								onClick={handleReset}
-								className='rounded-xl border border-border bg-background/40 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors'
-							>
-								Reset
-							</button>
-							<button
-								type='button'
-								onClick={submitHandler}
-								disabled={
-									isSubmitting ||
-									(activeMode === "file" ? !selectedFile : !canSubmitText)
-								}
-								className='rounded-xl bg-linear-to-r from-cyan-500 to-blue-500 px-5 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50 transition-all hover:shadow-lg hover:shadow-cyan-500/20'
-							>
-								{isSubmitting ? "Processing..." : "Send Verification"}
-							</button>
-						</div>
-
-						{error && (
-							<p className='mt-4 rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-400'>
-								{error}
-							</p>
-						)}
+							{error && (
+								<p className='mt-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200'>
+									{error}
+								</p>
+							)}
+						</motion.section>
 					</div>
-				</motion.section>
+
+					{/* Bottom Text */}
+					<div className='mt-auto pt-8 pb-2 text-center text-sm font-medium text-muted-foreground '>
+						Press the Universal HotKeys : <span className='text-foreground'>Ctrl/Cmd + Shift + L</span> &gt; Select The Area by Dragging Mouse &gt; Get your Verdict Instantly !
+					</div>
+				</div>
 			)}
 		</div>
 	);
