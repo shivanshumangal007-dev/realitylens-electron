@@ -78,9 +78,9 @@ const Register = () => {
     setErrorMessage(null);
 
     try {
-      await OTP_checker(tempToken, enteredOTP);
+      const res = await OTP_checker(tempToken, enteredOTP);
       // Once OTP is verified, save the token and login
-      localStorage.setItem("token", tempToken);
+      localStorage.setItem("token", res.access_token);
       navigate("/");
     } catch (error) {
       console.error("OTP error:", error);
