@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const api = axios.create({
-	baseURL: "https://realitylens-9qu1.onrender.com",
+	baseURL: import.meta.env.VITE_BACKEND_API_URL,
 	withCredentials: true,
 	headers: {
 		"Content-Type": "application/json",

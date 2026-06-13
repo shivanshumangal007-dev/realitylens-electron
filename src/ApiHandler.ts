@@ -1,6 +1,5 @@
 import api from "./Api";
 import { getApiErrorMessage } from "./utils/apiError";
-import initRedis from "./RedisConnection"
 
 const loginHandler = async (email: string, password: string) => {
 	try {
@@ -16,18 +15,13 @@ const loginHandler = async (email: string, password: string) => {
 
 
 const OTP_checker = async (token : string, enteredOTP: string) => {
-	try{
-		const Redis = await initRedis()
-		const {value} = await Redis.get(`user:${token}`)
-		console.log(value)
-		if(value === enteredOTP){
-			return true
-		}else{
-			throw new Error("Incorrect OTP")
-		}
-	}catch(err){
-		console.log("OTP Checker Error", err)
-		throw new Error(getApiErrorMessage(err, "OTP verification failed"))
+	try {
+		// Send the OTP to your backend server instead of connecting to Redis directly from the browser
+		const response = await api.post("/verify-otp", { token, otp: enteredOTP });
+		return response.data;
+	} catch(err) {
+		console.error("OTP Checker Error", err);
+		throw new Error(getApiErrorMessage(err, "OTP verification failed"));
 	}
 }
 
