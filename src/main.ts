@@ -165,13 +165,7 @@ const createWindow = () => {
 		}
 	});
 
-	(win as any).on("minimize", (event: any) => {
-		// Prevent default minimize behavior and hide to tray instead
-		if (event && typeof event.preventDefault === "function") {
-			event.preventDefault();
-		}
-		win.hide();
-	});
+
 
 	return win;
 };
@@ -388,7 +382,7 @@ app.whenReady().then(() => {
 
 ipcMain.handle("minimise-app", () => {
 	if (mainWindow && !mainWindow.isDestroyed()) {
-		mainWindow.hide();
+		mainWindow.minimize();
 	}
 });
 ipcMain.handle("capture-screen", async (_, area) => {
