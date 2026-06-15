@@ -139,10 +139,13 @@ const Dashboard = () => {
         className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col"
       >
         <div className="p-6 border-b border-sidebar-border">
-          <div className="flex items-center gap-3">
+          <button 
+            onClick={() => navigate("/")}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity w-full text-left cursor-pointer"
+          >
             <img src={icon} alt="RealityLens" className="w-8 h-8" />
             <span className="text-lg">RealityLens</span>
-          </div>
+          </button>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
@@ -164,7 +167,13 @@ const Dashboard = () => {
             animate={{ opacity: 1 }}
             className="mt-6 flex flex-col"
           >
-            <h2 className="px-4 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50 mb-2">
+            <h2 
+              onClick={() => {
+                setActiveSection("history");
+                setSelectedCurrentHistory(null);
+              }}
+              className="px-4 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50 mb-2 cursor-pointer hover:text-sidebar-foreground transition-colors flex items-center justify-between group"
+            >
               Recent History
             </h2>
             <div className="space-y-1 overflow-y-auto max-h-[80vh] px-2 pb-2">

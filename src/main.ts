@@ -17,6 +17,7 @@ import { promisify } from "node:util";
 import fs from "fs";
 import screenshot from "screenshot-desktop";
 import log from "electron-log/main";
+import { updateElectronApp } from "update-electron-app";
 
 // ── Logging setup ────────────────────────────────────────────────────────────
 // Logs are written to: %AppData%\RealityLens\logs\main.log
@@ -46,6 +47,11 @@ log.info("Electron:", process.versions.electron, "| Node:", process.versions.nod
 log.info("Args:", process.argv.join(" "));
 log.info("Log file:", log.transports.file.getFile().path);
 // ─────────────────────────────────────────────────────────────────────────────
+
+updateElectronApp({
+	logger: log,
+	updateInterval: '1 hour'
+});
 
 const execFileAsync = promisify(execFile);
 const configPath = path.join(app.getPath("userData"), "config.json");
@@ -317,6 +323,8 @@ if (!started) {
 app.whenReady().then(() => {
 	createWindow();
 
+	// The updater is now initialized via update-electron-app
+
 	const config = getConfig();
 	
 	// Automatically set to open on startup on first launch
@@ -504,6 +512,10 @@ ipcMain.handle("open-external", (_, url) => {
 
 ipcMain.handle("get-shortcut", () => {
 	return getConfig().shortcut;
+});
+
+ipcMain.handle("get-app-version", () => {
+	return app.getVersion();
 });
 
 ipcMain.handle("update-shortcut", (_, newShortcut) => {

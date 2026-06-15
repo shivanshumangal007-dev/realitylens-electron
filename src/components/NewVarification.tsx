@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useEffect,
 } from "react";
 import { motion } from "motion/react";
 import {
@@ -43,9 +44,27 @@ const NewVarification = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const pollingIntervalRef = useRef<number | null>(null);
   const [result, setResult] = useState(null);
+  const [shortcut, setShortcut] = useState<string>("CommandOrControl+Shift+L");
+
+  useEffect(() => {
+    if (window.electronAPI && window.electronAPI.getShortcut) {
+      window.electronAPI.getShortcut().then((sc: string) => {
+        if (sc) setShortcut(sc);
+      });
+    }
+  }, []);
+
+  const formatShortcutKey = (key: string) => {
+    if (key === "CommandOrControl") {
+      return "Cmd/Ctrl";
+    }
+    if (key === "Shift") return "⇧";
+    if (key === "Alt") return "Alt";
+    return key;
+  };
 
   const acceptedFileTypes = useMemo(
-    () => ["image/jpeg", "image/png", "application/pdf", "video/mp4"],
+    () => ["image/jpeg", "image/png"],
     [],
   );
 
@@ -240,7 +259,7 @@ const NewVarification = ({
                 What are we Investigating today?
               </h1>
               <p className="text-cyan-400 font-medium">
-                Drop a screenshot, article, video, or claim below and we'll do
+                Drop a screenshot, an image or claim below and we'll do
                 the fact-checking for you.
               </p>
             </div>
@@ -295,9 +314,7 @@ const NewVarification = ({
                   <Share2 className="h-3 w-3 text-purple-400" /> Viral social
                   media post
                 </button>
-                <button className="flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1.5 transition-colors hover:bg-white/10">
-                  <File className="h-3 w-3 text-gray-400" /> PDF report
-                </button>
+                
               </div>
 
               {activeMode === "file" ? (
@@ -318,7 +335,7 @@ const NewVarification = ({
                     ref={fileInputRef}
                     type="file"
                     onChange={onFileChange}
-                    accept=".jpg,.jpeg,.png,.pdf,.mp4"
+                    accept=".jpg,.jpeg,.png"
                     className="hidden"
                   />
                   <div className="flex flex-col items-center justify-center">
@@ -329,7 +346,7 @@ const NewVarification = ({
                       Choose a file or drag and drop it here
                     </p>
                     <p className="text-xs text-muted-foreground mb-6">
-                      JPG, PNG, PDF, MP4 up to 50MB
+                      JPG, PNG up to 50MB
                     </p>
                     <button
                       type="button"
@@ -411,8 +428,10 @@ const NewVarification = ({
           {/* Bottom Text */}
           <div className="mt-auto pt-8 pb-2 text-center text-sm font-medium text-muted-foreground ">
             Press the Universal HotKeys :{" "}
-            <span className="text-foreground">Ctrl/Cmd + Shift + L</span> &gt;
-            Select The Area by Dragging Mouse &gt; Get your Verdict Instantly !
+            <span className="text-foreground">
+              {shortcut.split("+").map(formatShortcutKey).join(" + ")}
+            </span>{" "}
+            &gt; Select The Area by Dragging Mouse &gt; Get your Verdict Instantly !
           </div>
         </div>
       )}
@@ -421,4 +440,3 @@ const NewVarification = ({
 };
 
 export default NewVarification;
-``;

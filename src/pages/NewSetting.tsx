@@ -26,11 +26,17 @@ const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 
 	const [shortcut, setShortcut] = useState<string>("CommandOrControl+Shift+L");
 	const [isListening, setIsListening] = useState(false);
+	const [appVersion, setAppVersion] = useState<string>("1.0.0");
 
 	useEffect(() => {
 		if (window.electronAPI && window.electronAPI.getShortcut) {
 			window.electronAPI.getShortcut().then((sc) => {
 				if (sc) setShortcut(sc);
+			});
+		}
+		if (window.electronAPI && window.electronAPI.getAppVersion) {
+			window.electronAPI.getAppVersion().then((version) => {
+				if (version) setAppVersion(version);
 			});
 		}
 	}, []);
@@ -225,7 +231,7 @@ const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 							<div>
 								<p className='text-sm mb-1'>About RealityLens</p>
 								<p className='text-xs text-muted-foreground mb-2'>
-									Version 1.0.0
+									Version {appVersion}
 								</p>
 								<p className='text-xs text-muted-foreground'>
 									AI-powered fact verification for the modern internet. Built

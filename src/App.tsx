@@ -8,7 +8,6 @@ import OverlayDiv from "./Overlay";
 import { useState, useEffect } from "react";
 import NewSettings from "./pages/NewSetting";
 import AppErrorBoundary from "./components/AppErrorBoundary";
-import UpdatePopup from "./components/UpdatePopup";
 
 function App() {
 	const location = useLocation();
@@ -83,7 +82,6 @@ function App() {
 						element={<Dashboard />}
 					/>
 				</Routes>
-				<UpdatePopup />
 			</AppErrorBoundary>
 		</div>
 	);

@@ -31,6 +31,9 @@ const electronAPI = {
 	updateShortcut: async (shortcut: string) => {
 		return ipcRenderer.invoke("update-shortcut", shortcut);
 	},
+	getAppVersion: async () => {
+		return ipcRenderer.invoke("get-app-version");
+	},
 	onNavigateToLogin: (callback: () => void) => {
 		ipcRenderer.on("navigate-to-login", () => callback());
 	},

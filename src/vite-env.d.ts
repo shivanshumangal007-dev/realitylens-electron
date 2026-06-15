@@ -12,6 +12,7 @@ declare global {
 			openExternal: (url: string) => Promise<void>;
 			getShortcut: () => Promise<string>;
 			updateShortcut: (shortcut: string) => Promise<boolean>;
+			getAppVersion: () => Promise<string>;
 		};
 	}
 }
