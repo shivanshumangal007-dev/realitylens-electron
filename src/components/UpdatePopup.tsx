@@ -5,7 +5,7 @@ import packageJson from '../../package.json';
 import Icon from '../App_icons/icon.png';
 
 const UpdatePopup = () => {
-    const [updateAvailable, setUpdateAvailable] = useState(true);
+    const [updateAvailable, setUpdateAvailable] = useState(false);
 
     useEffect(() => {
         const checkUpdate = async () => {
