@@ -84,6 +84,7 @@ const CurrentSelectedHistory = ({
 			? Math.round(result.confidence * 100)
 			: 0;
 	const realityPct = getRealityScorePercentage(result.reality_score);
+	console.log(selectedcurrentHistory)
 
 	return (
 		<div>
@@ -116,11 +117,17 @@ const CurrentSelectedHistory = ({
 							{result.verdict || "UNREADABLE"}
 						</span>
 					</div>
-					<img
-						src={selectedcurrentHistory.image_url}
-						alt='Verification'
-						className='rounded-lg w-full max-h-96 object-contain bg-black/20 mt-4'
-					/>
+					{selectedcurrentHistory.image_url ? (
+						<img
+							src={selectedcurrentHistory.image_url}
+							alt='Verification'
+							className='rounded-lg w-full max-h-96 object-contain bg-black/20 mt-4'
+						/>
+					) : (
+						<p className='text-xs text-muted-foreground mt-4'>
+							{selectedcurrentHistory?.result?.input || "No image available for this verification."}
+						</p>
+					)}
 				</div>
 			</motion.div>
 
