@@ -1,6 +1,4 @@
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
-
-import Home from "./pages/Home";
+import { Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
@@ -54,7 +52,7 @@ function App() {
 				<Routes>
 					<Route
 						path='/'
-						element={<Home />}
+						element={<Navigate to="/dashboard" replace />}
 					/>
 					<Route
 						path='/login'

@@ -19,7 +19,7 @@ const Login = () => {
 
   useEffect(() => {
     if (localStorage.getItem("token")) {
-      navigate("/");
+      navigate("/dashboard");
     }
 
     // Listen for Google deep link success
@@ -27,7 +27,7 @@ const Login = () => {
       (window as any).electronAPI.onGoogleLoginSuccess(
         (data: { token: string; userId: string }) => {
           localStorage.setItem("token", data.token);
-          navigate("/");
+          navigate("/dashboard");
         },
       );
     }
@@ -81,7 +81,7 @@ const Login = () => {
       const res = await OTP_checker(tempToken, enteredOTP);
       // Once OTP is verified, save the real token and redirect
       localStorage.setItem("token", res.access_token);
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       console.error("OTP error:", error);
       setErrorMessage(

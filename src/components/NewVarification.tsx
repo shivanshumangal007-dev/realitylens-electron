@@ -225,7 +225,7 @@ const NewVarification = ({
     result: result,
   };
   return (
-    <div className="relative flex flex-col min-h-[calc(100vh-8rem)] w-full">
+    <div className="relative flex flex-col h-full w-full">
       {isSubmitting && (
         <LoadingScreen
           status={
@@ -243,9 +243,9 @@ const NewVarification = ({
           setSelectedCurrentHistory={setResult}
         />
       ) : (
-        <div className="flex flex-col flex-1 h-full">
+        <div className="flex flex-col flex-1 h-full min-h-0">
           {/* Top Header */}
-          <div className="flex justify-between items-start w-full mb-8">
+          <div className="flex justify-between items-start w-full mb-4 2xl:mb-8 shrink-0">
             <h1 className="text-2xl font-bold">Hey {username},</h1>
             <button className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground">
               <Minimize2 className="h-4 w-4" /> Minimise to System Tray
@@ -253,9 +253,9 @@ const NewVarification = ({
           </div>
 
           {/* Center Content */}
-          <div className="flex flex-col items-center justify-center flex-1">
-            <div className="text-center mb-10">
-              <h1 className="mb-4 text-4xl font-bold tracking-tight">
+          <div className="flex flex-col items-center justify-center flex-1 min-h-0 py-2">
+            <div className="text-center mb-6 2xl:mb-10 shrink-0">
+              <h1 className="mb-2 2xl:mb-4 text-3xl 2xl:text-4xl font-bold tracking-tight">
                 What are we Investigating today?
               </h1>
               <p className="text-cyan-400 font-medium">
@@ -268,9 +268,9 @@ const NewVarification = ({
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.4 }}
-              className="w-full max-w-4xl rounded-2xl border border-white/10 bg-card/40 p-6 backdrop-blur sm:p-8 shadow-2xl"
+              className="w-full max-w-4xl rounded-2xl border border-white/10 bg-card/40 p-5 2xl:p-8 backdrop-blur shadow-2xl flex flex-col"
             >
-              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+              <div className="mb-4 2xl:mb-6 flex flex-wrap items-center justify-between gap-3 shrink-0">
                 <h2 className="text-xl font-bold">
                   Upload Files or Enter Text
                 </h2>
@@ -300,7 +300,7 @@ const NewVarification = ({
                 </div>
               </div>
 
-              <div className="mb-6 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <div className="mb-4 2xl:mb-6 flex flex-wrap items-center gap-2 text-xs text-muted-foreground shrink-0">
                 <span>Try examples:</span>
                 <button className="flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1.5 transition-colors hover:bg-white/10">
                   <FileText className="h-3 w-3 text-blue-400" /> News article
@@ -325,7 +325,7 @@ const NewVarification = ({
                   }}
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={handleDrop}
-                  className={`rounded-2xl border border-dashed p-8 text-center transition-all sm:p-12 ${
+                  className={`rounded-2xl border border-dashed p-6 2xl:p-12 text-center transition-all ${
                     isDragging
                       ? "border-cyan-400 bg-cyan-500/10"
                       : "border-white/10 bg-background/40 hover:border-cyan-500/30 hover:bg-background/60"
@@ -339,13 +339,13 @@ const NewVarification = ({
                     className="hidden"
                   />
                   <div className="flex flex-col items-center justify-center">
-                    <div className="mb-4 rounded-2xl bg-cyan-500/10 p-4 text-cyan-400">
+                    <div className="mb-3 2xl:mb-4 rounded-2xl bg-cyan-500/10 p-3 2xl:p-4 text-cyan-400">
                       <Upload className="h-6 w-6" />
                     </div>
                     <p className="text-sm text-foreground mb-1">
                       Choose a file or drag and drop it here
                     </p>
-                    <p className="text-xs text-muted-foreground mb-6">
+                    <p className="text-xs text-muted-foreground mb-4 2xl:mb-6">
                       JPG, PNG up to 50MB
                     </p>
                     <button
@@ -378,7 +378,7 @@ const NewVarification = ({
                   )}
                 </div>
               ) : (
-                <div className="rounded-2xl border border-white/10 bg-background/40 p-6">
+                <div className="rounded-2xl border border-white/10 bg-background/40 p-4 2xl:p-6">
                   <textarea
                     id="verificationText"
                     value={textVerification}
@@ -396,7 +396,7 @@ const NewVarification = ({
                 </div>
               )}
 
-              <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <div className="mt-4 2xl:mt-6 flex flex-wrap justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={handleReset}
@@ -426,7 +426,7 @@ const NewVarification = ({
           </div>
 
           {/* Bottom Text */}
-          <div className="mt-auto pt-8 pb-2 text-center text-sm font-medium text-muted-foreground ">
+          <div className="mt-auto pt-4 2xl:pt-8 pb-2 text-center text-sm font-medium text-muted-foreground shrink-0">
             Press the Universal HotKeys :{" "}
             <span className="text-foreground">
               {shortcut.split("+").map(formatShortcutKey).join(" + ")}
