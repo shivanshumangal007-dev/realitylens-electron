@@ -116,6 +116,25 @@ const fetchUser = async () => {
 		throw new Error(getApiErrorMessage(error, "Unable to load your profile."));
 	}
 };
+const updateProfileHandler = async (data: { username?: string; email?: string; password?: string }) => {
+	try {
+		const response = await api.patch("/change-user-details", data);
+		return response;
+	} catch (error) {
+		console.error("Profile update error:", error);
+		throw new Error(getApiErrorMessage(error, "Failed to update profile."));
+	}
+};
+
+const OTPcheckerUpdateHandler = async (data : {otp: string, token: string}) => {
+	try{
+		const response = await api.post("/verify-update", data);
+		return response;
+	}catch(err) {
+		console.error("OTP Checker Update Error", err);
+		throw new Error(getApiErrorMessage(err, "Failed to update OTP"));
+	}
+}
 export {
 	loginHandler,
 	registerHandler,
@@ -126,4 +145,6 @@ export {
 	fetchUser,
 	submitTextHandler,
 	OTP_checker,
+	updateProfileHandler,
+	OTPcheckerUpdateHandler
 };

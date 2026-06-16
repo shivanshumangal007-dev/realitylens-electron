@@ -17,6 +17,7 @@ import LoadingScreen from "../components/LoadingScreen";
 import NewVarification from "../components/NewVarification";
 import ErrorBoundary from "../components/ErrorBoundary";
 import icon from "../App_icons/icon.png";
+import EditProfileModal from "../components/EditProfileModal";
 interface userProps {
   email: string;
   username: string;
@@ -32,6 +33,7 @@ const Dashboard = () => {
   >(null);
   const [isBootLoading, setIsBootLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   const fetchHistory = async () => {
     try {
@@ -41,6 +43,15 @@ const Dashboard = () => {
       );
     } catch (error) {
       console.error("Dashboard history refresh error:", error);
+    }
+  };
+
+  const handleProfileUpdated = async () => {
+    try {
+      const userResponse = await fetchUser();
+      setuser(userResponse.data);
+    } catch (err) {
+      console.error("Failed to refresh user after update", err);
     }
   };
 
@@ -231,6 +242,7 @@ const Dashboard = () => {
         <div className="p-4 border-t border-sidebar-border">
           <motion.div
             whileHover={{ scale: 1.02 }}
+            onClick={() => setIsEditProfileOpen(true)}
             className="flex items-center gap-3 p-3 rounded-xl hover:bg-sidebar-accent/50 transition-colors cursor-pointer"
           >
             <div className="w-10 h-10 rounded-full bg-linear-to-br from-cyan-500 to-blue-900 flex items-center justify-center">
@@ -299,6 +311,13 @@ const Dashboard = () => {
           {}
         </div>
       </main>
+
+      <EditProfileModal
+        isOpen={isEditProfileOpen}
+        onClose={() => setIsEditProfileOpen(false)}
+        currentUser={user}
+        onProfileUpdated={handleProfileUpdated}
+      />
     </div>
   );
 };
