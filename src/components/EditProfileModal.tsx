@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "motion/react";
-import { X, User, Mail, Lock, KeyRound } from "lucide-react";
+import { X, User, Mail, Lock, KeyRound, CheckCircle2 } from "lucide-react";
 import { OTPcheckerUpdateHandler, updateProfileHandler } from "../ApiHandler";
 import { data } from 'react-router-dom';
 
@@ -8,7 +8,7 @@ interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: { username: string; email: string } | null;
-  onProfileUpdated: () => void;
+  onProfileUpdated: (msg?: string) => void;
 }
 
 type EditMode = 'username' | 'email' | 'password';
@@ -24,6 +24,10 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, cu
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [otpClickCount, setOtpClickCount] = useState(0);
+  const [otpTimer, setOtpTimer] = useState(0);
+  const [otpSentMessage, setOtpSentMessage] = useState("");
+
   // Update local state if currentUser changes
   React.useEffect(() => {
     if (currentUser && isOpen) {
@@ -32,8 +36,22 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, cu
       setPassword("");
       setOtp("");
       setError(null);
+      setOtpClickCount(0);
+      setOtpTimer(0);
+      setOtpSentMessage("");
     }
   }, [currentUser, isOpen]);
+
+  // Handle OTP countdown timer
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (otpTimer > 0) {
+      interval = setInterval(() => {
+        setOtpTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [otpTimer]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,9 +59,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, cu
     setError(null);
 
     try {
-      const dataToUpdate: any = {};
       if (mode === 'username'){
-        handleSubmitUsername();
+        await handleSubmitUsername();
         return;
       }
       if (mode === 'email' || mode === 'password') {
@@ -54,23 +71,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, cu
         await OTPcheckerUpdateHandler(data)
       }
 
-      // const response = await updateProfileHandler(dataToUpdate);
-      // setOtpToken(response.data.access_token);
-      // onProfileUpdated();
-      // onClose();
-    } catch (err: any) {
-      setError(err.message || "Failed to update profile");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  const handleSubmitUsername = async () => {
-
-    try {
-      const dataToUpdate: any = {};
-      if (mode === 'username') dataToUpdate.username = username;
-      const response = await updateProfileHandler(dataToUpdate);
-      onProfileUpdated();
+      onProfileUpdated(`${mode === 'email' ? 'Email' : 'Password'} updated successfully!`);
       onClose();
     } catch (err: any) {
       setError(err.message || "Failed to update profile");
@@ -78,7 +79,26 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, cu
       setIsLoading(false);
     }
   };
+
+  const handleSubmitUsername = async () => {
+    try {
+      const dataToUpdate: any = {};
+      if (mode === 'username') dataToUpdate.username = username;
+      const response = await updateProfileHandler(dataToUpdate);
+      onProfileUpdated("Username updated successfully!");
+      onClose();
+    } catch (err: any) {
+      setError(err.message || "Failed to update profile");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleOPTsend = async () => {
+    setIsLoading(true);
+    setError(null);
+    setOtpSentMessage("");
+
     const dataToUpdate :any = {};
     if(mode === 'email'){
       dataToUpdate.email = email;
@@ -89,12 +109,19 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, cu
     try{
       const response = await updateProfileHandler(dataToUpdate);
       setOtpToken(response.data.access_token);
+      setOtpSentMessage("OTP sent successfully!");
+      
+      if (otpClickCount === 0) {
+        setOtpTimer(60); // 1 minute
+      } else {
+        setOtpTimer(300); // 5 minutes
+      }
+      setOtpClickCount(prev => prev + 1);
     }catch(err: any) {
       setError(err.message || "Failed to update profile");
     } finally {
       setIsLoading(false);
     }
-
   }
 
   return (
@@ -124,7 +151,11 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, cu
                   <button
                     key={tab}
                     type="button"
-                    onClick={() => setMode(tab)}
+                    onClick={() => {
+                      setMode(tab);
+                      setError(null);
+                      setOtpSentMessage("");
+                    }}
                     className={`flex-1 py-2 text-sm font-medium rounded-lg capitalize transition-all ${
                       mode === tab
                         ? 'bg-sidebar-accent text-white shadow-sm'
@@ -191,10 +222,18 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, cu
                           required
                         />
                       </div>
-                      <button type="button" className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm hover:bg-white/10 transition-colors text-white whitespace-nowrap" onClick={() => handleOPTsend()}>
-                        Send OTP
+                      <button 
+                        type="button" 
+                        disabled={otpTimer > 0 || isLoading}
+                        className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm hover:bg-white/10 transition-colors text-white whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed w-[110px]" 
+                        onClick={() => handleOPTsend()}
+                      >
+                        {otpTimer > 0 ? `Wait ${otpTimer}s` : "Send OTP"}
                       </button>
                     </div>
+                    {otpSentMessage && (
+                      <p className="text-green-400 text-xs ml-1">{otpSentMessage}</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -229,10 +268,18 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, cu
                           required
                         />
                       </div>
-                      <button type="button" className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm hover:bg-white/10 transition-colors text-white whitespace-nowrap" onClick = {() => handleOPTsend()}>
-                        Send OTP
+                      <button 
+                        type="button" 
+                        disabled={otpTimer > 0 || isLoading}
+                        className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm hover:bg-white/10 transition-colors text-white whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed w-[110px]" 
+                        onClick={() => handleOPTsend()}
+                      >
+                        {otpTimer > 0 ? `Wait ${otpTimer}s` : "Send OTP"}
                       </button>
                     </div>
+                    {otpSentMessage && (
+                      <p className="text-green-400 text-xs ml-1">{otpSentMessage}</p>
+                    )}
                   </div>
                 </div>
               )}

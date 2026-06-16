@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Eye,
   Plus,
@@ -6,6 +6,7 @@ import {
   Settings as SettingsIcon,
   User,
   Search,
+  CheckCircle2,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
@@ -34,6 +35,7 @@ const Dashboard = () => {
   const [isBootLoading, setIsBootLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const fetchHistory = async () => {
     try {
@@ -46,10 +48,14 @@ const Dashboard = () => {
     }
   };
 
-  const handleProfileUpdated = async () => {
+  const handleProfileUpdated = async (message?: string) => {
     try {
       const userResponse = await fetchUser();
       setuser(userResponse.data);
+      if (message) {
+        setToastMessage(message);
+        setTimeout(() => setToastMessage(null), 3000);
+      }
     } catch (err) {
       console.error("Failed to refresh user after update", err);
     }
@@ -316,8 +322,24 @@ const Dashboard = () => {
         isOpen={isEditProfileOpen}
         onClose={() => setIsEditProfileOpen(false)}
         currentUser={user}
-        onProfileUpdated={handleProfileUpdated}
+        onProfileUpdated={(msg) => handleProfileUpdated(msg)}
       />
+
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: 50, x: "-50%" }}
+            className="fixed bottom-8 left-1/2 z-[9999] bg-[#141414]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl flex items-center gap-3 ring-1 ring-white/5"
+          >
+            <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+              <CheckCircle2 className="w-5 h-5 text-green-400" />
+            </div>
+            <p className="text-sm font-medium text-white">{toastMessage}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
