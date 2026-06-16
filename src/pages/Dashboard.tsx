@@ -15,6 +15,7 @@ import CurrentSelectedHistory from "../components/CurrentSelectedHistory";
 import RecentHIstory from "../components/RecentHIstory";
 import LoadingScreen from "../components/LoadingScreen";
 import NewVarification from "../components/NewVarification";
+import ErrorBoundary from "../components/ErrorBoundary";
 import icon from "../App_icons/icon.png";
 interface userProps {
   email: string;
@@ -73,14 +74,6 @@ const Dashboard = () => {
             : "Unable to load dashboard right now.";
         console.error("Dashboard load error:", error);
         setLoadError(message);
-
-        if (
-          message.toLowerCase().includes("session expired") ||
-          message.toLowerCase().includes("sign in again")
-        ) {
-          localStorage.removeItem("token");
-          navigate("/login");
-        }
       } finally {
         if (mounted) setIsBootLoading(false);
       }
@@ -259,21 +252,27 @@ const Dashboard = () => {
         <div className="max-w-6xl mx-auto p-4 sm:p-8 h-full flex flex-col">
           {activeSection == "new" ? (
             <section className="flex flex-1 min-h-0 items-center justify-center">
-              <NewVarification
-                username={user?.username || ""}
-                onNewVerification={fetchHistory}
-              />
+              <ErrorBoundary fallbackMessage="Failed to load verification screen">
+                <NewVarification
+                  username={user?.username || ""}
+                  onNewVerification={fetchHistory}
+                />
+              </ErrorBoundary>
             </section>
           ) : selectedcurrentHistory ? (
-            <CurrentSelectedHistory
-              setSelectedCurrentHistory={setSelectedCurrentHistory}
-              selectedcurrentHistory={selectedcurrentHistory}
-            />
+            <ErrorBoundary fallbackMessage="Failed to load history details">
+              <CurrentSelectedHistory
+                setSelectedCurrentHistory={setSelectedCurrentHistory}
+                selectedcurrentHistory={selectedcurrentHistory}
+              />
+            </ErrorBoundary>
           ) : (
-            <RecentHIstory
-              UserHistory={UserHistory}
-              setSelectedCurrentHistory={setSelectedCurrentHistory}
-            />
+            <ErrorBoundary fallbackMessage="Failed to load recent history">
+              <RecentHIstory
+                UserHistory={UserHistory}
+                setSelectedCurrentHistory={setSelectedCurrentHistory}
+              />
+            </ErrorBoundary>
           )}
           {/* <motion.div
 						initial={{ y: -20, opacity: 0 }}
