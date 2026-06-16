@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
 	ArrowLeft,
 	Moon,
@@ -8,11 +8,15 @@ import {
 	LogOut,
 	Info,
 	Command,
+	AlertTriangle,
+	KeyRound,
+	X,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import * as Switch from "@radix-ui/react-switch";
 import Cookies from "js-cookie";
+import { deleteAccount, verifyOTPDelete } from "../ApiHandler";
 type NewSettingsProps = {
 	theme: string;
 	setTheme: (value: string) => void;
@@ -27,6 +31,44 @@ const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 	const [shortcut, setShortcut] = useState<string>("CommandOrControl+Shift+L");
 	const [isListening, setIsListening] = useState(false);
 	const [appVersion, setAppVersion] = useState<string>("1.0.0");
+
+	// Delete Account States
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+	const [deleteOtp, setDeleteOtp] = useState("");
+	const [deleteOtpToken, setDeleteOtpToken] = useState("");
+	const [isDeleting, setIsDeleting] = useState(false);
+	const [deleteError, setDeleteError] = useState<string | null>(null);
+
+	const handleDeleteClick = async () => {
+		setIsDeleting(true);
+		setDeleteError(null);
+		try {
+			const response = await deleteAccount();
+			// Assume the backend sends an access token or token for the OTP validation
+			const token = response?.data?.access_token || response?.data?.token || "";
+			setDeleteOtpToken(token);
+			setIsDeleteModalOpen(true);
+		} catch (err: any) {
+			setDeleteError(err.message || "Failed to initiate deletion");
+		} finally {
+			setIsDeleting(false);
+		}
+	};
+
+	const handleVerifyDelete = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setIsDeleting(true);
+		setDeleteError(null);
+		try {
+			await verifyOTPDelete(deleteOtp, deleteOtpToken);
+			// Successful deletion
+			localStorage.removeItem("token");
+			navigate("/login");
+		} catch (err: any) {
+			setDeleteError(err.message || "Failed to verify OTP");
+			setIsDeleting(false);
+		}
+	};
 
 	useEffect(() => {
 		if (window.electronAPI && window.electronAPI.getShortcut) {
@@ -217,6 +259,38 @@ const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 					</motion.button>
 				</motion.section>
 
+				{/* Delete Account */}
+				<motion.section
+					initial={{ y: 20, opacity: 0 }}
+					animate={{ y: 0, opacity: 1 }}
+					transition={{ duration: 0.4, delay: 0.55 }}
+					className='mb-6'
+				>
+					<div className='bg-red-500/5 border border-red-500/20 rounded-2xl p-6'>
+						<div className='flex items-start gap-3'>
+							<div className='w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center flex-shrink-0'>
+								<AlertTriangle className='w-5 h-5 text-red-400' />
+							</div>
+							<div className='flex-1'>
+								<p className='text-sm text-red-400 mb-1'>Delete Account</p>
+								<p className='text-xs text-red-400/70 mb-4'>
+									After deleting account you have to create a new account with this email and all history will be deleted.
+								</p>
+								{deleteError && !isDeleteModalOpen && (
+									<p className="text-xs text-red-500 mb-3">{deleteError}</p>
+								)}
+								<button
+									onClick={handleDeleteClick}
+									disabled={isDeleting}
+									className='text-sm bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-xl transition-colors disabled:opacity-50'
+								>
+									{isDeleting && !isDeleteModalOpen ? "Initiating..." : "Delete My Account"}
+								</button>
+							</div>
+						</div>
+					</div>
+				</motion.section>
+
 				{/* About */}
 				<motion.section
 					initial={{ y: 20, opacity: 0 }}
@@ -243,6 +317,83 @@ const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 					</div>
 				</motion.section>
 			</div>
+
+			{/* Delete Account OTP Modal */}
+			<AnimatePresence>
+				{isDeleteModalOpen && (
+					<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+						<motion.div
+							initial={{ opacity: 0, scale: 0.95 }}
+							animate={{ opacity: 1, scale: 1 }}
+							exit={{ opacity: 0, scale: 0.95 }}
+							transition={{ duration: 0.2 }}
+							className="w-full max-w-md bg-sidebar rounded-2xl shadow-2xl border border-red-500/30 overflow-hidden relative"
+						>
+							<div className="p-6 border-b border-white/10 flex justify-between items-center bg-red-500/5">
+								<h2 className="text-xl font-semibold text-red-400">Verify Deletion</h2>
+								<button
+									onClick={() => {
+										setIsDeleteModalOpen(false);
+										setDeleteOtp("");
+										setDeleteError(null);
+									}}
+									className="text-muted-foreground hover:text-white transition-colors"
+								>
+									<X className="w-5 h-5" />
+								</button>
+							</div>
+
+							<form onSubmit={handleVerifyDelete} className="p-6 space-y-4">
+								<p className="text-sm text-sidebar-foreground/80">
+									We sent an OTP to your email. Please enter it below to confirm account deletion. This action cannot be undone.
+								</p>
+
+								{deleteError && (
+									<div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
+										{deleteError}
+									</div>
+								)}
+
+								<div className="space-y-2">
+									<label className="text-sm font-medium text-red-400">OTP Verification</label>
+									<div className="relative">
+										<KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-400/50" />
+										<input
+											type="text"
+											value={deleteOtp}
+											onChange={(e) => setDeleteOtp(e.target.value)}
+											className="w-full bg-black/20 border border-red-500/30 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all"
+											placeholder="Enter OTP"
+											required
+										/>
+									</div>
+								</div>
+
+								<div className="pt-4 flex gap-3">
+									<button
+										type="button"
+										onClick={() => {
+											setIsDeleteModalOpen(false);
+											setDeleteOtp("");
+											setDeleteError(null);
+										}}
+										className="flex-1 px-4 py-2.5 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors text-sm font-medium"
+									>
+										Cancel
+									</button>
+									<button
+										type="submit"
+										disabled={isDeleting || deleteOtp.length < 4}
+										className="flex-1 px-4 py-2.5 rounded-xl bg-red-500/80 text-white hover:bg-red-500 transition-colors text-sm font-medium disabled:opacity-50"
+									>
+										{isDeleting ? "Deleting..." : "Confirm Delete"}
+									</button>
+								</div>
+							</form>
+						</motion.div>
+					</div>
+				)}
+			</AnimatePresence>
 		</div>
 	);
 }

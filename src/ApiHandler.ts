@@ -135,6 +135,25 @@ const OTPcheckerUpdateHandler = async (data : {otp: string, token: string}) => {
 		throw new Error(getApiErrorMessage(err, "Failed to update OTP"));
 	}
 }
+
+const deleteAccount = async () => {
+	try{
+		const response = await api.delete("/delete-account");
+		return response;
+	}catch(err) {
+		console.error("Delete account error", err);
+		throw new Error(getApiErrorMessage(err, "Failed to delete account"));
+	}
+}
+const verifyOTPDelete = async (otp : string , token: string) => {
+	try {
+		const response = await api.post("/verify-delete",  {otp, token});
+		return response;
+	}catch(err){
+		console.error("OTP Checker Delete Error", err);
+		throw new Error(getApiErrorMessage(err, "Failed to verify OTP"));
+	}
+}
 export {
 	loginHandler,
 	registerHandler,
@@ -146,5 +165,7 @@ export {
 	submitTextHandler,
 	OTP_checker,
 	updateProfileHandler,
-	OTPcheckerUpdateHandler
+	OTPcheckerUpdateHandler,
+	deleteAccount,
+	verifyOTPDelete,
 };
