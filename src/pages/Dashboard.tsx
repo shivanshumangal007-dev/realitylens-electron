@@ -19,7 +19,7 @@ import LoadingScreen from "../components/LoadingScreen";
 import NewVarification from "../components/NewVarification";
 import ErrorBoundary from "../components/ErrorBoundary";
 import icon from "../App_icons/icon.png";
-import EditProfileModal from "../components/EditProfileModal";
+import EditProfileNoEmailModal from "../components/EditProfileNoEmailModal";
 interface userProps {
   email: string;
   username: string;
@@ -320,7 +320,7 @@ const Dashboard = () => {
         </div>
       </main>
 
-      <EditProfileModal
+      <EditProfileNoEmailModal
         isOpen={isEditProfileOpen}
         onClose={() => setIsEditProfileOpen(false)}
         currentUser={user}
