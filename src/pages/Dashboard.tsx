@@ -189,10 +189,13 @@ const Dashboard = () => {
               Recent History
             </h2>
             <div className="space-y-1 overflow-y-auto max-h-[80vh] px-2 pb-2">
-              {UserHistory.map((item, index) => {
-                // console.log(item)
-                return (
-                  <motion.button
+              {UserHistory.length === 0 ? (
+                <p className="text-left pl-2 text-muted-foreground">No history yet</p>
+              ) : (
+                UserHistory.map((item, index) => {
+                  // console.log(item)
+                  return (
+                    <motion.button
                     key={index}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -220,7 +223,7 @@ const Dashboard = () => {
                     </span>
                   </motion.button>
                 );
-              })}
+              }))}
             </div>
           </motion.div>
 

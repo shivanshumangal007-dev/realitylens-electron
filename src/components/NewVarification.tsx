@@ -437,7 +437,7 @@ const NewVarification = ({
 
           {/* Bottom Text */}
           <div className="mt-auto pt-4 2xl:pt-8 pb-2 text-center text-sm font-medium text-muted-foreground shrink-0">
-            Press the Universal HotKeys :{" "}
+            Press your personalised HotKeys :{" "}
             <span className="text-foreground">
               {shortcut.split("+").map(formatShortcutKey).join(" + ")}
             </span>{" "}

@@ -39,6 +39,9 @@ const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
 
+	// Logout State
+	const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
 	const handleDeleteClick = async () => {
 		setIsDeleting(true);
 		setDeleteError(null);
@@ -241,10 +244,7 @@ const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 					<motion.button
 						whileHover={{ scale: 1.01 }}
 						whileTap={{ scale: 0.99 }}
-						onClick={() => {
-                            localStorage.removeItem("token");
-                            navigate("/login");
-                        }}
+						onClick={() => setIsLogoutModalOpen(true)}
 						className='w-full bg-red-500/10 border border-red-500/30 rounded-2xl p-6 flex items-center gap-3 hover:bg-red-500/20 transition-colors'
 					>
 						<div className='w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center'>
@@ -317,6 +317,57 @@ const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 					</div>
 				</motion.section>
 			</div>
+
+			{/* Logout Modal */}
+			<AnimatePresence>
+				{isLogoutModalOpen && (
+					<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+						<motion.div
+							initial={{ opacity: 0, scale: 0.95 }}
+							animate={{ opacity: 1, scale: 1 }}
+							exit={{ opacity: 0, scale: 0.95 }}
+							transition={{ duration: 0.2 }}
+							className="w-full max-w-md bg-sidebar rounded-2xl shadow-2xl border border-white/10 overflow-hidden relative"
+						>
+							<div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
+								<h2 className="text-xl font-semibold text-white">Confirm Logout</h2>
+								<button
+									onClick={() => setIsLogoutModalOpen(false)}
+									className="text-muted-foreground hover:text-white transition-colors"
+								>
+									<X className="w-5 h-5" />
+								</button>
+							</div>
+
+							<div className="p-6 space-y-4">
+								<p className="text-sm text-sidebar-foreground/80">
+									Are you sure you want to logout?
+								</p>
+
+								<div className="pt-4 flex gap-3">
+									<button
+										type="button"
+										onClick={() => setIsLogoutModalOpen(false)}
+										className="flex-1 px-4 py-2.5 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors text-sm font-medium"
+									>
+										Cancel
+									</button>
+									<button
+										type="button"
+										onClick={() => {
+											localStorage.removeItem("token");
+											navigate("/login");
+										}}
+										className="flex-1 px-4 py-2.5 rounded-xl bg-red-500/80 text-white hover:bg-red-500 transition-colors text-sm font-medium"
+									>
+										Logout
+									</button>
+								</div>
+							</div>
+						</motion.div>
+					</div>
+				)}
+			</AnimatePresence>
 
 			{/* Delete Account OTP Modal */}
 			<AnimatePresence>
