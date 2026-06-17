@@ -7,6 +7,7 @@ import {
   User,
   Search,
   CheckCircle2,
+  History,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
@@ -182,8 +183,9 @@ const Dashboard = () => {
                 setActiveSection("history");
                 setSelectedCurrentHistory(null);
               }}
-              className="px-4 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50 mb-2 cursor-pointer hover:text-sidebar-foreground transition-colors flex items-center justify-between group"
+              className="px-4 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50 mb-2 cursor-pointer hover:text-sidebar-foreground transition-colors flex items-center gap-2 group"
             >
+              <History />
               Recent History
             </h2>
             <div className="space-y-1 overflow-y-auto max-h-[80vh] px-2 pb-2">

@@ -246,8 +246,18 @@ const NewVarification = ({
         <div className="flex flex-col flex-1 h-full min-h-0">
           {/* Top Header */}
           <div className="flex justify-between items-start w-full mb-4 2xl:mb-8 shrink-0">
-            <h1 className="text-2xl font-bold">Hey {username},</h1>
-            <button className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground">
+            <div className="flex flex-col">
+              <span className="text-xs font-medium text-cyan-500/80 uppercase tracking-widest mb-1">
+                Welcome Back
+              </span>
+              <h1 className="text-3xl font-semibold tracking-tight text-white/90">
+                Hey {username},
+              </h1>
+            </div>
+            <button 
+              onClick={() => window.electronAPI?.minimiseApp()}
+              className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+            >
               <Minimize2 className="h-4 w-4" /> Minimise to System Tray
             </button>
           </div>
