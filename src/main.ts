@@ -135,6 +135,7 @@ const createWindow = () => {
 	const win = new BrowserWindow({
 		width: 1200,
 		height: 1000,
+		show: false,
 		autoHideMenuBar: true,
 		webPreferences: {
 			preload: path.resolve(__dirname, "preload.js"),
