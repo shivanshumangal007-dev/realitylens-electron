@@ -310,17 +310,17 @@ const NewVarification = ({
                 </div>
               </div>
 
-              <div className="mb-2 2xl:mb-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground shrink-0">
+              <div className="mb-2 2xl:mb-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground shrink-0 opacity-70">
                 <span className="text-sm">Try examples:</span>
-                <button className="text-sm  flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-0.5 transition-colors hover:bg-white/10">
+                <button className="text-sm  flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-0.5 transition-colors hover:bg-white/10">
                   <FileText className="h-2.5 w-2.5 text-blue-400" /> News article
                   screenshot
                 </button>
-                <button className="text-sm  flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-0.5 transition-colors hover:bg-white/10">
+                <button className="text-sm  flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-0.5 transition-colors hover:bg-white/10">
                   <MessageSquare className="h-2.5 w-2.5 text-cyan-400" /> Political
                   claim
                 </button>
-                <button className="text-sm  flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-0.5 transition-colors hover:bg-white/10">
+                <button className="text-sm  flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-0.5 transition-colors hover:bg-white/10">
                   <Share2 className="h-2.5 w-2.5 text-purple-400" /> Viral social
                   media post
                 </button>
@@ -388,7 +388,7 @@ const NewVarification = ({
                   )}
                 </div>
               ) : (
-                <div className="rounded-2xl border border-white/10 bg-background/40 p-4 2xl:p-6">
+                <div className="rounded-2xl border border-dashed border-white/10 bg-background/40 p-2 2xl:p-2 hover:border-cyan-500/50 focus:border-cyan-500/50 focus:bg-background/80">
                   <textarea
                     id="verificationText"
                     value={textVerification}
@@ -396,7 +396,7 @@ const NewVarification = ({
                       setTextVerification(event.target.value)
                     }
                     placeholder="Paste the claim, headline, or message you want to verify..."
-                    className="min-h-[140px] w-full resize-y rounded-xl border border-white/10 bg-background/50 p-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-cyan-500/50 focus:bg-background/80"
+                    className="resize-none min-h-44 w-full rounded-xl bg-background/50 p-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:bg-background/80"
                   />
                   <div className="mt-3 flex justify-end">
                     <p className="text-xs text-muted-foreground">
@@ -410,7 +410,7 @@ const NewVarification = ({
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="rounded-lg border border-white/10 bg-transparent px-6 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:scale-105 hover:text-foreground"
+                  className="rounded-lg border border-white/10 bg-transparent px-5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:scale-105 hover:text-foreground"
                 >
                   Reset
                 </button>
@@ -421,7 +421,7 @@ const NewVarification = ({
                     isSubmitting ||
                     (activeMode === "file" ? !selectedFile : !canSubmitText)
                   }
-                  className="rounded-lg bg-linear-to-r from-cyan-600 to-blue-500 px-6 py-2 text-sm font-medium text-white transition-all hover:shadow-lg hover:shadow-cyan-500/25 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-90"
+                  className="rounded-lg bg-linear-to-r from-cyan-600 to-blue-500 px-5 py-2 text-sm font-medium text-white transition-all hover:shadow-lg hover:shadow-cyan-500/25 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-90"
                 >
                   {isSubmitting ? "Processing..." : "Send Verification"}
                 </button>
