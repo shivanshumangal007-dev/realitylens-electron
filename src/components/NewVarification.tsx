@@ -278,7 +278,10 @@ const NewVarification = ({
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.4 }}
-              className="w-full max-w-4xl rounded-2xl border border-white/10 bg-card/40 p-4 2xl:px-5 2xl:py-3 backdrop-blur shadow-2xl flex flex-col"
+              className="w-full max-w-4xl border border-cyan-600/30
+                shadow-[0_0_4px_rgba(34,211,238,0.1)]
+                rounded-2xl
+                animate-[glow_3s_ease-in-out_infinite] bg-card/40 p-4 2xl:px-5 2xl:py-3 backdrop-blur flex flex-col"
             >
               <div className="mb-3 2xl:mb-2 flex flex-wrap items-center justify-between gap-3 shrink-0">
                 <h2 className="text-xl font-medium">

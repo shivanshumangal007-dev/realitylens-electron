@@ -117,7 +117,7 @@ const Dashboard = () => {
           </p>
           <h1 className="mt-3 text-3xl">We could not load your data</h1>
           <p className="mt-3 text-sm text-muted-foreground">{loadError}</p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
             <button
               type="button"
               onClick={() => window.location.reload()}
@@ -152,22 +152,18 @@ const Dashboard = () => {
         <div className="p-4 border-b border-sidebar-border">
           <button 
             onClick={() => navigate("/")}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity w-full text-left cursor-pointer"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity w-full text-left cursor-pointer"
           >
             <img src={icon} alt="RealityLens" className="w-8 h-8" />
             <span className="text-lg tracking-wide">RealityLens</span>
           </button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-2.5 space-y-1">
           <motion.button
-            whileHover={{ x: 2 }}
             onClick={() => setActiveSection("new")}
-            className={`w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-colors ${
-              activeSection === "new"
-                ? "bg-sidebar-accent/70 text-sidebar-accent-foreground"
-                : "text-sidebar-foreground hover:bg-sidebar-accent/50"
-            }`}
+            className="hover:cursor-pointer w-full flex items-center gap-2 p-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
+
           >
             <Plus className="w-5 h-5" />
             <span>New Verification</span>
@@ -176,15 +172,14 @@ const Dashboard = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mt-4 flex flex-col"
+            className="mt-2 flex flex-col"
           >
             <motion.button
-            whileHover={{ x: 0 }}
             onClick={() => {
                 setActiveSection("history");
                 setSelectedCurrentHistory(null);
               }}
-            className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
+            className="hover:cursor-pointer w-full flex items-center gap-2 p-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
           >
             <History />
             Recent History
@@ -207,7 +202,7 @@ const Dashboard = () => {
                       setSelectedCurrentHistory(item);
                       setActiveSection("history");
                     }}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-left ${
                       selectedcurrentHistory?.id === item.id &&
                       activeSection === "history"
                         ? "bg-sidebar-accent text-sidebar-accent-foreground"
@@ -231,7 +226,7 @@ const Dashboard = () => {
           {/* <motion.button
 						whileHover={{ x: 4 }}
 						onClick={() => setActiveSection("history")}
-						className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+						className={`w-full flex items-center gap-2 px-4 py-3 rounded-xl transition-colors ${
 							activeSection === "history"
 								? "bg-sidebar-accent text-sidebar-accent-foreground"
 								: "text-sidebar-foreground hover:bg-sidebar-accent/50"
@@ -244,11 +239,11 @@ const Dashboard = () => {
           
         </nav>
 
-        <div className="p-4">
+        <div className="p-2.5">
           <motion.button
             whileHover={{ x: 0 }}
             onClick={() => navigate("/settings")}
-            className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+            className="w-full flex items-center gap-2 p-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
           >
             <SettingsIcon className="w-5 h-5 " />
             <span>Settings</span>
@@ -341,7 +336,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 50, x: "-50%" }}
             animate={{ opacity: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, y: 50, x: "-50%" }}
-            className="fixed bottom-8 left-1/2 z-9999 bg-[#141414]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl flex items-center gap-3 ring-1 ring-white/5"
+            className="fixed bottom-8 left-1/2 z-9999 bg-[#141414]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl flex items-center gap-2 ring-1 ring-white/5"
           >
             <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5 text-green-400" />
