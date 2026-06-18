@@ -165,7 +165,7 @@ const Dashboard = () => {
             onClick={() => setActiveSection("new")}
             className={`w-full flex items-center gap-3 px-2 py-3 rounded-xl transition-colors ${
               activeSection === "new"
-                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                ? "bg-sidebar-accent/70 text-sidebar-accent-foreground"
                 : "text-sidebar-foreground hover:bg-sidebar-accent/50"
             }`}
           >
@@ -179,7 +179,7 @@ const Dashboard = () => {
             className="mt-4 flex flex-col"
           >
             <motion.button
-            whileHover={{ x: 2 }}
+            whileHover={{ x: 0 }}
             onClick={() => {
                 setActiveSection("history");
                 setSelectedCurrentHistory(null);
@@ -242,7 +242,7 @@ const Dashboard = () => {
 					</motion.button> */}
 
           <motion.button
-            whileHover={{ x: 2 }}
+            whileHover={{ x: 0 }}
             onClick={() => navigate("/settings")}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
           >

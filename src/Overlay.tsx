@@ -242,7 +242,7 @@ const OverlayDiv = ({
 				<div className='absolute inset-0 bg-black/50 pointer-events-none' />
 			)}
 
-			<div className='absolute left-4 top-4 rounded-lg bg-black/70 px-3 py-2 text-sm text-white backdrop-blur z-50'>
+			<div className='absolute left-4 top-4 rounded-lg bg-cyan-900 border-2 border-cyan-400 px-3 py-2 text-sm text-white backdrop-blur z-50'>
 				{status}
 			</div>
 			{dragging && (
