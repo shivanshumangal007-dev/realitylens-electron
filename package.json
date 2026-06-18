@@ -1,7 +1,7 @@
 {
   "name": "realitylens",
   "productName": "RealityLens",
-  "version": "11.2.9",
+  "version": "1.0.0",
   "description": "AI-powered screen verification and analysis tool",
   "main": ".vite/build/main.js",
   "private": true,
