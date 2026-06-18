@@ -266,7 +266,7 @@ const NewVarification = ({
           <div className="flex flex-col items-center justify-center flex-1 min-h-0 py-2 mb-8">
             <div className="text-center mb-4 2xl:mb-8 shrink-0">
               <h1 className="mb-1 2xl:mb-2 text-3xl 2xl:text-4xl tracking-normal font-medium ">
-                What are we Investigating today?
+                What are we Debunking today?
               </h1>
               <p className="text-white/50 font-medium">
                 Drop a screenshot, an image or claim below and we'll do
@@ -278,7 +278,7 @@ const NewVarification = ({
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.4 }}
-              className="w-full max-w-4xl bg-black rounded-2xl border border-white/10 bg-card/40 p-4 2xl:px-5 2xl:py-3 backdrop-blur shadow-2xl flex flex-col"
+              className="w-full max-w-4xl rounded-2xl border border-white/10 bg-card/40 p-4 2xl:px-5 2xl:py-3 backdrop-blur shadow-2xl flex flex-col"
             >
               <div className="mb-3 2xl:mb-2 flex flex-wrap items-center justify-between gap-3 shrink-0">
                 <h2 className="text-xl font-medium">

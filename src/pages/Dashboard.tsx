@@ -163,7 +163,7 @@ const Dashboard = () => {
           <motion.button
             whileHover={{ x: 2 }}
             onClick={() => setActiveSection("new")}
-            className={`w-full flex items-center gap-3 px-2 py-3 rounded-xl transition-colors ${
+            className={`w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-colors ${
               activeSection === "new"
                 ? "bg-sidebar-accent/70 text-sidebar-accent-foreground"
                 : "text-sidebar-foreground hover:bg-sidebar-accent/50"
@@ -184,7 +184,7 @@ const Dashboard = () => {
                 setActiveSection("history");
                 setSelectedCurrentHistory(null);
               }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
           >
             <History />
             Recent History
@@ -207,7 +207,7 @@ const Dashboard = () => {
                       setSelectedCurrentHistory(item);
                       setActiveSection("history");
                     }}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left ${
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${
                       selectedcurrentHistory?.id === item.id &&
                       activeSection === "history"
                         ? "bg-sidebar-accent text-sidebar-accent-foreground"
@@ -241,21 +241,25 @@ const Dashboard = () => {
 						<span>History</span>
 					</motion.button> */}
 
+          
+        </nav>
+
+        <div className="p-4">
           <motion.button
             whileHover={{ x: 0 }}
             onClick={() => navigate("/settings")}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
           >
             <SettingsIcon className="w-5 h-5 " />
             <span>Settings</span>
           </motion.button>
-        </nav>
+        </div>
 
         <div className="p-4 border-t border-sidebar-border">
           <motion.div
             whileHover={{ scale: 1.02 }}
             onClick={() => setIsEditProfileOpen(true)}
-            className="flex items-center gap-2 p-2 rounded-xl hover:bg-sidebar-accent/50 transition-colors cursor-pointer"
+            className="flex items-center gap-2 p-2 rounded-lg hover:bg-sidebar-accent/50 transition-colors cursor-pointer"
           >
             <div className="w-9 h-9 rounded-full bg-linear-to-br from-cyan-500 to-blue-700 flex items-center justify-center">
               <User className="w-4.5 h-4.5 text-white" />
@@ -337,7 +341,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 50, x: "-50%" }}
             animate={{ opacity: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, y: 50, x: "-50%" }}
-            className="fixed bottom-8 left-1/2 z-[9999] bg-[#141414]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl flex items-center gap-3 ring-1 ring-white/5"
+            className="fixed bottom-8 left-1/2 z-9999 bg-[#141414]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl flex items-center gap-3 ring-1 ring-white/5"
           >
             <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5 text-green-400" />
