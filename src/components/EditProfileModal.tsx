@@ -139,14 +139,14 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, cu
               <h2 className="text-xl font-semibold text-white">Edit Profile</h2>
               <button
                 onClick={onClose}
-                className="text-muted-foreground hover:text-white transition-colors"
+                className="text-muted-foreground hover:text-white hover:cursor-pointer transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="p-6 pb-0">
-              <div className="flex bg-black/20 p-1 rounded-xl border border-white/5">
+              <div className="flex bg-black/20 p-1 rounded-xl border border-white/5 ">
                 {(['username', 'email', 'password'] as EditMode[]).map((tab) => (
                   <button
                     key={tab}

@@ -147,23 +147,23 @@ const Dashboard = () => {
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col"
+        className="w-60 bg-sidebar border-r border-sidebar-border flex flex-col"
       >
-        <div className="p-6 border-b border-sidebar-border">
+        <div className="p-4 border-b border-sidebar-border">
           <button 
             onClick={() => navigate("/")}
             className="flex items-center gap-3 hover:opacity-80 transition-opacity w-full text-left cursor-pointer"
           >
             <img src={icon} alt="RealityLens" className="w-8 h-8" />
-            <span className="text-lg">RealityLens</span>
+            <span className="text-lg tracking-wide">RealityLens</span>
           </button>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
           <motion.button
-            whileHover={{ x: 4 }}
+            whileHover={{ x: 2 }}
             onClick={() => setActiveSection("new")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+            className={`w-full flex items-center gap-3 px-2 py-3 rounded-xl transition-colors ${
               activeSection === "new"
                 ? "bg-sidebar-accent text-sidebar-accent-foreground"
                 : "text-sidebar-foreground hover:bg-sidebar-accent/50"
@@ -176,18 +176,19 @@ const Dashboard = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mt-6 flex flex-col"
+            className="mt-4 flex flex-col"
           >
-            <h2 
-              onClick={() => {
+            <motion.button
+            whileHover={{ x: 2 }}
+            onClick={() => {
                 setActiveSection("history");
                 setSelectedCurrentHistory(null);
               }}
-              className="px-4 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50 mb-2 cursor-pointer hover:text-sidebar-foreground transition-colors flex items-center gap-2 group"
-            >
-              <History />
-              Recent History
-            </h2>
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
+          >
+            <History />
+            Recent History
+          </motion.button>
             <div className="space-y-1 overflow-y-auto max-h-[80vh] px-2 pb-2">
               {UserHistory.length === 0 ? (
                 <p className="text-left pl-2 text-muted-foreground">No history yet</p>
@@ -241,7 +242,7 @@ const Dashboard = () => {
 					</motion.button> */}
 
           <motion.button
-            whileHover={{ x: 4 }}
+            whileHover={{ x: 2 }}
             onClick={() => navigate("/settings")}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
           >
@@ -254,10 +255,10 @@ const Dashboard = () => {
           <motion.div
             whileHover={{ scale: 1.02 }}
             onClick={() => setIsEditProfileOpen(true)}
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-sidebar-accent/50 transition-colors cursor-pointer"
+            className="flex items-center gap-2 p-2 rounded-xl hover:bg-sidebar-accent/50 transition-colors cursor-pointer"
           >
-            <div className="w-10 h-10 rounded-full bg-linear-to-br from-cyan-500 to-blue-900 flex items-center justify-center">
-              <User className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 rounded-full bg-linear-to-br from-cyan-500 to-blue-700 flex items-center justify-center">
+              <User className="w-4.5 h-4.5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm truncate">

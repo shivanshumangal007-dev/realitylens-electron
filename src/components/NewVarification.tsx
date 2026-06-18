@@ -245,12 +245,12 @@ const NewVarification = ({
       ) : (
         <div className="flex flex-col flex-1 h-full min-h-0 ">
           {/* Top Header */}
-          <div className="flex justify-between items-start w-full mb-4 2xl:mb-8 shrink-0">
+          <div className="flex justify-between items-start w-full mb-4 2xl:mb-8 shrink-0 opacity-80">
             <div className="flex flex-col">
-              <span className="text-xs font-medium text-cyan-500/80 uppercase tracking-widest mb-1">
+              {/* <span className="text-xs font-medium text-cyan-500/80 uppercase tracking-widest mb-1">
                 Welcome Back
-              </span>
-              <h1 className="text-3xl font-semibold tracking-tight text-white/90">
+              </span> */}
+              <h1 className="text-2xl font-semibold tracking-tight text-white/90">
                 Hey {username},
               </h1>
             </div>
@@ -263,12 +263,12 @@ const NewVarification = ({
           </div>
 
           {/* Center Content */}
-          <div className="flex flex-col items-center justify-center flex-1 min-h-0 py-2 mb-12">
-            <div className="text-center mb-6 2xl:mb-10 shrink-0">
-              <h1 className="mb-2 2xl:mb-4 text-3xl 2xl:text-4xl font-bold tracking-tight">
+          <div className="flex flex-col items-center justify-center flex-1 min-h-0 py-2 mb-8">
+            <div className="text-center mb-4 2xl:mb-8 shrink-0">
+              <h1 className="mb-1 2xl:mb-2 text-3xl 2xl:text-4xl tracking-normal font-medium ">
                 What are we Investigating today?
               </h1>
-              <p className="text-cyan-400 font-medium">
+              <p className="text-white/50 font-medium">
                 Drop a screenshot, an image or claim below and we'll do
                 the fact-checking for you.
               </p>
@@ -278,17 +278,17 @@ const NewVarification = ({
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.4 }}
-              className="w-full max-w-5xl rounded-2xl border border-white/10 bg-card/40 p-4 2xl:p-6 backdrop-blur shadow-2xl flex flex-col"
+              className="w-full max-w-4xl rounded-2xl border border-white/10 bg-card/40 p-4 2xl:px-5 2xl:py-3 backdrop-blur shadow-2xl flex flex-col"
             >
               <div className="mb-3 2xl:mb-2 flex flex-wrap items-center justify-between gap-3 shrink-0">
-                <h2 className="text-xl font-bold">
+                <h2 className="text-xl font-medium">
                   Upload Files or Enter Text
                 </h2>
                 <div className="flex rounded-xl border border-white/10 bg-background/50 p-1">
                   <button
                     type="button"
                     onClick={() => setActiveMode("file")}
-                    className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-all ${
+                    className={`rounded-lg px-4 py-1 text-sm font-medium transition-all ${
                       activeMode === "file"
                         ? "bg-cyan-500/20 text-cyan-400"
                         : "text-muted-foreground hover:text-foreground"
@@ -299,7 +299,7 @@ const NewVarification = ({
                   <button
                     type="button"
                     onClick={() => setActiveMode("text")}
-                    className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-all ${
+                    className={`rounded-lg px-4 py-1 text-sm font-medium transition-all ${
                       activeMode === "text"
                         ? "bg-cyan-500/20 text-cyan-400"
                         : "text-muted-foreground hover:text-foreground"
@@ -310,18 +310,18 @@ const NewVarification = ({
                 </div>
               </div>
 
-              <div className="mb-3 2xl:mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground shrink-0">
-                <span>Try examples:</span>
-                <button className="flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1.5 transition-colors hover:bg-white/10">
-                  <FileText className="h-3 w-3 text-blue-400" /> News article
+              <div className="mb-2 2xl:mb-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground shrink-0">
+                <span className="text-sm">Try examples:</span>
+                <button className="text-sm  flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-0.5 transition-colors hover:bg-white/10">
+                  <FileText className="h-2.5 w-2.5 text-blue-400" /> News article
                   screenshot
                 </button>
-                <button className="flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1.5 transition-colors hover:bg-white/10">
-                  <MessageSquare className="h-3 w-3 text-cyan-400" /> Political
+                <button className="text-sm  flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-0.5 transition-colors hover:bg-white/10">
+                  <MessageSquare className="h-2.5 w-2.5 text-cyan-400" /> Political
                   claim
                 </button>
-                <button className="flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1.5 transition-colors hover:bg-white/10">
-                  <Share2 className="h-3 w-3 text-purple-400" /> Viral social
+                <button className="text-sm  flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2 py-0.5 transition-colors hover:bg-white/10">
+                  <Share2 className="h-2.5 w-2.5 text-purple-400" /> Viral social
                   media post
                 </button>
                 
@@ -335,7 +335,7 @@ const NewVarification = ({
                   }}
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={handleDrop}
-                  className={`rounded-2xl border border-dashed p-4 2xl:p-8 text-center transition-all ${
+                  className={`rounded-xl border border-dashed p-4 2xl:p-8 text-center transition-all ${
                     isDragging
                       ? "border-cyan-400 bg-cyan-500/10"
                       : "border-white/10 bg-background/40 hover:border-cyan-500/30 hover:bg-background/60"
@@ -406,11 +406,11 @@ const NewVarification = ({
                 </div>
               )}
 
-              <div className="mt-3 2xl:mt-4 flex flex-wrap justify-end gap-3 shrink-0">
+              <div className="mt-2 2xl:mt-3 flex flex-wrap justify-end gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="rounded-xl border border-white/10 bg-transparent px-6 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+                  className="rounded-lg border border-white/10 bg-transparent px-6 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:scale-105 hover:text-foreground"
                 >
                   Reset
                 </button>
@@ -421,14 +421,14 @@ const NewVarification = ({
                     isSubmitting ||
                     (activeMode === "file" ? !selectedFile : !canSubmitText)
                   }
-                  className="rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-all hover:shadow-lg hover:shadow-cyan-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-lg bg-linear-to-r from-cyan-600 to-blue-500 px-6 py-2 text-sm font-medium text-white transition-all hover:shadow-lg hover:shadow-cyan-500/25 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-90"
                 >
                   {isSubmitting ? "Processing..." : "Send Verification"}
                 </button>
               </div>
 
               {error && (
-                <p className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                <p className="mt-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
                   {error}
                 </p>
               )}
@@ -436,7 +436,7 @@ const NewVarification = ({
           </div>
 
           {/* Bottom Text */}
-          <div className="mt-auto pt-4 2xl:pt-8 pb-2 text-center text-sm font-medium text-muted-foreground shrink-0">
+          <div className="mt-auto pt-4 2xl:pt-8 pb-2 text-center text-sm font-medium tracking-wide text-muted-foreground shrink-0 opacity-50">
             Press your personalised HotKeys :{" "}
             <span className="text-foreground">
               {shortcut.split("+").map(formatShortcutKey).join(" + ")}
