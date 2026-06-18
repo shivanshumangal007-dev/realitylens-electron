@@ -272,7 +272,7 @@ const Dashboard = () => {
       </motion.aside>
 
       <main className="flex-1 overflow-auto">
-        <div className="max-w-6xl mx-auto p-4 sm:p-8 h-full flex flex-col">
+        <div className="mx-auto p-4 h-full flex flex-col">
           {activeSection == "new" ? (
             <section className="flex flex-1 min-h-0 items-center justify-center">
               <ErrorBoundary fallbackMessage="Failed to load verification screen">
