@@ -12,7 +12,6 @@ function App() {
 	const navigate = useNavigate();
 	const isOverlay = location.pathname === "/overlay";
 	const [isResultLoading, setIsResultLoading] = useState(false);
-	const [theme, setTheme] = useState("dark");
 
 	useEffect(() => {
 		const api = (window as any).electronAPI;
@@ -46,7 +45,7 @@ function App() {
 
 	return (
 		<div
-			className={`size-full bg-background text-foreground ${theme === "dark" ? "dark" : ""}`}
+			className={`size-full bg-background text-foreground dark`}
 		>
 			<AppErrorBoundary>
 				<Routes>
@@ -65,10 +64,7 @@ function App() {
 					<Route
 						path='/settings'
 						element={
-							<NewSettings
-								theme={theme}
-								setTheme={setTheme}
-							/>
+							<NewSettings />
 						}
 					/>
 					<Route

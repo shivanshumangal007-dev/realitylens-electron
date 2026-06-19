@@ -17,13 +17,8 @@ import { useState, useEffect } from "react";
 import * as Switch from "@radix-ui/react-switch";
 import Cookies from "js-cookie";
 import { deleteAccount, verifyOTPDelete } from "../ApiHandler";
-type NewSettingsProps = {
-	theme: string;
-	setTheme: (value: string) => void;
-};
-const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
+const NewSettings = () => {
 	const navigate = useNavigate();
-	const [darkMode, setDarkMode] = useState(theme === "dark");
 	const [notifications, setNotifications] = useState(true);
 	const [soundEffects, setSoundEffects] = useState(false);
 	const [autoStart, setAutoStart] = useState(true);
@@ -152,40 +147,6 @@ const NewSettings = ({ theme, setTheme }: NewSettingsProps) => {
 					</p>
 				</motion.div>
 
-				{/* Appearance */}
-				<motion.section
-					initial={{ y: 20, opacity: 0 }}
-					animate={{ y: 0, opacity: 1 }}
-					transition={{ duration: 0.4, delay: 0.1 }}
-					className='mb-6'
-				>
-					<h3 className='mb-4'>Appearance</h3>
-					<div className='bg-card/50 backdrop-blur border border-border rounded-2xl divide-y divide-border'>
-						<div className='p-6 flex items-center justify-between'>
-							<div className='flex items-center gap-3'>
-								<div className='w-10 h-10 rounded-xl bg-muted flex items-center justify-center'>
-									<Moon className='w-5 h-5' />
-								</div>
-								<div>
-									<p className='text-sm'>Dark Mode</p>
-									<p className='text-xs text-muted-foreground'>
-										Use dark theme throughout the app
-									</p>
-								</div>
-							</div>
-							<Switch.Root
-								checked={darkMode}
-								onCheckedChange={(checked) => {
-									setDarkMode(checked);
-									setTheme(checked ? "dark" : "light");
-								}}
-								className='w-11 h-6 bg-muted rounded-full relative data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-cyan-500 data-[state=checked]:to-blue-600 transition-all'
-							>
-								<Switch.Thumb className='block w-5 h-5 bg-white rounded-full transition-transform translate-x-0.5 data-[state=checked]:translate-x-[22px]' />
-							</Switch.Root>
-						</div>
-					</div>
-				</motion.section>
 
 				{/* Keyboard Shortcut */}
 				<motion.section
