@@ -150,7 +150,7 @@ const Dashboard = () => {
         className="w-60 bg-sidebar border-r border-sidebar-border flex flex-col"
       >
         <div className="p-4 border-b border-sidebar-border">
-          <button 
+          <button
             onClick={() => navigate("/")}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity w-full text-left cursor-pointer"
           >
@@ -163,7 +163,6 @@ const Dashboard = () => {
           <motion.button
             onClick={() => setActiveSection("new")}
             className="hover:cursor-pointer w-full flex items-center gap-2 p-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
-
           >
             <Plus className="w-5 h-5" />
             <span>New Verification</span>
@@ -175,51 +174,54 @@ const Dashboard = () => {
             className="mt-2 flex flex-col"
           >
             <motion.button
-            onClick={() => {
+              onClick={() => {
                 setActiveSection("history");
                 setSelectedCurrentHistory(null);
               }}
-            className="hover:cursor-pointer w-full flex items-center gap-2 p-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
-          >
-            <History />
-            Recent History
-          </motion.button>
+              className="hover:cursor-pointer w-full flex items-center gap-2 px-3.5 py-1 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
+            >
+              <History className="w-4 h-4" />
+              Recent History
+            </motion.button>
             <div className="space-y-1 overflow-y-auto max-h-[80vh] px-2 pb-2">
               {UserHistory.length === 0 ? (
-                <p className="text-left pl-2 text-muted-foreground">No history yet</p>
+                <p className="text-left pl-2 text-muted-foreground">
+                  No history yet
+                </p>
               ) : (
                 UserHistory.map((item, index) => {
                   // console.log(item)
                   return (
                     <motion.button
-                    key={index}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05, duration: 0.2 }}
-                    whileHover={{ x: 4 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      setSelectedCurrentHistory(item);
-                      setActiveSection("history");
-                    }}
-                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-left ${
-                      selectedcurrentHistory?.id === item.id &&
-                      activeSection === "history"
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent/50"
-                    }`}
-                  >
-                    <img
-                      src={item.image_url}
-                      alt=""
-                      className="w-6 h-6 shrink-0 opacity-60 border border-white/40 rounded-md"
-                    />
-                    <span className="text-sm truncate w-full opacity-80">
-                      {item.result?.claim || "Untitled verification"}
-                    </span>
-                  </motion.button>
-                );
-              }))}
+                      key={index}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05, duration: 0.2 }}
+                      whileHover={{ x: 4 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        setSelectedCurrentHistory(item);
+                        setActiveSection("history");
+                      }}
+                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-left ${
+                        selectedcurrentHistory?.id === item.id &&
+                        activeSection === "history"
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                      }`}
+                    >
+                      <img
+                        src={item.image_url}
+                        alt=""
+                        className="w-6 h-6 shrink-0 opacity-60 border border-white/40 rounded-md"
+                      />
+                      <span className="text-sm truncate w-full opacity-80">
+                        {item.result?.claim || "Untitled verification"}
+                      </span>
+                    </motion.button>
+                  );
+                })
+              )}
             </div>
           </motion.div>
 
@@ -235,8 +237,6 @@ const Dashboard = () => {
 						<Clock className='w-5 h-5' />
 						<span>History</span>
 					</motion.button> */}
-
-          
         </nav>
 
         <div className="p-2.5">
