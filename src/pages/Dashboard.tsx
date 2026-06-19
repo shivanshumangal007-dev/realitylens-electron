@@ -20,6 +20,7 @@ import NewVarification from "../components/NewVarification";
 import ErrorBoundary from "../components/ErrorBoundary";
 import icon from "../App_icons/icon.png";
 import EditProfileNoEmailModal from "../components/EditProfileNoEmailModal";
+import TextImage from "../assets/image.png";
 interface userProps {
   email: string;
   username: string;
@@ -210,11 +211,20 @@ const Dashboard = () => {
                           : "text-sidebar-foreground hover:bg-sidebar-accent/50"
                       }`}
                     >
-                      <img
-                        src={item.image_url}
-                        alt=""
-                        className="w-6 h-6 shrink-0 opacity-60 border border-white/40 rounded-md"
-                      />
+                      {item.image_url ? (
+                        <img
+                          src={item.image_url}
+                          alt=""
+                          className="w-6 h-6 shrink-0 opacity-60 border border-white/40 rounded-md"
+                        />
+                      ) : (
+                        <img
+                          src={TextImage}
+                          alt=""
+                          className="w-7 h-5"
+                        />
+                      )}
+
                       <span className="text-sm truncate w-full opacity-80">
                         {item.result?.claim || "Untitled verification"}
                       </span>

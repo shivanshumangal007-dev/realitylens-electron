@@ -194,6 +194,12 @@ const createWindow = () => {
     }
   });
 
+  win.on("show", () => {
+    if (process.platform === "darwin" && app.dock) {
+      app.dock.show();
+    }
+  });
+
   return win;
 };
 
@@ -347,6 +353,9 @@ if (!started) {
     });
 
     app.whenReady().then(() => {
+      if (process.platform === "darwin" && app.dock) {
+        app.dock.hide();
+      }
       createWindow();
 
       // The updater is now initialized via update-electron-app
@@ -416,7 +425,10 @@ if (!started) {
 
     ipcMain.handle("minimise-app", () => {
       if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.minimize();
+        mainWindow.hide();
+        if (process.platform === "darwin" && app.dock) {
+          app.dock.hide();
+        }
       }
     });
     ipcMain.handle("capture-screen", async (_, area) => {
