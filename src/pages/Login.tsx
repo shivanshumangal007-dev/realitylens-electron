@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { loginHandler, OTP_checker } from "../ApiHandler";
 import LoadingScreen from "../components/LoadingScreen";
 import icon from "../App_icons/icon.png";
+import googleIcon from "../assets/google.png";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -285,9 +286,10 @@ const Login = () => {
                   type="button"
                   onClick={handleGoogleLogin}
                   disabled={isSubmitting}
-                  className="w-full bg-white/5 backdrop-blur border border-white/10 text-foreground rounded-xl py-3 font-medium hover:bg-white/10 transition-all disabled:cursor-not-allowed disabled:opacity-60"
+                  className="w-full flex items-center justify-center gap-3 bg-white/5 backdrop-blur border border-white/10 text-foreground rounded-xl py-3 font-medium hover:bg-white/10 transition-all disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Continue with Google
+                  <img src={googleIcon} alt="Google" className="w-5 h-5" />
+                  <span>Continue with Google</span>
                 </motion.button>
               </form>
               <div className="text-center mt-6 text-sm text-muted-foreground">
