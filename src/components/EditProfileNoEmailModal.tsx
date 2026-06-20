@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "motion/react";
-import { X, User, Lock, KeyRound, CheckCircle2 } from "lucide-react";
+import { X, User, Lock, KeyRound, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { OTPcheckerUpdateHandler, updateProfileHandler } from "../ApiHandler";
 import { data } from 'react-router-dom';
 
@@ -17,6 +17,7 @@ const EditProfileNoEmailModal: React.FC<EditProfileNoEmailModalProps> = ({ isOpe
   const [mode, setMode] = useState<EditMode>('username');
   const [username, setUsername] = useState(currentUser?.username || "");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpToken, setOtpToken] = useState("");
   
@@ -194,13 +195,20 @@ const EditProfileNoEmailModal: React.FC<EditProfileNoEmailModalProps> = ({ isOpe
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <input
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-black/20 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+                        className="w-full bg-black/20 border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
                         placeholder="Enter new password"
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
                     </div>
                   </div>
                   <div className="space-y-2">

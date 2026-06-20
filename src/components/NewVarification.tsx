@@ -241,6 +241,7 @@ const NewVarification = ({
         <CurrentSelectedHistory
           selectedcurrentHistory={selectedcurrentHistory}
           setSelectedCurrentHistory={setResult}
+          customImage={selectedFile}
         />
       ) : (
         <div className="flex flex-col flex-1 h-full min-h-0 ">

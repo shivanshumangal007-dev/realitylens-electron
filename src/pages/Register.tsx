@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Eye, Mail, Lock } from "lucide-react";
+import { Eye, Mail, Lock, EyeOff } from "lucide-react";
 import { useNavigate, Link } from "react-router";
 import { useState, useEffect } from "react";
 import { registerHandler, OTP_checker } from "../ApiHandler";
@@ -12,10 +12,25 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [showOTP, setShowOTP] = useState(false);
   const [tempToken, setTempToken] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+
+  const [otpClickCount, setOtpClickCount] = useState(0);
+  const [otpTimer, setOtpTimer] = useState(0);
+  const [otpSentMessage, setOtpSentMessage] = useState("");
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (otpTimer > 0 && showOTP) {
+      interval = setInterval(() => {
+        setOtpTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [otpTimer, showOTP]);
 
   useEffect(() => {
     if (localStorage.getItem("token")) {
@@ -54,12 +69,41 @@ const Register = () => {
       // Backend returns access_token on register, use it for OTP check
       setTempToken(res.data.access_token);
       setShowOTP(true);
+      setOtpTimer(60);
+      setOtpClickCount(1);
+      setOtpSentMessage("");
     } catch (error) {
       console.error("Registration error:", error);
       setErrorMessage(
         error instanceof Error
           ? error.message
           : "Registration failed. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    setOtpSentMessage("");
+
+    try {
+      const res = await registerHandler(name, email, password);
+      setTempToken(res.data.access_token);
+      setOtpSentMessage("OTP resent successfully!");
+
+      if (otpClickCount === 0) {
+        setOtpTimer(60);
+      } else {
+        setOtpTimer(300);
+      }
+      setOtpClickCount((prev) => prev + 1);
+    } catch (error) {
+      console.error("Resend OTP error:", error);
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to resend OTP."
       );
     } finally {
       setIsSubmitting(false);
@@ -212,14 +256,21 @@ const Register = () => {
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+                      className="w-full bg-input/50 backdrop-blur border border-white/10 rounded-xl pl-11 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
                       required
                       disabled={isSubmitting}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
                   </div>
                 </motion.div>
 
@@ -346,7 +397,19 @@ const Register = () => {
                 Verify OTP
               </motion.button>
 
-              <div className="text-center mt-4">
+              {otpSentMessage && (
+                <p className="text-green-400 text-sm text-center">{otpSentMessage}</p>
+              )}
+
+              <div className="flex justify-between items-center mt-4 px-2">
+                <button
+                  type="button"
+                  onClick={handleResendOTP}
+                  disabled={otpTimer > 0 || isSubmitting}
+                  className="text-sm text-cyan-400 hover:text-cyan-300 disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors"
+                >
+                  {otpTimer > 0 ? `Resend OTP in ${otpTimer}s` : "Resend OTP"}
+                </button>
                 <button
                   type="button"
                   onClick={() => setShowOTP(false)}
