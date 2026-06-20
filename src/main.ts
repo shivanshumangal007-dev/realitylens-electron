@@ -433,15 +433,21 @@ if (!started) {
     });
     ipcMain.handle("capture-screen", async (_, area) => {
       try {
-        if (mainWindow && !mainWindow.isDestroyed()) {
-          mainWindow.hide();
+        if (process.platform === "win32") {
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.setOpacity(0);
+          }
+          if (overlayWindow && !overlayWindow.isDestroyed()) {
+            overlayWindow.setOpacity(0);
+          }
+        } else {
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.hide();
+          }
+          if (overlayWindow && !overlayWindow.isDestroyed()) {
+            overlayWindow.hide();
+          }
         }
-
-        if (overlayWindow && !overlayWindow.isDestroyed()) {
-          overlayWindow.hide();
-        }
-
-        await delay(150);
 
         const primaryDisplay = screen.getPrimaryDisplay();
         const scaleFactor = primaryDisplay.scaleFactor || 1;
@@ -470,6 +476,17 @@ if (!started) {
         }
 
         const image = primaryScreenSource.thumbnail;
+
+        if (process.platform === "win32") {
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.hide();
+            mainWindow.setOpacity(1);
+          }
+          if (overlayWindow && !overlayWindow.isDestroyed()) {
+            overlayWindow.hide();
+            overlayWindow.setOpacity(1);
+          }
+        }
 
         const x = Math.min(area.start.x, area.end.x);
         const y = Math.min(area.start.y, area.end.y);
