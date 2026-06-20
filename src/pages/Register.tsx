@@ -251,7 +251,7 @@ const Register = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.6 }}
                 >
-                  <label className="block text-sm mb-2">New Password</label>
+                  <label className="block text-sm mb-2">Password</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
