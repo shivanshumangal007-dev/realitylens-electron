@@ -143,7 +143,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="size-full flex bg-background h-screen w-full">
+    <div className="size-full flex bg-background h-screen w-full min-h-120 overflow-y-auto">
       <motion.aside
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -160,10 +160,10 @@ const Dashboard = () => {
           </button>
         </div>
 
-        <nav className="flex-1 p-2.5 space-y-1">
+        <nav className="flex-1 flex flex-col p-2.5 space-y-1 overflow-hidden">
           <motion.button
             onClick={() => setActiveSection("new")}
-            className="hover:cursor-pointer w-full flex items-center gap-2 p-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
+            className="hover:cursor-pointer w-full shrink-0 flex items-center gap-2 p-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
           >
             <Plus className="w-5 h-5" />
             <span>New Verification</span>
@@ -172,19 +172,19 @@ const Dashboard = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mt-2 flex flex-col"
+            className="mt-2 flex flex-col flex-1 overflow-hidden"
           >
             <motion.button
               onClick={() => {
                 setActiveSection("history");
                 setSelectedCurrentHistory(null);
               }}
-              className="hover:cursor-pointer w-full flex items-center gap-2 px-3.5 py-1 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
+              className="hover:cursor-pointer w-full shrink-0 flex items-center gap-2 px-3.5 py-1 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors self-end"
             >
               <History className="w-4 h-4" />
               Recent History
             </motion.button>
-            <div className="space-y-1 overflow-y-auto max-h-[80vh] px-2 pb-2">
+            <div className="space-y-1 overflow-y-auto flex-1 px-2 pb-2">
               {UserHistory.length === 0 ? (
                 <p className="text-left pl-2 text-muted-foreground">
                   No history yet
