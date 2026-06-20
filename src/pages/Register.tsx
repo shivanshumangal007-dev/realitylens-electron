@@ -4,6 +4,8 @@ import { useNavigate, Link } from "react-router";
 import { useState, useEffect } from "react";
 import { registerHandler, OTP_checker } from "../ApiHandler";
 import LoadingScreen from "../components/LoadingScreen";
+import icon from "../App_icons/icon.png";
+
 
 const Register = () => {
   const navigate = useNavigate();
@@ -103,7 +105,7 @@ const Register = () => {
     } catch (error) {
       console.error("Resend OTP error:", error);
       setErrorMessage(
-        error instanceof Error ? error.message : "Failed to resend OTP."
+        error instanceof Error ? error.message : "Failed to resend OTP.",
       );
     } finally {
       setIsSubmitting(false);
@@ -141,7 +143,10 @@ const Register = () => {
   return (
     <div className="size-full flex items-center justify-center relative overflow-hidden w-full h-screen">
       {isSubmitting && (
-        <LoadingScreen status={showOTP ? "Verifying..." : "Creating your account..."} fullScreen />
+        <LoadingScreen
+          status={showOTP ? "Verifying..." : "Creating your account..."}
+          fullScreen
+        />
       )}
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-linear-to-br from-blue-950 via-background to-purple-950 opacity-50" />
@@ -172,14 +177,8 @@ const Register = () => {
         <div className="bg-card/40 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl p-8">
           {/* Logo and branding */}
           <div className="text-center mb-8">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-cyan-500 via-blue-500 to-purple-600 mb-4"
-            >
-              <Eye className="w-8 h-8 text-white" />
-            </motion.div>
+            <img src={icon} alt="RealityLens" className="w-15 h-15 mx-auto" />
+
             <motion.h1
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -269,7 +268,11 @@ const Register = () => {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white transition-colors"
                     >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
                     </button>
                   </div>
                 </motion.div>
@@ -366,7 +369,7 @@ const Register = () => {
                         // Auto-focus next input
                         if (value && index < 5) {
                           const nextInput = document.getElementById(
-                            `otp-${index + 1}`
+                            `otp-${index + 1}`,
                           );
                           nextInput?.focus();
                         }
@@ -375,7 +378,7 @@ const Register = () => {
                     onKeyDown={(e) => {
                       if (e.key === "Backspace" && !otp[index] && index > 0) {
                         const prevInput = document.getElementById(
-                          `otp-${index - 1}`
+                          `otp-${index - 1}`,
                         );
                         prevInput?.focus();
                       }
@@ -398,7 +401,9 @@ const Register = () => {
               </motion.button>
 
               {otpSentMessage && (
-                <p className="text-green-400 text-sm text-center">{otpSentMessage}</p>
+                <p className="text-green-400 text-sm text-center">
+                  {otpSentMessage}
+                </p>
               )}
 
               <div className="flex justify-between items-center mt-4 px-2">

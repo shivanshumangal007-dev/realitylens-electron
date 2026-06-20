@@ -19,10 +19,6 @@ import Cookies from "js-cookie";
 import { deleteAccount, verifyOTPDelete } from "../ApiHandler";
 const NewSettings = () => {
 	const navigate = useNavigate();
-	const [notifications, setNotifications] = useState(true);
-	const [soundEffects, setSoundEffects] = useState(false);
-	const [autoStart, setAutoStart] = useState(true);
-
 	const [shortcut, setShortcut] = useState<string>("CommandOrControl+Shift+L");
 	const [isListening, setIsListening] = useState(false);
 	const [appVersion, setAppVersion] = useState<string>("1.0.0");
@@ -34,20 +30,51 @@ const NewSettings = () => {
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
 
+	const [otpClickCount, setOtpClickCount] = useState(0);
+	const [otpTimer, setOtpTimer] = useState(0);
+	const [otpSentMessage, setOtpSentMessage] = useState("");
+
 	// Logout State
 	const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
 	const handleDeleteClick = async () => {
 		setIsDeleting(true);
 		setDeleteError(null);
+		setOtpSentMessage("");
 		try {
 			const response = await deleteAccount();
 			// Assume the backend sends an access token or token for the OTP validation
 			const token = response?.data?.access_token || response?.data?.token || "";
 			setDeleteOtpToken(token);
 			setIsDeleteModalOpen(true);
+			setOtpTimer(60);
+			setOtpClickCount(1);
 		} catch (err: any) {
 			setDeleteError(err.message || "Failed to initiate deletion");
+		} finally {
+			setIsDeleting(false);
+		}
+	};
+
+	const handleResendOTP = async () => {
+		setIsDeleting(true);
+		setDeleteError(null);
+		setOtpSentMessage("");
+
+		try {
+			const response = await deleteAccount();
+			const token = response?.data?.access_token || response?.data?.token || "";
+			setDeleteOtpToken(token);
+			setOtpSentMessage("OTP resent successfully!");
+
+			if (otpClickCount === 0) {
+				setOtpTimer(60);
+			} else {
+				setOtpTimer(300);
+			}
+			setOtpClickCount((prev) => prev + 1);
+		} catch (err: any) {
+			setDeleteError(err.message || "Failed to resend OTP");
 		} finally {
 			setIsDeleting(false);
 		}
@@ -67,6 +94,16 @@ const NewSettings = () => {
 			setIsDeleting(false);
 		}
 	};
+
+	useEffect(() => {
+		let interval: NodeJS.Timeout;
+		if (otpTimer > 0 && isDeleteModalOpen) {
+			interval = setInterval(() => {
+				setOtpTimer((prev) => prev - 1);
+			}, 1000);
+		}
+		return () => clearInterval(interval);
+	}, [otpTimer, isDeleteModalOpen]);
 
 	useEffect(() => {
 		if (window.electronAPI && window.electronAPI.getShortcut) {
@@ -348,6 +385,9 @@ const NewSettings = () => {
 										setIsDeleteModalOpen(false);
 										setDeleteOtp("");
 										setDeleteError(null);
+										setOtpTimer(0);
+										setOtpClickCount(0);
+										setOtpSentMessage("");
 									}}
 									className="text-muted-foreground hover:text-white transition-colors"
 								>
@@ -388,6 +428,9 @@ const NewSettings = () => {
 											setIsDeleteModalOpen(false);
 											setDeleteOtp("");
 											setDeleteError(null);
+											setOtpTimer(0);
+											setOtpClickCount(0);
+											setOtpSentMessage("");
 										}}
 										className="flex-1 px-4 py-2.5 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors text-sm font-medium"
 									>
@@ -399,6 +442,21 @@ const NewSettings = () => {
 										className="flex-1 px-4 py-2.5 rounded-xl bg-red-500/80 text-white hover:bg-red-500 transition-colors text-sm font-medium disabled:opacity-50"
 									>
 										{isDeleting ? "Deleting..." : "Confirm Delete"}
+									</button>
+								</div>
+
+								{otpSentMessage && (
+									<p className="text-green-400 text-sm text-center">{otpSentMessage}</p>
+								)}
+
+								<div className="flex justify-between items-center mt-2 px-1">
+									<button
+										type="button"
+										onClick={handleResendOTP}
+										disabled={otpTimer > 0 || isDeleting}
+										className="text-sm text-red-400 hover:text-red-300 disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors"
+									>
+										{otpTimer > 0 ? `Resend OTP in ${otpTimer}s` : "Resend OTP"}
 									</button>
 								</div>
 							</form>
