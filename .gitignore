@@ -91,4 +91,9 @@ typings/
 # Electron-Forge
 out/
 
-dist
+# Electron-Builder
+dist/
+
+# Electron-Builder
+dist/
+

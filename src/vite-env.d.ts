@@ -13,6 +13,17 @@ declare global {
 			getShortcut: () => Promise<string>;
 			updateShortcut: (shortcut: string) => Promise<boolean>;
 			getAppVersion: () => Promise<string>;
+			onNavigateToLogin: (callback: () => void) => void;
+			onGoogleLoginSuccess: (callback: (data: { token: string; userId: string }) => void) => void;
+			// Auto-updater
+			checkForUpdates: () => Promise<any>;
+			installUpdate: () => Promise<void>;
+			onUpdateAvailable: (callback: (info: any) => void) => void;
+			onUpdateDownloadProgress: (callback: (progress: any) => void) => void;
+			onUpdateDownloaded: (callback: (info: any) => void) => void;
+			// Startup settings
+			getStartupSettings: () => Promise<any>;
+			setStartupEnabled: (enabled: boolean) => Promise<any>;
 		};
 	}
 }

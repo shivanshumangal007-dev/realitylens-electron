@@ -17,7 +17,7 @@ import { promisify } from "node:util";
 import fs from "fs";
 import screenshot from "screenshot-desktop";
 import log from "electron-log/main";
-import { updateElectronApp } from "update-electron-app";
+import { autoUpdater } from "electron-updater";
 
 // ── Logging setup ────────────────────────────────────────────────────────────
 // Logs are written to: %AppData%\RealityLens\logs\main.log
@@ -51,10 +51,8 @@ log.info("Args:", process.argv.join(" "));
 log.info("Log file:", log.transports.file.getFile().path);
 // ─────────────────────────────────────────────────────────────────────────────
 
-updateElectronApp({
-  logger: log,
-  updateInterval: "1 hour",
-});
+autoUpdater.logger = log;
+// Auto-updater is initialized in app.whenReady() below
 
 const execFileAsync = promisify(execFile);
 const configPath = path.join(app.getPath("userData"), "config.json");
@@ -72,45 +70,7 @@ function saveConfig(config: any) {
 }
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 let tray: Tray | null = null;
-function handleSquirrelEvent() {
-  if (process.argv.length === 1) return false;
 
-  const squirrelEvent = process.argv[1];
-  if (!squirrelEvent.startsWith("--squirrel")) return false;
-
-  const ChildProcess = require("node:child_process");
-  const appFolder = path.resolve(process.execPath, "..");
-  const rootAtomFolder = path.resolve(appFolder, "..");
-  const updateDotExe = path.resolve(path.join(rootAtomFolder, "Update.exe"));
-  const exeName = path.basename(process.execPath);
-
-  const spawnUpdate = (args: string[]) => {
-    try {
-      ChildProcess.spawn(updateDotExe, args, { detached: true });
-    } catch (error) {}
-  };
-
-  switch (squirrelEvent) {
-    case "--squirrel-install":
-    case "--squirrel-updated":
-      spawnUpdate(["--createShortcut", exeName]);
-      setTimeout(app.quit, 500); // Quit quickly without waiting, avoids deadlocks
-      return true;
-    case "--squirrel-uninstall":
-      spawnUpdate(["--removeShortcut", exeName]);
-      setTimeout(app.quit, 500);
-      return true;
-    case "--squirrel-obsolete":
-      app.quit();
-      return true;
-  }
-  return false;
-}
-
-const started = handleSquirrelEvent();
-if (started) {
-  log.info("Squirrel event handled, quitting.");
-}
 // Disable CalculateNativeWinOcclusion so the transparent overlay window
 // does not interfere with hardware-accelerated video planes (MPO) in other apps
 // like Chrome/Edge showing X/Twitter or YouTube videos underneath.
@@ -121,6 +81,10 @@ if (process.platform === "win32") {
     "disable-features",
     "CalculateNativeWinOcclusion,HardwareMediaKeyHandling,MediaFoundationVideoCapture",
   );
+} else if (process.platform === "linux") {
+  app.disableHardwareAcceleration();
+  app.commandLine.appendSwitch("enable-transparent-visuals");
+  app.commandLine.appendSwitch("disable-gpu");
 }
 
 let overlayWindow: BrowserWindow | null = null;
@@ -141,7 +105,7 @@ const createWindow = () => {
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
-      preload: path.resolve(__dirname, "preload.js"),
+      preload: path.join(__dirname, "../preload/index.js"),
       sandbox: false,
     },
     icon: getIconPath(),
@@ -150,16 +114,16 @@ const createWindow = () => {
   mainWindow = win;
 
   // and load the index.html of the app.
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  if (process.env['ELECTRON_RENDERER_URL']) {
+    win.loadURL(process.env['ELECTRON_RENDERER_URL']);
   } else {
     win.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
+      path.join(__dirname, `../renderer/index.html`),
     );
   }
 
   // Open DevTools only in development
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+  if (process.env['ELECTRON_RENDERER_URL']) {
     win.webContents.openDevTools();
     win.setMenu(null);
 
@@ -229,7 +193,7 @@ function createOverlayWindow() {
     visualEffectState: "active",
 
     webPreferences: {
-      preload: path.resolve(__dirname, "preload.js"),
+      preload: path.join(__dirname, "../preload/index.js"),
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false,
@@ -246,12 +210,12 @@ function createOverlayWindow() {
     visibleOnFullScreen: true,
   });
 
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    overlayWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}#/overlay`);
+  if (process.env['ELECTRON_RENDERER_URL']) {
+    overlayWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/#/overlay`);
   } else {
     const overlayPath = path.join(
       __dirname,
-      `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`,
+      `../renderer/index.html`,
     );
     overlayWindow.loadURL(`file://${overlayPath}#/overlay`);
   }
@@ -277,26 +241,30 @@ function createOverlayWindow() {
 
   console.log(
     "Overlay window created, loading URL:",
-    MAIN_WINDOW_VITE_DEV_SERVER_URL
-      ? `${MAIN_WINDOW_VITE_DEV_SERVER_URL}/overlay`
+    process.env['ELECTRON_RENDERER_URL']
+      ? `${process.env['ELECTRON_RENDERER_URL']}/#/overlay`
       : "file URL",
   );
 }
 
-if (!started) {
+{
   const gotTheLock = app.requestSingleInstanceLock();
   if (!gotTheLock) {
     app.quit();
   } else {
     app.on("second-instance", (event, commandLine, workingDirectory) => {
+      log.info("second-instance triggered. commandLine:", commandLine);
       if (mainWindow) {
         if (mainWindow.isMinimized()) mainWindow.restore();
         mainWindow.show();
         mainWindow.focus();
       }
-      const url = commandLine.pop();
-      if (url && url.startsWith("realitylens://")) {
+      const url = commandLine.find(arg => arg.startsWith("realitylens://"));
+      if (url) {
+        log.info("Found deep link URL:", url);
         handleAuthCallback(url);
+      } else {
+        log.warn("No realitylens:// URL found in commandLine");
       }
     });
 
@@ -358,16 +326,66 @@ if (!started) {
       }
       createWindow();
 
-      // The updater is now initialized via update-electron-app
+      // ── Auto-updater setup ──────────────────────────────────────────────
+      autoUpdater.autoDownload = true;
+      autoUpdater.autoInstallOnAppQuit = true;
+
+      autoUpdater.on("checking-for-update", () => {
+        log.info("[AutoUpdater] Checking for update...");
+      });
+
+      autoUpdater.on("update-available", (info) => {
+        log.info("[AutoUpdater] Update available:", info.version);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send("update-available", info);
+        }
+      });
+
+      autoUpdater.on("update-not-available", (info) => {
+        log.info("[AutoUpdater] No update available. Current version is up to date.");
+      });
+
+      autoUpdater.on("download-progress", (progress) => {
+        log.info(`[AutoUpdater] Download progress: ${Math.round(progress.percent)}%`);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send("update-download-progress", progress);
+        }
+      });
+
+      autoUpdater.on("update-downloaded", (info) => {
+        log.info("[AutoUpdater] Update downloaded:", info.version);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send("update-downloaded", info);
+        }
+      });
+
+      autoUpdater.on("error", (err) => {
+        log.error("[AutoUpdater] Error:", err);
+      });
+
+      // Check for updates after a short delay to let the app finish loading
+      setTimeout(() => {
+        autoUpdater.checkForUpdatesAndNotify().catch((err) => {
+          log.error("[AutoUpdater] Failed to check for updates:", err);
+        });
+      }, 3000);
+      // ────────────────────────────────────────────────────────────────────
 
       const config = getConfig();
 
-      // Automatically set to open on startup on first launch
-      if (config.startupConfigured === undefined) {
-        app.setLoginItemSettings({ openAtLogin: true });
-        config.startupConfigured = true;
-        saveConfig(config);
-        console.log("Configured to open on startup.");
+      // Robust startup registration: always ensure it's registered if enabled,
+      // which fixes issues when the app path changes (e.g., from Squirrel to NSIS)
+      if (app.isPackaged && config.startupEnabled !== false) {
+        app.setLoginItemSettings({
+          openAtLogin: true,
+          openAsHidden: true,
+          args: ["--hidden"],
+        });
+        if (config.startupEnabled === undefined) {
+          config.startupEnabled = true;
+          saveConfig(config);
+          console.log("Configured to open on startup.");
+        }
       }
 
       const ret = globalShortcut.register(config.shortcut, async () => {
@@ -580,6 +598,38 @@ if (!started) {
       return app.getVersion();
     });
 
+    // ── Auto-updater IPC handlers ──────────────────────────────────────
+    ipcMain.handle("check-for-updates", async () => {
+      try {
+        const result = await autoUpdater.checkForUpdatesAndNotify();
+        return result?.updateInfo;
+      } catch (err) {
+        log.error("[AutoUpdater] Manual check failed:", err);
+        throw err;
+      }
+    });
+
+    ipcMain.handle("install-update", () => {
+      autoUpdater.quitAndInstall(false, true);
+    });
+
+    ipcMain.handle("get-startup-settings", () => {
+      return app.getLoginItemSettings();
+    });
+
+    ipcMain.handle("set-startup-enabled", (_, enabled: boolean) => {
+      app.setLoginItemSettings({
+        openAtLogin: enabled,
+        openAsHidden: true,
+        args: ["--hidden"],
+      });
+      const config = getConfig();
+      config.startupEnabled = enabled;
+      saveConfig(config);
+      return app.getLoginItemSettings();
+    });
+    // ──────────────────────────────────────────────────────────────────
+
     ipcMain.handle("update-shortcut", (_, newShortcut) => {
       const config = getConfig();
       config.shortcut = newShortcut;
@@ -618,4 +668,4 @@ if (!started) {
       return ret;
     });
   } // end if (gotTheLock)
-} // end if (!started)
+}
