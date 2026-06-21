@@ -32,7 +32,7 @@ RealityLens relies on its backend services for AI-driven verification and API en
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/hannuverma/realitylens.git
+   git clone https://github.com/shivanshumangal007-dev/realitylens-electron
    cd realitylens-electron
    ```
 

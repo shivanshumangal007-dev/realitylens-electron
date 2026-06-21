@@ -69,18 +69,18 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "hannuverma",
+      "owner": "RealityLens",
       "repo": "RealityLens"
     }
   },
   "keywords": [],
   "author": {
-    "name": "Hannu Verma",
-    "email": "[EMAIL_ADDRESS]"
+    "name": "RealityLens",
+    "email": "realitylenshssr64@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hannuverma/RealityLens.git"
+    "url": "git+https://github.com/hannuverma/RealityLens-electron.git"
   },
   "license": "MIT",
   "pnpm": {
