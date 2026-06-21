@@ -17,7 +17,7 @@ import { promisify } from "node:util";
 import fs from "fs";
 import screenshot from "screenshot-desktop";
 import log from "electron-log/main";
-import { updateElectronApp } from "update-electron-app";
+import { autoUpdater } from "electron-updater";
 
 // ── Logging setup ────────────────────────────────────────────────────────────
 // Logs are written to: %AppData%\RealityLens\logs\main.log
@@ -51,10 +51,8 @@ log.info("Args:", process.argv.join(" "));
 log.info("Log file:", log.transports.file.getFile().path);
 // ─────────────────────────────────────────────────────────────────────────────
 
-updateElectronApp({
-  logger: log,
-  updateInterval: "1 hour",
-});
+autoUpdater.logger = log;
+autoUpdater.checkForUpdatesAndNotify();
 
 const execFileAsync = promisify(execFile);
 const configPath = path.join(app.getPath("userData"), "config.json");
@@ -121,6 +119,10 @@ if (process.platform === "win32") {
     "disable-features",
     "CalculateNativeWinOcclusion,HardwareMediaKeyHandling,MediaFoundationVideoCapture",
   );
+} else if (process.platform === "linux") {
+  app.disableHardwareAcceleration();
+  app.commandLine.appendSwitch("enable-transparent-visuals");
+  app.commandLine.appendSwitch("disable-gpu");
 }
 
 let overlayWindow: BrowserWindow | null = null;
@@ -141,7 +143,7 @@ const createWindow = () => {
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
-      preload: path.resolve(__dirname, "preload.js"),
+      preload: path.join(__dirname, "../preload/index.js"),
       sandbox: false,
     },
     icon: getIconPath(),
@@ -150,16 +152,16 @@ const createWindow = () => {
   mainWindow = win;
 
   // and load the index.html of the app.
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  if (process.env['ELECTRON_RENDERER_URL']) {
+    win.loadURL(process.env['ELECTRON_RENDERER_URL']);
   } else {
     win.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
+      path.join(__dirname, `../renderer/index.html`),
     );
   }
 
   // Open DevTools only in development
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+  if (process.env['ELECTRON_RENDERER_URL']) {
     win.webContents.openDevTools();
     win.setMenu(null);
 
@@ -229,7 +231,7 @@ function createOverlayWindow() {
     visualEffectState: "active",
 
     webPreferences: {
-      preload: path.resolve(__dirname, "preload.js"),
+      preload: path.join(__dirname, "../preload/index.js"),
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false,
@@ -246,12 +248,12 @@ function createOverlayWindow() {
     visibleOnFullScreen: true,
   });
 
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    overlayWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}#/overlay`);
+  if (process.env['ELECTRON_RENDERER_URL']) {
+    overlayWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/#/overlay`);
   } else {
     const overlayPath = path.join(
       __dirname,
-      `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`,
+      `../renderer/index.html`,
     );
     overlayWindow.loadURL(`file://${overlayPath}#/overlay`);
   }
@@ -277,8 +279,8 @@ function createOverlayWindow() {
 
   console.log(
     "Overlay window created, loading URL:",
-    MAIN_WINDOW_VITE_DEV_SERVER_URL
-      ? `${MAIN_WINDOW_VITE_DEV_SERVER_URL}/overlay`
+    process.env['ELECTRON_RENDERER_URL']
+      ? `${process.env['ELECTRON_RENDERER_URL']}/#/overlay`
       : "file URL",
   );
 }
@@ -289,14 +291,18 @@ if (!started) {
     app.quit();
   } else {
     app.on("second-instance", (event, commandLine, workingDirectory) => {
+      log.info("second-instance triggered. commandLine:", commandLine);
       if (mainWindow) {
         if (mainWindow.isMinimized()) mainWindow.restore();
         mainWindow.show();
         mainWindow.focus();
       }
-      const url = commandLine.pop();
-      if (url && url.startsWith("realitylens://")) {
+      const url = commandLine.find(arg => arg.startsWith("realitylens://"));
+      if (url) {
+        log.info("Found deep link URL:", url);
         handleAuthCallback(url);
+      } else {
+        log.warn("No realitylens:// URL found in commandLine");
       }
     });
 

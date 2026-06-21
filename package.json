@@ -3,14 +3,51 @@
   "productName": "RealityLens",
   "version": "1.0.0",
   "description": "AI-powered screen verification and analysis tool",
-  "main": ".vite/build/main.js",
+  "main": "out/main/index.js",
   "private": true,
   "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
+    "start": "electron-vite dev",
+    "build": "electron-vite build",
+    "package": "electron-builder --dir",
+    "make": "electron-builder",
     "lint": "eslint --ext .ts,.tsx ."
+  },
+  "build": {
+    "appId": "com.realitylens.app",
+    "productName": "RealityLens",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "package.json",
+      "out/**/*",
+      "src/App_icons/**/*"
+    ],
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ],
+      "category": "Utility"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "hannuverma",
+      "repo": "realitylens"
+    }
   },
   "keywords": [],
   "author": {
@@ -29,15 +66,6 @@
     ]
   },
   "devDependencies": {
-    "@electron-forge/cli": "^7.11.1",
-    "@electron-forge/maker-deb": "^7.11.1",
-    "@electron-forge/maker-rpm": "^7.11.1",
-    "@electron-forge/maker-squirrel": "^7.11.1",
-    "@electron-forge/maker-zip": "^7.11.1",
-    "@electron-forge/plugin-auto-unpack-natives": "^7.11.1",
-    "@electron-forge/plugin-fuses": "^7.11.1",
-    "@electron-forge/plugin-vite": "^7.11.1",
-    "@electron/fuses": "^1.8.0",
     "@tailwindcss/vite": "^4.3.0",
     "@types/electron-squirrel-startup": "^1.0.2",
     "@types/js-cookie": "^3.0.6",
@@ -48,6 +76,8 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "electron": "^42.1.0",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^5.0.0",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.32.0",
     "sharp": "^0.34.5",
@@ -69,7 +99,6 @@
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.15.1",
     "redis": "^6.0.0",
-    "screenshot-desktop": "^1.15.4",
-    "update-electron-app": "^3.2.0"
+    "screenshot-desktop": "^1.15.4"
   }
 }
