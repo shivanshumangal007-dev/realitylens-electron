@@ -12,7 +12,7 @@
     "clean": "node -e \"const fs=require('fs');['out/RealityLens-win32-x64','out/make','dist'].forEach(d=>{try{fs.rmSync(d,{recursive:true,force:true});console.log('Removed',d)}catch(e){}});\"",
     "package": "electron-builder --dir",
     "make": "npm run clean && electron-vite build && electron-builder",
-    "publish": "npm run clean && electron-vite build && electron-builder --publish always",
+    "publish": "npm run clean && electron-vite build && dotenv -- electron-builder --publish always",
     "lint": "eslint --ext .ts,.tsx ."
   },
   "build": {
@@ -75,8 +75,14 @@
   },
   "keywords": [],
   "author": {
-    "name": "Hannu Verma",
-    "email": "[EMAIL_ADDRESS]"
+    "name": "Reality Lens",
+    "email": "realitylenshssr64@gmail.com",
+    "url": "https://www.realitylens.in/"
+  },
+  "homepage": "https://www.realitylens.in/",
+  "bugs": {
+    "url": "https://www.realitylens.in/",
+    "email": "realitylenshssr64@gmail.com"
   },
   "repository": {
     "type": "git",
@@ -97,6 +103,7 @@
     "@types/screenshot-desktop": "^1.15.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
+    "dotenv-cli": "^11.0.0",
     "electron": "^42.1.0",
     "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
