@@ -8,32 +8,53 @@
   "scripts": {
     "start": "electron-vite dev",
     "build": "electron-vite build",
+    "clean": "node -e \"const fs=require('fs');['out/RealityLens-win32-x64','out/make','dist'].forEach(d=>{try{fs.rmSync(d,{recursive:true,force:true});console.log('Removed',d)}catch(e){}});\"",
     "package": "electron-builder --dir",
-    "make": "electron-builder",
+    "make": "npm run clean && electron-vite build && electron-builder",
     "lint": "eslint --ext .ts,.tsx ."
   },
   "build": {
     "appId": "com.realitylens.app",
     "productName": "RealityLens",
+    "icon": "build/icon",
     "directories": {
       "output": "dist",
       "buildResources": "build"
     },
     "files": [
       "package.json",
-      "out/**/*",
-      "src/App_icons/**/*"
+      "out/main/**/*",
+      "out/preload/**/*",
+      "out/renderer/**/*",
+      "!out/RealityLens-win32-x64",
+      "!out/make"
+    ],
+    "extraResources": [
+      {
+        "from": "src/App_icons",
+        "to": "App_icons"
+      }
     ],
     "mac": {
       "target": [
         "dmg",
         "zip"
-      ]
+      ],
+      "icon": "build/icon.icns"
     },
     "win": {
       "target": [
         "nsis"
-      ]
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico"
     },
     "linux": {
       "target": [
@@ -41,7 +62,8 @@
         "deb",
         "rpm"
       ],
-      "category": "Utility"
+      "category": "Utility",
+      "icon": "build/icon.png"
     },
     "publish": {
       "provider": "github",
@@ -61,13 +83,11 @@
   "license": "MIT",
   "pnpm": {
     "onlyBuiltDependencies": [
-      "electron",
-      "electron-winstaller"
+      "electron"
     ]
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.0",
-    "@types/electron-squirrel-startup": "^1.0.2",
     "@types/js-cookie": "^3.0.6",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -89,7 +109,6 @@
     "@radix-ui/react-switch": "^1.2.6",
     "axios": "^1.16.1",
     "electron-log": "^5.4.4",
-    "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "^6.8.9",
     "js-cookie": "^3.0.7",
     "js-cookies": "^1.0.4",

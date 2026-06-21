@@ -40,6 +40,29 @@ const electronAPI = {
 	onGoogleLoginSuccess: (callback: (data: { token: string; userId: string }) => void) => {
 		ipcRenderer.on("google-login-success", (event, data) => callback(data));
 	},
+	// ── Auto-updater ────────────────────────────────────────────────────
+	checkForUpdates: async () => {
+		return ipcRenderer.invoke("check-for-updates");
+	},
+	installUpdate: async () => {
+		return ipcRenderer.invoke("install-update");
+	},
+	onUpdateAvailable: (callback: (info: any) => void) => {
+		ipcRenderer.on("update-available", (_, info) => callback(info));
+	},
+	onUpdateDownloadProgress: (callback: (progress: any) => void) => {
+		ipcRenderer.on("update-download-progress", (_, progress) => callback(progress));
+	},
+	onUpdateDownloaded: (callback: (info: any) => void) => {
+		ipcRenderer.on("update-downloaded", (_, info) => callback(info));
+	},
+	// ── Startup settings ────────────────────────────────────────────────
+	getStartupSettings: async () => {
+		return ipcRenderer.invoke("get-startup-settings");
+	},
+	setStartupEnabled: async (enabled: boolean) => {
+		return ipcRenderer.invoke("set-startup-enabled", enabled);
+	},
 };
 
 console.log("preload loaded");
