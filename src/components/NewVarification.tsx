@@ -445,7 +445,7 @@ const NewVarification = ({
             <span className="text-foreground">
               {shortcut.split("+").map(formatShortcutKey).join(" + ")}
             </span>{" "}
-            &gt; Select The Area by Dragging Mouse &gt; Get your Verdict Instantly !
+            &gt; Select The Area by Dragging Mouse &gt; Get your Verdict Instantly!
           </div>
         </div>
       )}
