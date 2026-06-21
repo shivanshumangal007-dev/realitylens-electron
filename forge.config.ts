@@ -29,8 +29,16 @@ const config: ForgeConfig = {
 			description: "RealityLens",
 		}),
 		new MakerZIP({}, ["darwin"]),
-		new MakerRpm({}),
-		new MakerDeb({}),
+		new MakerRpm({
+			options: {
+				mimeType: ["x-scheme-handler/realitylens"],
+			},
+		}),
+		new MakerDeb({
+			options: {
+				mimeType: ["x-scheme-handler/realitylens"],
+			},
+		}),
 	],
 	plugins: [
 		new VitePlugin({
