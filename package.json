@@ -1,6 +1,7 @@
 {
   "name": "realitylens",
   "productName": "RealityLens",
+  "desktopName": "RealityLens",
   "version": "1.0.0",
   "description": "AI-powered screen verification and analysis tool",
   "main": "out/main/index.js",
@@ -11,6 +12,7 @@
     "clean": "node -e \"const fs=require('fs');['out/RealityLens-win32-x64','out/make','dist'].forEach(d=>{try{fs.rmSync(d,{recursive:true,force:true});console.log('Removed',d)}catch(e){}});\"",
     "package": "electron-builder --dir",
     "make": "npm run clean && electron-vite build && electron-builder",
+    "publish": "npm run clean && electron-vite build && electron-builder --publish always",
     "lint": "eslint --ext .ts,.tsx ."
   },
   "build": {
@@ -68,7 +70,7 @@
     "publish": {
       "provider": "github",
       "owner": "hannuverma",
-      "repo": "realitylens"
+      "repo": "RealityLens"
     }
   },
   "keywords": [],
@@ -78,7 +80,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hannuverma/realitylens.git"
+    "url": "git+https://github.com/hannuverma/RealityLens.git"
   },
   "license": "MIT",
   "pnpm": {
