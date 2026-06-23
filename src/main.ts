@@ -14,6 +14,7 @@ import {
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import http from "node:http";
 import fs from "fs";
 import screenshot from "screenshot-desktop";
 import log from "electron-log/main";
@@ -284,25 +285,90 @@ function createOverlayWindow() {
       app.setAsDefaultProtocolClient("realitylens");
     }
 
+    function processLoginToken(token: string, userId: string | null) {
+      if (token && mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.show();
+        mainWindow.focus();
+        mainWindow.webContents.send("google-login-success", {
+          token,
+          userId,
+        });
+      }
+    }
+
     function handleAuthCallback(url: string) {
       try {
         const parsedUrl = new URL(url);
-        if (parsedUrl.hostname === "auth-callback") {
+        if (parsedUrl.hostname === "auth-callback" || parsedUrl.pathname === "/callback") {
           const token = parsedUrl.searchParams.get("token");
           const userId = parsedUrl.searchParams.get("user_id");
-          if (token && mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.show();
-            mainWindow.focus();
-            mainWindow.webContents.send("google-login-success", {
-              token,
-              userId,
-            });
-          }
+          if (token) processLoginToken(token, userId);
         }
       } catch (e) {
         console.error("Failed to parse deep link URL", e);
       }
     }
+
+    // Local HTTP server for Linux AppImage / deep link fallback
+    const localAuthServer = http.createServer((req, res) => {
+      // Add CORS headers for the fetch ping
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+      
+      if (req.method === "OPTIONS") {
+        res.writeHead(200);
+        res.end();
+        return;
+      }
+
+      if (req.url === "/ping") {
+        res.writeHead(200);
+        res.end("pong");
+        return;
+      }
+
+      if (req.url && req.url.startsWith("/callback")) {
+        try {
+          const url = new URL(req.url, `http://${req.headers.host}`);
+          const token = url.searchParams.get("token");
+          const userId = url.searchParams.get("user_id");
+          
+          if (token) {
+            processLoginToken(token, userId);
+            res.writeHead(200, { "Content-Type": "text/html" });
+            res.end(`
+              <!DOCTYPE html>
+              <html>
+              <head><title>Authentication Successful</title></head>
+              <body style="font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; background: #111; color: #eee;">
+                <div style="text-align: center;">
+                  <h1 style="color: #00e5ff;">Authentication Successful!</h1>
+                  <p>You can close this window and return to RealityLens.</p>
+                  <script>window.close();</script>
+                </div>
+              </body>
+              </html>
+            `);
+          } else {
+            res.writeHead(400);
+            res.end("Bad Request: Missing token");
+          }
+        } catch (e) {
+          res.writeHead(500);
+          res.end("Internal Server Error");
+        }
+      } else {
+        res.writeHead(404);
+        res.end("Not Found");
+      }
+    });
+
+    localAuthServer.on("error", (err) => {
+      log.error("Failed to start local auth server:", err);
+    });
+    localAuthServer.listen(13456, "127.0.0.1", () => {
+      log.info("Local auth server listening on http://127.0.0.1:13456");
+    });
 
     // Do NOT quit when all windows are closed — the app lives in the tray.
     // User must click Quit in the tray context menu to exit.

@@ -19,6 +19,12 @@
     "appId": "com.realitylens.app",
     "productName": "RealityLens",
     "icon": "build/icon",
+    "protocols": {
+      "name": "realitylens-protocol",
+      "schemes": [
+        "realitylens"
+      ]
+    },
     "directories": {
       "output": "dist",
       "buildResources": "build"
