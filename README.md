@@ -1,85 +1,233 @@
-# RealityLens
+<div align="center">
 
-RealityLens is an AI-powered desktop application built to effortlessly verify claims and perform screen analysis. Whether it's a news article snippet, a viral social media post, or a political claim, RealityLens helps you fact-check by capturing your screen or analyzing uploaded images and text.
+<img src="./header-2.jpeg" width="100%"/>
 
-## Features
+<br/>
 
-- **Quick Capture:** Seamlessly capture your screen area with a global shortcut (`CommandOrControl+Shift+L` by default).
-- **Text & Image Verification:** Drop a screenshot or type out a claim to verify its authenticity.
-- **Smart Overlay:** Provides a transparent overlay that stays on top, giving you instant context and results while maintaining your workflow.
-- **Background Mode:** Runs quietly in your system tray without cluttering your dock/taskbar.
+<!-- Primary badges — bright teal-to-sky palette, matches app UI -->
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-0d9488?style=for-the-badge&logoColor=white)
+![Electron](https://img.shields.io/badge/Electron-Desktop-0891b2?style=for-the-badge&logo=electron&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-0f766e?style=for-the-badge&logo=fastapi&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-06b6d4?style=for-the-badge&logoColor=white)
 
-## Tech Stack
+<br/>
 
-- **Electron:** Core desktop framework.
-- **React & Vite:** Fast and modern UI rendering.
-- **Tailwind CSS:** Utility-first styling.
-- **Electron Forge:** Packaging and publishing application distributions.
+<!-- AI model / tool badges -->
+![Groq](https://img.shields.io/badge/Groq-AI%20Inference-0d9488?style=flat-square&logoColor=white)
+![Gemini](https://img.shields.io/badge/Gemini-Google%20AI-0891b2?style=flat-square&logo=google&logoColor=white)
+![Cloudflare](https://img.shields.io/badge/Kimi-Cloudflare%20AI-06b6d4?style=flat-square&logo=cloudflare&logoColor=white)
+![Tavily](https://img.shields.io/badge/Tavily-Web%20Search-0f766e?style=flat-square&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-Rate%20Limiting-0891b2?style=flat-square&logo=redis&logoColor=white)
 
-## Backend Services
+<br/>
 
-RealityLens relies on its backend services for AI-driven verification and API endpoints. You can find the backend repository here:
-- **Backend Repository:** [RealityLens Backend](https://github.com/hannuverma/RealityLens)
+<!-- CTA buttons -->
+[![Website](https://img.shields.io/badge/🌐%20Live%20Website-realitylens.in-0d9488?style=for-the-badge)](https://www.realitylens.in/)
+[![RealityLens Repo](https://img.shields.io/badge/🖥️%20MAIN-RealityLens%20Repo-0891b2?style=for-the-badge&logo=github&logoColor=white)](https://github.com/hannuverma/RealityLens)
+[![Android App](https://img.shields.io/badge/📱%20%20Mobile-Application%20Repo-0891b2?style=for-the-badge&logo=github&logoColor=white)](https://github.com/reyanshbhardwaj2005-spec/Reality-Lens-Android-Version.git)
 
-## Getting Started
+<br/>
 
-### Prerequisites
+> ### *Every Post Tells a Story. Not Every Story Tells The Truth.*
+> RealityLens captures any claim on your screen and runs it through a multi-model AI pipeline —
+> returning a **Reality Score**, **Confidence Rating**, and **live evidence** in seconds, without breaking your flow.
 
-- [Node.js](https://nodejs.org/) (v16 or higher recommended)
-- `npm` or `pnpm`
+<br/>
 
-### Installation
+</div>
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/shivanshumangal007-dev/realitylens-electron
-   cd realitylens-electron
-   ```
+---
 
-2. Install dependencies:
-   ```bash
-   npm install
-   # or
-   pnpm install
-   ```
+## ⚡ How It Works
 
-3. Set up the environment variables:
-   Copy `.env.example` to `.env` and configure your API endpoint.
-   ```bash
-   cp .env.example .env
-   ```
-
-### Development
-
-To start the application in development mode:
-
-```bash
-npm start
+```
+  ┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+  │  Global Hotkey   │────▶│  Screen Capture  │────▶│  Multi-Model AI  │────▶│  Web Evidence    │────▶│  Verdict Overlay │
+  │  Ctrl+Shift+L    │     │  Drag to select  │     │ Groq·Gemini·Kimi │     │ Tavily + Image   │     │  Live on screen  │
+  └──────────────────┘     └──────────────────┘     └──────────────────┘     └──────────────────┘     └──────────────────┘
 ```
 
-### Packaging & Publishing
+---
 
-To package the application for your local platform:
+## 🖥️ App Preview
 
-```bash
-npm run package
+> **Dashboard** — Drop a screenshot, image or text claim and send it for instant verification.
+
+![Dashboard](./dashboard.png)
+
+> **Verdict Result** — Full breakdown with Reality Score, Confidence, extracted claim, and live evidence sources.
+
+![Result](./verdict.png)
+
+---
+
+
+## ✦ Core Capabilities
+
+<table>
+<tr>
+<td width="50%">
+
+### 🔍 Smart Screen Capture
+Press `Ctrl/Cmd+Shift+L` from anywhere. A transparent overlay appears instantly — drag to select any region. Capture runs silently in the background without interrupting your workflow.
+
+</td>
+<td width="50%">
+
+### 🧠 Multi-Model AI Pipeline
+Groq, Gemini, and Cloudflare Kimi run in parallel, extracting and cross-validating every claim. More models means higher accuracy and fewer hallucinations.
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🌐 Real-Time Web Verification
+Every claim triggers a Tavily web search plus a reverse image lookup — surfacing live evidence from trusted sources that supports or contradicts the claim.
+
+</td>
+<td width="50%">
+
+### 📊 Reality Score + Confidence
+Results include a scored verdict (`LIKELY REAL` / `FALSE` / etc.), a 0–1 reality score, and a confidence percentage — shown directly on-screen via overlay.
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🖥️ Native System Tray
+Lives quietly in your menu bar. Closing the window keeps the global hotkey active. Supports launch on startup, minimize to tray, and single-instance locking.
+
+</td>
+<td width="50%">
+
+### 🔐 Secure Auth & SSO
+Email + OTP registration, Google Single Sign-On, deep-link protocol callbacks (`realitylens://`), and OTP-confirmed account deletion.
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 📁 Full Verification History
+Every job is logged — thumbnail, extracted claim, verdict, and execution time. A nightly task auto-deletes records older than 10 days to save space.
+
+</td>
+<td width="50%">
+
+### 🛡️ Rate Limiting & OTA Updates
+Redis-backed rate limiting prevents abuse. `electron-updater` silently checks GitHub releases and prompts on new versions automatically.
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🏗️ Architecture
+
+```
+┌──────────────────────────────────────────┐       ┌──────────────────────────────────────────┐
+│           ELECTRON DESKTOP APP           │       │              FASTAPI BACKEND             │
+│                                          │       │                                          │
+│   ┌──────────────┐   ┌────────────────┐  │       │   ┌─────────────┐   ┌─────────────────┐  │
+│   │   React UI   │   │  Global Hotkey │  │       │   │  Auth API   │   │  Job Processor  │  │
+│   │  Dashboard   │   │    Listener    │  │       │   │  OTP / SSO  │   │   (Async BG)    │  │
+│   └──────┬───────┘   └───────┬────────┘  │       │   └─────────────┘   └────────┬────────┘  │
+│          │                   │           │       │                               │          │
+│   ┌──────▼───────────────────▼────────┐  │──────▶│   ┌───────────────────────────▼────────┐ │
+│   │       Transparent Overlay         │  │       │   │      AI Orchestration Layer        │ │
+│   │    Screenshot · Job Tracking      │  │       │   │    Groq  ·  Gemini  ·  Kimi        │ │
+│   └───────────────────────────────────┘  │       │   └──────────────────┬─────────────────┘ │
+│                                          │       │                      │                   │
+│   ┌───────────────────────────────────┐  │       │   ┌──────────────────▼─────────────────┐ │
+│   │  System Tray · Auto-Updater       │  │       │   │  Tavily Search · Image Search API  │ │
+│   │  Startup · Single Instance Lock   │  │       │   │  Redis Rate Limiting · PostgreSQL  │ │
+│   └───────────────────────────────────┘  │       │   └────────────────────────────────────┘ │
+└──────────────────────────────────────────┘       └──────────────────────────────────────────┘
 ```
 
-To make distribution files (installers, zips) for your platform:
+---
 
-```bash
-npm run make
-```
+## 🧰 Tech Stack
 
-> **Note:** The `forge.config.ts` includes configurations for macOS (`zip`), Windows (`squirrel`), and Linux (`deb`, `rpm`).
+| Layer | Technologies |
+|:---|:---|
+| **Desktop** | Electron, React, electron-updater, electron-log |
+| **Backend** | FastAPI, Python, Redis, PostgreSQL |
+| **AI Models** | Groq, Google Gemini, Cloudflare Kimi |
+| **Search & Evidence** | Tavily Web Search, Parallel Reverse Image API |
+| **Auth** | JWT, Google OAuth 2.0, Brevo OTP Email |
+| **Infrastructure** | Async job queue, nightly data cleanup, Redis rate limiting |
 
-## Error Handling
+---
 
-RealityLens is designed with robust error handling to ensure a smooth user experience:
-- **Global Error Boundaries:** Catches and manages React component tree crashes without exiting the app.
-- **Process Logging:** Uses `electron-log` to capture `uncaughtException` and `unhandledRejection` across the main process (logs saved to the user's AppData).
-- **API Wrapper:** Network and server errors are gracefully caught, mapped to human-readable formats, and displayed effectively within the UI.
+## ✦ Feature Highlights
 
-## License
+<details>
+<summary><b>🔍 Verification Engine</b></summary>
+<br/>
 
-This project is licensed under the MIT License.
+- **Screenshot Analysis** — global hotkey capture with transparent drag-to-select overlay
+- **Text-Based Analysis** — submit any claim directly as text from the dashboard
+- **Async Job Processing** — UI stays responsive while heavy AI tasks run in the background
+- **Reality Score** — scored verdict with confidence, extracted claim, and explanation
+- **Evidence Panel** — linked web sources supporting or contradicting every claim
+
+</details>
+
+<details>
+<summary><b>🖥️ Native Desktop</b></summary>
+<br/>
+
+- **System Tray** — minimizes silently; hotkey stays active while the window is closed
+- **Launch on Startup** — boots hidden in the background on system login
+- **Single Instance Lock** — prevents accidental duplicate app windows
+- **OS Optimizations** — hardware acceleration tuned per platform for glitch-free transparent overlays on video and games
+
+</details>
+
+<details>
+<summary><b>👤 Authentication</b></summary>
+<br/>
+
+- Email + password registration and login
+- 6-digit OTP verification via Brevo for registration, login, and sensitive profile changes
+- Google Single Sign-On across desktop and web
+- Custom deep-link protocol (`realitylens://`) for seamless browser auth callbacks
+- OTP-confirmed account deletion for security
+
+</details>
+
+<details>
+<summary><b>⚙️ Settings & Resilience</b></summary>
+<br/>
+
+- Customizable global hotkey via interactive in-app key recorder
+- OTA auto-updates from GitHub Releases via `electron-updater`
+- Persistent local crash and event logging via `electron-log`
+- Graceful rate-limit fallback UI when API quota is exceeded
+- React error boundaries prevent full app white-screens on component failures
+
+</details>
+
+---
+
+<div align="center">
+
+<br/>
+
+
+<br/>
+
+[![Website](https://img.shields.io/badge/🌐%20realitylens.in-Visit%20Now-0d9488?style=for-the-badge)](https://www.realitylens.in/)&nbsp;&nbsp;
+[![RealityLens Repo](https://img.shields.io/badge/🖥️%20MAIN-RealityLens%20Repo-0891b2?style=for-the-badge&logo=github&logoColor=white)](https://github.com/hannuverma/RealityLens)
+[![Android App](https://img.shields.io/badge/📱%20%20Mobile-Application%20Repo-0891b2?style=for-the-badge&logo=github&logoColor=white)](https://github.com/reyanshbhardwaj2005-spec/Reality-Lens-Android-Version.git)
+
+<br/>
+
+<!-- Footer: Cylinder style — closed lens ring gradient, matching header -->
+<img src="./footer.svg" width="100%"/>
+
+</div>
