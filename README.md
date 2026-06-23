@@ -218,7 +218,6 @@ Redis-backed rate limiting prevents abuse. `electron-updater` silently checks Gi
 
 <br/>
 
-*Every Post Tells a Story. Not Every Story Tells The Truth.*
 
 <br/>
 
